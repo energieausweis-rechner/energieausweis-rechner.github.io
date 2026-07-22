@@ -258,6 +258,17 @@
 
       if (out.view === 'question') {
         var q = out.q;
+        // Back goes above the question, with the progress. Below the answers
+        // it reads as an action on the answer rather than a way out.
+        if (answers.length) {
+          mount.appendChild(el('button', {
+            class: 'step-back', type: 'button',
+            onclick: function () { set(answers.slice(0, -1), null); },
+          }, [
+            el('span', { 'aria-hidden': 'true', text: '←' }),
+            el('span', { text: 'Zurück' }),
+          ]));
+        }
         mount.appendChild(stepBar(out.step || 1, phases));
         mount.appendChild(el('p', { class: 'eyebrow',
           text: 'Frage ' + (answers.length + 1) + ' von max. ' + maxQ }));
@@ -287,14 +298,6 @@
           ]));
         }
 
-        if (answers.length) {
-          mount.appendChild(el('div', { class: 'wizard-actions' }, [
-            el('button', {
-              class: 'btn-ghost', type: 'button', text: '← Zurück',
-              onclick: function () { set(answers.slice(0, -1), null); },
-            }),
-          ]));
-        }
         if (focus) { var f = $('.opt', mount); if (f) f.focus(); }
         return;
       }

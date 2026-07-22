@@ -67,7 +67,7 @@ a:hover { color: var(--accent); }
   text-transform: uppercase;
   color: var(--ink-soft);
 }
-.eyebrow { margin: 0 0 .35rem; }
+.eyebrow { margin: 0 0 .35rem; color: var(--accent-dk); }
 
 /* ── Effizienzband ──────────────────────────────────────────────────────── */
 .band { height: 4px; background: var(--band); }
@@ -167,7 +167,7 @@ a:hover { color: var(--accent); }
 }
 .toolnav a .n { font-family: var(--font-mono); font-size: .8rem; }
 .toolnav a[aria-current='true'] {
-  color: var(--ink); font-weight: 600; border-bottom-color: var(--ink);
+  color: var(--accent-dk); font-weight: 600; border-bottom-color: var(--accent);
 }
 
 /* ── Sections ───────────────────────────────────────────────────────────── */
@@ -176,7 +176,7 @@ section:first-of-type { border-top: none; }
 .sec-head { margin-bottom: 1.1rem; }
 .sec-head h2 { margin-bottom: 0; }
 .sec-num {
-  font-family: var(--font-mono); font-size: .8125rem; color: var(--ink-soft);
+  font-family: var(--font-mono); font-size: .8125rem; color: var(--accent);
   display: block; margin-bottom: .3rem;
 }
 .sec-intro { max-width: var(--maxw); margin-bottom: 1.5rem; }
@@ -191,12 +191,15 @@ section:first-of-type { border-top: none; }
 }
 .stand-line::before {
   content: ''; width: 1.6rem; height: 0; flex: none;
-  border-top: 2px solid var(--ink);
+  border-top: 2px solid var(--accent);
 }
 
 /* ── Hero ───────────────────────────────────────────────────────────────── */
 .hero { padding: 2.25rem 0 2.5rem; border-top: none; }
-.hero h1 { margin-bottom: .4rem; max-width: 22ch; }
+/* No measure clamp: the H1 is a single line on desktop by design. It still
+   wraps on a phone — 34 characters cannot fit 375px at a legible size — but
+   nothing should break it earlier than the viewport does. */
+.hero h1 { margin-bottom: .4rem; text-wrap: balance; }
 .hero .sub {
   font-size: var(--fs-body); color: var(--ink-soft);
   max-width: var(--maxw); margin-bottom: 1.5rem;
@@ -217,12 +220,24 @@ section:first-of-type { border-top: none; }
 .card {
   background: var(--surface);
   border: var(--rule) solid var(--line);
-  border-top: 3px solid var(--line-strong);
+  border-top: 3px solid var(--accent);
   border-radius: var(--radius);
   padding: 1.5rem 1.4rem;
 }
 @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 .anim { animation: fadeIn .2s ease both; }
+
+/* Back sits above the question, level with the progress — the position it
+   occupies in every stepped form. Below the options it reads as an action
+   on the answer rather than a way out of the step. */
+.step-back {
+  display: inline-flex; align-items: center; gap: .35rem;
+  min-height: 40px; margin: -.4rem 0 .2rem -.4rem; padding: 0 .5rem;
+  background: none; border: none; border-radius: var(--radius);
+  font-family: var(--font-ui); font-size: .9375rem; font-weight: 600;
+  color: var(--accent-dk); cursor: pointer;
+}
+.step-back:hover { background: var(--accent-wash); }
 
 /* Progress: a ruled sequence, not a pill track. */
 .steps {
@@ -237,8 +252,8 @@ section:first-of-type { border-top: none; }
 .step-body { display: flex; align-items: baseline; gap: .35rem; }
 .step .mark { font-family: var(--font-mono); font-weight: 600; }
 .step .lbl { letter-spacing: .02em; }
-.step.on .mark, .step.on .lbl { color: var(--ink); font-weight: 600; }
-.step.done .mark { color: var(--accent-dk); }
+.step.on .mark, .step.on .lbl { color: var(--accent-dk); font-weight: 600; }
+.step.done .mark { color: var(--accent); }
 
 .q-text {
   font-family: var(--font-ui); font-size: var(--fs-h3);
@@ -295,6 +310,7 @@ section:first-of-type { border-top: none; }
 }
 .result:focus { outline: none; }
 .result.yes, .result.wahl { border-left-color: var(--accent); }
+.result.bedarf { border-left-color: var(--accent-dk); }
 .result.bedarf { border-left-color: var(--ink); }
 .result.urgent { border-left-color: var(--danger); }
 
@@ -305,6 +321,7 @@ section:first-of-type { border-top: none; }
   color: var(--ink-soft); border-bottom: var(--rule) solid var(--line);
 }
 .result.yes .badge, .result.wahl .badge { color: var(--accent-dk); }
+.result.bedarf .badge { color: var(--accent-dk); }
 .result.urgent .badge { color: var(--danger); }
 
 .result h3 { font-size: var(--fs-h3); margin-bottom: .5rem; max-width: 30ch; }
