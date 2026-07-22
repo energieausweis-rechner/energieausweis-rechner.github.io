@@ -133,23 +133,62 @@
 
   EAR.PARTNERS = [];
 
+  /* How the list is ordered. § 5b Abs. 2 UWG requires a comparison to state
+     its ranking criterion, and it must be the truth: if the order is paid,
+     say so. Set this alongside EAR.PARTNERS. */
+  EAR.PARTNER_SORT = 'Sortiert nach Preis, aufsteigend.';
+
   EAR.renderPartnerCta = function (opts) {
     if (!EAR.PARTNERS.length) return null;
     var p = opts.partner;
     return el('div', { class: 'partner' }, [
-      el('span', { class: 'ad-label', text: 'Anzeige' }),
-      el('div', {}, [
-        el('strong', { text: p.name }),
-        p.note ? el('div', { class: 'sub', text: p.note }) : null,
+      el('div', { class: 'partner-head' }, [
+        el('span', { class: 'ad-label', text: 'Anzeige' }),
+        p.badge ? el('span', { class: 'partner-badge', text: p.badge }) : null,
       ]),
-      el('a', { class: 'cta', href: p.url, rel: 'sponsored noopener',
-                target: '_blank', text: (p.cta || 'Zum Anbieter') + ' →' }),
+      el('div', { class: 'partner-body' }, [
+        el('div', { class: 'partner-id' }, [
+          el('strong', { class: 'partner-name', text: p.name }),
+          p.note ? el('span', { class: 'partner-note', text: p.note }) : null,
+        ]),
+        el('div', { class: 'partner-price' }, [
+          el('span', { class: 'p-val', text: p.price }),
+          p.priceNote ? el('span', { class: 'p-note', text: p.priceNote }) : null,
+        ]),
+      ]),
+      el('a', { class: 'cta', href: p.url, rel: 'sponsored noopener nofollow',
+                target: '_blank' }, [
+        el('span', { text: p.cta || 'Zum Anbieter' }),
+        el('span', { 'aria-hidden': 'true', text: '→' }),
+      ]),
       el('p', {
         class: 'disclosure',
         text: 'Affiliate-Link: Wenn Sie hierüber bestellen, erhalten wir eine ' +
               'Provision. Für Sie ändert sich der Preis dadurch nicht.',
       }),
     ]);
+  };
+
+  /* The whole block, including the things that must be said once for the
+     list rather than per link: that every entry is advertising, and how the
+     order was decided. Never build a provider list without this wrapper. */
+  EAR.renderPartnerList = function () {
+    if (!EAR.PARTNERS.length) return null;
+    var wrap = el('section', { class: 'partner-list', 'aria-label': 'Anbieter (Anzeige)' }, [
+      el('h3', { text: 'Anbieter' }),
+      el('p', { class: 'partner-meta', text:
+        'Alle hier gelisteten Anbieter sind Werbepartner. ' + EAR.PARTNER_SORT +
+        ' Die Liste ist keine vollständige Marktübersicht.' }),
+    ]);
+    EAR.PARTNERS.forEach(function (p) {
+      var c = EAR.renderPartnerCta({ partner: p });
+      if (c) wrap.appendChild(c);
+    });
+    wrap.appendChild(el('p', { class: 'partner-meta', text:
+      'Preise sind Angaben der Anbieter und können sich ändern. Maßgeblich ist ' +
+      'der Preis auf der Seite des Anbieters. Ein Energieausweis darf nur von ' +
+      'einer nach § 88 GEG berechtigten Person ausgestellt werden.' }));
+    return wrap;
   };
 
   /* ── URL state ────────────────────────────────────────────────────────────

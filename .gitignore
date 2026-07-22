@@ -1,0 +1,7 @@
+# Local-only mockups. These contain invented provider names and prices for
+# layout work; publishing them would put fabricated commercial offers on a
+# live site. Never commit, never deploy.
+mockup-*.html
+preview-*.html
+variant-*.css
+probe*.html

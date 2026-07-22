@@ -541,25 +541,68 @@ input:focus { border-color: var(--ink); outline: 1px solid var(--ink); }
 }
 .copied { font-family: var(--font-ui); font-size: .9375rem; color: var(--accent-dk); }
 
-/* ── Partner CTA — the ONLY monetised element ───────────────────────────── */
+/* ── Partner list — the ONLY monetised element on the site ────────────────
+   Gold, never the interface blue: a paid link must never be mistakable for
+   a free tool action. Every entry carries its own "Anzeige" label and its
+   own disclosure line, because § 5a Abs. 4 UWG requires labelling AT the
+   link — a heading over the list is not sufficient on a long page. */
+.partner-list { margin-top: 1.5rem; padding-top: 1.2rem; border-top: 2px solid var(--cta); }
+.partner-list h3 { margin-bottom: .3rem; }
+.partner-meta {
+  font-family: var(--font-ui); font-size: .875rem; color: var(--ink-soft);
+  margin: 0 0 1rem; max-width: 46ch;
+}
+.partner-list .partner-meta:last-child { margin: 1rem 0 0; }
+
 .partner {
-  margin-top: 1.25rem; padding: 1rem;
+  margin-top: .6rem; padding: .9rem 1rem 1rem;
   border: var(--rule) solid var(--line); border-left: 3px solid var(--cta);
   border-radius: var(--radius); background: var(--paper);
 }
-.partner .ad-label { display: block; margin-bottom: .5rem; color: var(--cta-dk); }
-.partner a.cta {
-  display: inline-flex; align-items: center; gap: .4rem;
-  min-height: var(--tap); padding: 0 1.1rem; margin-top: .7rem;
-  background: var(--cta); color: #fff;
-  font-family: var(--font-ui); font-weight: 700;
-  text-decoration: none; border-radius: var(--radius);
+.partner-head { display: flex; align-items: center; gap: .5rem; margin-bottom: .55rem; }
+.partner .ad-label { color: var(--cta-dk); }
+.partner-badge {
+  font-family: var(--font-ui); font-size: .8125rem; font-weight: 600;
+  color: var(--ink-soft); border: var(--rule) solid var(--line);
+  border-radius: var(--radius); padding: .1rem .45rem;
 }
-.partner a.cta:hover { background: var(--cta-dk); }
+.partner-body {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  justify-content: space-between; gap: .3rem 1rem;
+}
+.partner-name { font-size: var(--fs-lead); font-weight: 600; display: block; }
+.partner-note {
+  display: block; font-family: var(--font-ui); font-size: .875rem;
+  color: var(--ink-soft); margin-top: .1rem;
+}
+.partner-price { text-align: right; }
+.partner-price .p-val {
+  display: block; font-family: var(--font-mono); font-weight: 600; font-size: 1.125rem;
+}
+.partner-price .p-note {
+  display: block; font-family: var(--font-ui); font-size: .8125rem; color: var(--ink-soft);
+}
+.partner a.cta {
+  display: inline-flex; align-items: center; gap: .5rem;
+  min-height: var(--tap); padding: 0 1.2rem; margin-top: .8rem;
+  background: var(--cta); color: #fff;
+  font-family: var(--font-ui); font-weight: 600; font-size: .9375rem;
+  text-decoration: none; border: var(--rule) solid var(--cta);
+  border-radius: var(--radius); transition: background .11s;
+}
+.partner a.cta:hover { background: var(--cta-dk); border-color: var(--cta-dk); color: #fff; }
 .partner .disclosure {
   margin: .6rem 0 0; font-family: var(--font-ui);
   font-size: .875rem; color: var(--ink-soft);
 }
+
+/* Mockup banner — preview page only, never the live site. */
+.mock-banner {
+  background: #3d2b00; color: #fff; padding: .9rem 1.25rem;
+  font-family: var(--font-ui); font-size: .9375rem; line-height: 1.5;
+}
+.mock-banner strong { letter-spacing: .06em; text-transform: uppercase; }
+.mock-banner a { color: #ffd98a; }
 
 /* ── Tables ─────────────────────────────────────────────────────────────── */
 .table-wrap { overflow-x: auto; margin: 1.4rem 0; }

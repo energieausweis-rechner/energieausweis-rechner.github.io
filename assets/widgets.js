@@ -297,14 +297,10 @@
             'nimmt Ihnen die Verantwortung für die Datenqualität ab und ' +
             'bringt meist konkrete Sanierungshinweise mit.' }));
 
-      /* Provider block stays hidden until real partners are contracted. */
-      var partners = EAR.PARTNERS.map(function (p2) {
-        return EAR.renderPartnerCta({ partner: p2 });
-      }).filter(Boolean);
-      if (partners.length) {
-        mount.appendChild(el('h3', { text: 'Anbieter' }));
-        partners.forEach(function (n) { mount.appendChild(n); });
-      }
+      /* Provider block stays hidden until real partners are contracted:
+         renderPartnerList returns null while EAR.PARTNERS is empty. */
+      var list = EAR.renderPartnerList();
+      if (list) mount.appendChild(list);
     }
     draw();
   };
