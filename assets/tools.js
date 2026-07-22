@@ -8,7 +8,8 @@
    • Every legal claim reads its § and Wortlaut from EAR.RULES — never inline.
    • renderPartnerCta() is the ONLY path that can emit an outbound partner
      link, so the "Anzeige" label and rel="sponsored" cannot be forgotten.
-   • Results are announced via aria-live and are keyboard-reachable.
+   • Flow state lives in the ?r= query parameter, so a result is a real URL:
+     shareable, bookmarkable, and Back steps back one question.
    • No cookies, no localStorage. sessionStorage only, for the handoff
      between tools — strictly necessary for the requested service
      (§ 25 Abs. 2 Nr. 2 TDDDG), documented in /datenschutz/.
@@ -53,6 +54,18 @@
     try { return sessionStorage.getItem('ear.' + k); } catch (e) { return null; }
   };
 
+  /* ── Screen-reader status ─────────────────────────────────────────────────
+     A single polite region announces results only. Putting aria-live on the
+     whole card makes every question re-read the entire card.             */
+
+  function status(msg) {
+    if (!EAR._status) {
+      EAR._status = el('p', { class: 'visually-hidden', role: 'status', 'aria-live': 'polite' });
+      document.body.appendChild(EAR._status);
+    }
+    EAR._status.textContent = msg;
+  }
+
   /* ── Icons (from the reference design) ────────────────────────────────── */
 
   var S = 'fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"';
@@ -65,12 +78,14 @@
     houseKey: svg('<path d="M7 28 25 14 43 28"/><path d="M13 26v22h24V26"/><rect x="21" y="37" width="8" height="11"/><circle cx="50" cy="33" r="6"/><path d="M50 39v9M50 44h5"/>'),
     crane: svg('<path d="M12 54V14h30"/><path d="M12 20 26 14"/><path d="M40 14v9"/><path d="M6 54h22"/><rect x="34" y="36" width="20" height="18"/><path d="M41 54v-9h6v9"/>'),
     buyer: svg('<circle cx="32" cy="20" r="9"/><path d="M14 52c0-10 8-16 18-16s18 6 18 16"/>'),
+    bank: svg('<path d="M10 26 32 13 54 26"/><path d="M14 26v22M24 26v22M40 26v22M50 26v22"/><path d="M8 52h48"/>'),
     building: svg('<rect x="18" y="12" width="28" height="40"/><path d="M12 52h40"/><path d="M25 20h5M35 20h5M25 29h5M35 29h5M25 38h5M35 38h5"/>'),
     columns: svg('<path d="M10 24 32 13 54 24"/><path d="M14 50h36"/><path d="M17 24v24M27 24v24M37 24v24M47 24v24"/>'),
     area: svg('<rect x="14" y="14" width="36" height="36"/><path d="M23 41 41 23"/><path d="M23 33v8h8M41 31v-8h-8"/>'),
     none: svg('<circle cx="32" cy="32" r="17"/><path d="M20 20 44 44"/>'),
     calendar: svg('<rect x="13" y="17" width="38" height="33" rx="2"/><path d="M13 27h38M23 12v9M41 12v9"/><path d="M22 36h6M36 36h6"/>'),
     calendarOld: svg('<rect x="13" y="17" width="38" height="33" rx="2"/><path d="M13 27h38M23 12v9M41 12v9"/><circle cx="32" cy="39" r="6"/><path d="M32 39v-4M32 39l4 2"/>'),
+    unknown: svg('<circle cx="32" cy="32" r="19"/><path d="M25 26a7 7 0 1 1 8 7v4"/><path d="M33 45h.01"/>'),
     reno: svg('<path d="M7 28 25 14 43 28"/><path d="M13 26v22h24V26"/><rect x="21" y="37" width="8" height="11"/><circle cx="50" cy="20" r="8"/><path d="M50 16v8M46 20h8"/>'),
     draft: svg('<path d="M18 8h20l10 10v38H18z"/><path d="M38 8v10h10"/><path d="M25 30h16M25 40h12"/>'),
     megaphone: svg('<path d="M14 26v12l26 12V14z"/><path d="M14 26H9v12h5"/><path d="M22 42v8h8"/><path d="M48 24c4 3 4 13 0 16"/>'),
@@ -79,27 +94,30 @@
 
   /* ── Legal citation block ─────────────────────────────────────────────── */
 
+  /* The § reference and Stand are always visible — they are the credibility
+     signal and the anchor an answer engine cites. The verbatim Gesetzestext
+     is collapsed: German statutory sentences run long enough to fill a whole
+     phone screen, which would wall off everything below the result. Using
+     <details> keeps the wording in the DOM (still crawlable, still citable)
+     without making the reader scroll past it. */
   function cite(ruleKey) {
     var r = R[ruleKey];
     if (!r) return null;
-    var kids = [
-      el('div', { class: 'src' }, [
-        el('strong', { text: r.zitat }),
-        el('span', { class: 'stand', text: 'Stand: ' + EAR.STAND.stand }),
-      ]),
-      el('blockquote', { text: '„' + r.wortlaut + '“' }),
-      el('div', { class: 'src' }, [
-        el('a', { href: r.quelle, rel: 'noopener', target: '_blank',
-                  text: 'Gesetzestext auf gesetze-im-internet.de ↗' }),
-      ]),
-    ];
-    if (r.hinweis) kids.splice(2, 0, el('p', { text: r.hinweis }));
-    // Where the law is in flux, say so rather than implying settled certainty.
-    if (r.unbestaetigt) {
-      kids.splice(kids.length - 1, 0,
-        el('p', { class: 'hint', text: 'Hinweis: ' + r.unbestaetigt }));
-    }
-    return el('div', { class: 'cite' }, kids);
+    var body = [el('blockquote', { text: '„' + r.wortlaut + '“' })];
+    if (r.hinweis) body.push(el('p', { text: r.hinweis }));
+    if (r.unbestaetigt) body.push(el('p', { class: 'hint', text: 'Hinweis: ' + r.unbestaetigt }));
+    body.push(el('div', { class: 'src' }, [
+      el('a', { href: r.quelle, rel: 'noopener', target: '_blank',
+                text: 'Gesetzestext auf gesetze-im-internet.de ↗' }),
+    ]));
+    return el('div', { class: 'cite' }, [
+      el('details', {}, [
+        el('summary', {}, [
+          el('strong', { text: r.zitat }),
+          el('span', { class: 'stand', text: 'Stand: ' + EAR.STAND.stand }),
+        ]),
+      ].concat(body)),
+    ]);
   }
   EAR.cite = cite;
 
@@ -134,39 +152,105 @@
     ]);
   };
 
-  /* ── Wizard engine ────────────────────────────────────────────────────────
-     A flow is fn(answers) → {view:'question', q, step} | {view:'result', r}.
-     compose() chains flows so several segments read as one uninterrupted
-     sequence — used for the main flow's Pflicht → Ausweis-Art merge.      */
+  /* ── URL state ────────────────────────────────────────────────────────────
+     Flow state lives in ?r=, NOT in the hash — the hash belongs to the
+     section anchors, and mixing the two means navigating to #kosten would
+     throw away the user's answers.
 
-  EAR.compose = function () {
-    var segs = [].slice.call(arguments);
-    return function (ans) {
-      var used = 0;
-      for (var i = 0; i < segs.length; i++) {
-        var out = segs[i](ans.slice(used), ans);
-        if (out.view !== 'continue') return out;
-        used += out.consumed;
-      }
-      return { view: 'result', r: { tone: 'no', title: 'Kein Ergebnis.' } };
+     ?r=verkauf.keine.wohn.bis4.vor1977.nein~inseriert
+        └─ answers, dot-separated                 └─ optional follow-up
+
+     PERMANENT CONTRACT: never rename or reorder these tokens once live, or
+     links people have shared will resolve to a different result.          */
+
+  function readUrl() {
+    var m = /[?&]r=([^&#]*)/.exec(location.search);
+    if (!m) return { answers: [], extra: null };
+    var raw = decodeURIComponent(m[1]).split('~');
+    return {
+      answers: raw[0] ? raw[0].split('.').filter(Boolean) : [],
+      extra: raw[1] || null,
     };
-  };
+  }
+
+  function writeUrl(answers, extra, push) {
+    if (!history.pushState) return;
+    var v = answers.join('.') + (extra ? '~' + extra : '');
+    var url = v ? '?r=' + encodeURIComponent(v) + '#rechner' : location.pathname;
+    try { history[push ? 'pushState' : 'replaceState'](null, '', url); } catch (e) { /* file:// */ }
+  }
+
+  /* Replay tokens against the flow, dropping anything that isn't a valid
+     option at its position. A tampered or outdated link degrades to the
+     furthest valid point instead of erroring or asserting a wrong answer. */
+  function sanitise(flow, tokens) {
+    var ok = [];
+    for (var i = 0; i < tokens.length; i++) {
+      var out = flow(ok);
+      if (out.view !== 'question') break;
+      var valid = out.q.options.some(function (o) { return o.value === tokens[i]; });
+      if (!valid) break;
+      ok.push(tokens[i]);
+    }
+    return ok;
+  }
+
+  /* Walk the flow to recover what was asked and chosen, for the answer chips. */
+  function trail(flow, answers) {
+    var out = [];
+    for (var i = 0; i < answers.length; i++) {
+      var step = flow(answers.slice(0, i));
+      if (step.view !== 'question') break;
+      var opt = step.q.options.filter(function (o) { return o.value === answers[i]; })[0];
+      out.push({ index: i, short: step.q.short || step.q.text, label: opt ? opt.label : answers[i] });
+    }
+    return out;
+  }
+
+  /* ── Wizard engine ────────────────────────────────────────────────────── */
 
   function stepBar(current, labels) {
     return el('div', { class: 'steps' }, labels.map(function (l, i) {
       var n = i + 1;
       var state = n < current ? 'done' : n === current ? 'on' : '';
+      // The connector sits to the LEFT of the circle, so it must be a sibling
+      // of the circle's column — not stacked inside it.
       return el('div', { class: 'step ' + state + (n <= current ? ' reached' : '') }, [
         n > 1 ? el('span', { class: 'line' }) : null,
-        el('span', { class: 'mark', text: state === 'done' ? '✓' : String(n) }),
-        el('span', { class: 'lbl', text: l }),
+        el('span', { class: 'step-body' }, [
+          el('span', { class: 'mark', text: state === 'done' ? '✓' : String(n) }),
+          el('span', { class: 'lbl', text: l }),
+        ]),
       ]);
     }));
   }
 
   EAR.renderWizard = function (mount, flow, opts) {
     opts = opts || {};
-    var answers = [];
+    var maxQ = opts.maxQuestions || 6;
+    var phases = opts.steps || ['Situation', 'Gebäude', 'Ergebnis'];
+    var url = readUrl();
+    var answers = sanitise(flow, url.answers);
+    var extra = url.extra;
+
+    function set(next, nextExtra, push) {
+      answers = next;
+      extra = nextExtra;
+      writeUrl(answers, extra, push !== false);
+      draw(true);
+    }
+
+    function resultText(r) {
+      var lines = ['Energieausweis Rechner – Ihr Ergebnis', '', r.title, '', r.body];
+      if (r.type) lines.push('', 'Ausweis-Art: ' + r.type);
+      if (r.warn) lines.push('', 'Wichtig: ' + r.warn);
+      (r.cites || []).forEach(function (k) {
+        if (R[k]) lines.push('', R[k].zitat + ': „' + R[k].wortlaut + '“');
+      });
+      lines.push('', 'Stand: ' + EAR.STAND.stand + ' · unverbindliche Orientierung, ' +
+                     'ersetzt keine Rechtsberatung.', location.href);
+      return lines.join('\n');
+    }
 
     function draw(focus) {
       var out = flow(answers);
@@ -174,30 +258,40 @@
 
       if (out.view === 'question') {
         var q = out.q;
-        mount.appendChild(stepBar(out.step || 1, opts.steps || ['Situation', 'Gebäude', 'Ergebnis']));
-        if (q.eyebrow) mount.appendChild(el('p', { class: 'eyebrow', text: q.eyebrow }));
+        mount.appendChild(stepBar(out.step || 1, phases));
+        mount.appendChild(el('p', { class: 'eyebrow',
+          text: 'Frage ' + (answers.length + 1) + ' von max. ' + maxQ }));
         mount.appendChild(el('p', { class: 'q-text', text: q.text }));
 
-        var box = el('div', { class: 'options' }, q.options.map(function (o) {
+        mount.appendChild(el('div', { class: 'options' }, q.options.map(function (o) {
           return el('button', {
             class: 'opt', type: 'button',
-            onclick: function () { answers.push(o.value); draw(true); },
+            onclick: function () { set(answers.concat(o.value), null); },
           }, [
-            el('span', { class: 'ico', html: ICONS[o.icon] || ICONS.house }),
+            el('span', { class: 'ico' }, [
+              el('span', { class: 'ico-tile', html: ICONS[o.icon] || ICONS.house }),
+            ]),
             el('span', { class: 'txt' }, [
               el('span', { class: 'lbl', text: o.label }),
               o.sub ? el('span', { class: 'sub', text: o.sub }) : null,
             ]),
-            el('span', { class: 'arrow', text: '→' }),
+            el('span', { class: 'arrow', 'aria-hidden': 'true', text: '→' }),
           ]);
-        }));
-        mount.appendChild(box);
+        })));
+
+        // Inline help for the questions that use genuine jargon.
+        if (q.help) {
+          mount.appendChild(el('details', { class: 'help' }, [
+            el('summary', { text: q.help.title }),
+            el('p', { text: q.help.body }),
+          ]));
+        }
 
         if (answers.length) {
           mount.appendChild(el('div', { class: 'wizard-actions' }, [
             el('button', {
               class: 'btn-ghost', type: 'button', text: '← Zurück',
-              onclick: function () { answers.pop(); draw(true); },
+              onclick: function () { set(answers.slice(0, -1), null); },
             }),
           ]));
         }
@@ -213,15 +307,35 @@
         el('p', { class: 'lead', text: r.body }),
       ]);
 
-      if (r.warn) {
+      // Follow-up: asked AFTER the answer, because it changes the advice but
+      // never the legal outcome — so it must not gate the result.
+      var warn = r.warn;
+      if (r.urgency && !warn) {
+        var chosen = extra;
+        if (chosen && EAR.URGENCY[chosen]) {
+          warn = EAR.URGENCY[chosen].warn(r.urgency.verb);
+        } else {
+          card.appendChild(el('div', { class: 'followup' }, [
+            el('p', { class: 'fu-q', text: 'Wie weit ist Ihr ' + r.urgency.verb + ' schon? ' +
+              'Dann sagen wir Ihnen, worauf Sie jetzt achten müssen.' }),
+            el('div', { class: 'seg' }, Object.keys(EAR.URGENCY).map(function (k) {
+              return el('button', {
+                type: 'button', text: EAR.URGENCY[k].label,
+                onclick: function () { set(answers, k); },
+              });
+            })),
+          ]));
+        }
+      }
+      if (warn) {
         card.appendChild(el('div', { class: 'warn' }, [
-          el('span', { class: 'mark', text: '!' }),
-          el('span', { text: r.warn }),
+          el('span', { class: 'mark', 'aria-hidden': 'true', text: '!' }),
+          el('span', { text: warn }),
         ]));
       }
       if (r.type) {
         card.appendChild(el('div', { class: 'type-out' }, [
-          el('span', { text: 'Ausweis-Art: ' }),
+          el('span', { text: 'Ausweis-Art' }),
           el('strong', { text: r.type }),
         ]));
       }
@@ -233,62 +347,127 @@
       (r.cites || []).forEach(function (k) {
         var c = cite(k); if (c) card.appendChild(c);
       });
-      if (r.next) {
-        card.appendChild(el('a', { class: 'next-link', href: r.next.href }, [
-          el('span', {}, [
-            el('span', { class: 't', text: r.next.title }), el('br'),
-            el('span', { class: 's', text: r.next.sub }),
-          ]),
-          el('span', { text: '→' }),
-        ]));
+
+      // "Wie geht es weiter?" — no result is a dead end.
+      if (r.nexts && r.nexts.length) {
+        card.appendChild(el('h4', { class: 'next-head', text: 'Wie geht es weiter?' }));
+        r.nexts.forEach(function (n) {
+          card.appendChild(el('a', { class: 'next-link', href: n.href }, [
+            el('span', {}, [
+              el('span', { class: 't', text: n.title }), el('br'),
+              el('span', { class: 's', text: n.sub }),
+            ]),
+            el('span', { 'aria-hidden': 'true', text: '→' }),
+          ]));
+        });
       }
       if (r.carry) Object.keys(r.carry).forEach(function (k) { EAR.carry(k, r.carry[k]); });
 
       mount.appendChild(card);
+
+      // Answer chips — change one answer without walking all the way back.
+      var t = trail(flow, answers);
+      if (t.length) {
+        mount.appendChild(el('div', { class: 'chips noprint' }, [
+          el('span', { class: 'chips-lbl', text: 'Ihre Angaben:' }),
+        ].concat(t.map(function (item) {
+          return el('button', {
+            class: 'chip', type: 'button',
+            title: item.short + ' – ändern',
+            'aria-label': item.short + ': ' + item.label + ' – ändern',
+            onclick: function () { set(answers.slice(0, item.index), null); },
+          }, [
+            el('span', { text: item.label }),
+            el('span', { class: 'chip-edit', 'aria-hidden': 'true', text: '✎' }),
+          ]);
+        }))));
+      }
+
       mount.appendChild(el('div', { class: 'wizard-actions noprint' }, [
         el('button', {
           class: 'btn-ghost', type: 'button', text: '↺ Neu starten',
-          onclick: function () { answers = []; draw(true); },
+          onclick: function () { set([], null); },
         }),
         el('button', {
-          class: 'btn-ghost', type: 'button', text: '← Zurück',
-          onclick: function () { answers.pop(); draw(true); },
+          class: 'btn-ghost', type: 'button', text: '⧉ Ergebnis kopieren',
+          onclick: function (e) {
+            var b = e.currentTarget;
+            navigator.clipboard.writeText(resultText(r)).then(function () {
+              b.textContent = '✓ Kopiert';
+              setTimeout(function () { b.textContent = '⧉ Ergebnis kopieren'; }, 2200);
+            }, function () { /* clipboard blocked */ });
+          },
         }),
         el('button', {
-          class: 'btn-ghost', type: 'button', text: 'Ergebnis drucken',
+          class: 'btn-ghost', type: 'button', text: 'Drucken',
           onclick: function () { window.print(); },
         }),
       ]));
+
+      status(r.title + (r.type ? '. Ausweis-Art: ' + r.type : ''));
       if (focus) card.focus();
     }
 
-    mount.setAttribute('aria-live', 'polite');
+    // Back/forward move through the flow rather than leaving the page.
+    window.addEventListener('popstate', function () {
+      var u = readUrl();
+      answers = sanitise(flow, u.answers);
+      extra = u.extra;
+      draw(false);
+    });
+
+    writeUrl(answers, extra, false);
     draw(false);
   };
 
-  /* ── The main flow: "Brauche ich einen — und welchen?" ─────────────────────
-     The reference design splits this into two tools joined by a button.
-     Merged here into one uninterrupted sequence.                          */
+  /* ── The follow-up asked after the result ─────────────────────────────── */
 
-  function needCert(urgent, verb) {
-    return {
-      tone: urgent ? 'urgent' : 'yes',
-      badge: urgent ? 'Dringend' : 'Pflicht: ja',
-      verb: verb,
-    };
-  }
+  EAR.URGENCY = {
+    vorbereitung: {
+      label: 'Noch in Vorbereitung',
+      warn: function (verb) {
+        return 'Sie sind früh dran – gut. Lassen Sie den Ausweis erstellen, ' +
+               'bevor Sie inserieren: Die Kennwerte müssen bereits in der ' +
+               'Anzeige stehen.';
+      },
+    },
+    inseriert: {
+      label: 'Anzeige läuft schon',
+      warn: function (verb) {
+        return 'Ihre Anzeige läuft bereits – die Kennwerte aus dem Ausweis ' +
+               'müssen darin stehen. Fehlen sie, droht ein Bußgeld von bis zu ' +
+               '10.000 €. Holen Sie das kurzfristig nach.';
+      },
+    },
+    notartermin: {
+      label: 'Termin steht kurz bevor',
+      warn: function (verb) {
+        return 'Ihr Termin steht kurz bevor. Der Ausweis muss spätestens bei ' +
+               'der Besichtigung vorliegen und nach Vertragsabschluss ' +
+               'übergeben werden – planen Sie eine schnelle Erstellung ein.';
+      },
+    },
+  };
+
+  /* ── The main flow: "Brauche ich einen — und welchen?" ─────────────────────
+     The reference design splits this into two tools joined by a button, and
+     asks the urgency question in the middle. Merged into one sequence here,
+     with urgency moved after the result: it changes the advice, never the
+     legal outcome, so it must not stand between the user and their answer. */
 
   EAR.flows = {};
 
   EAR.flows.main = function (ans) {
     var Q1 = {
-      eyebrow: 'Frage 1', text: 'In welcher Rolle sind Sie – und was steht an?',
+      short: 'Ihre Rolle',
+      text: 'In welcher Rolle sind Sie – und was steht an?',
       options: [
         { value: 'verkauf', icon: 'seller', label: 'Ich verkaufe', sub: 'Eigentümer, Verkauf.' },
         { value: 'vermietung', icon: 'houseKey', label: 'Ich vermiete neu', sub: 'Eigentümer, neuer Mietvertrag.' },
         { value: 'neubau', icon: 'crane', label: 'Ich baue neu', sub: 'Neubau / Fertigstellung.' },
-        { value: 'interessent', icon: 'buyer', label: 'Ich kaufe oder miete', sub: 'Interessent / Mieter.' },
-        { value: 'bestand', icon: 'house', label: 'Nichts davon', sub: 'Selbst nutzen / Bestand.' },
+        { value: 'interessent', icon: 'buyer', label: 'Ich kaufe oder miete', sub: 'Interessent oder Mieter.' },
+        { value: 'finanzierung', icon: 'bank', label: 'Ich brauche ihn für die Bank', sub: 'Finanzierung, Kredit, Förderung.' },
+        { value: 'bestand', icon: 'house', label: 'Nichts davon', sub: 'Selbst nutzen, Bestand.' },
       ],
     };
     if (!ans.length) return { view: 'question', q: Q1, step: 1 };
@@ -302,8 +481,30 @@
             'Besichtigung vorlegen und nach Vertragsabschluss übergeben – ' +
             'bestehen Sie darauf.',
       cites: ['vorlagepflicht'],
-      next: { href: '#effizienzklasse', title: 'Effizienzklasse prüfen',
-              sub: 'Kennwert aus dem vorgelegten Ausweis einordnen.' },
+      nexts: [
+        { href: '#effizienzklasse', title: 'Effizienzklasse einordnen',
+          sub: 'Kennwert aus dem vorgelegten Ausweis eingeben – A+ bis H.' },
+        { href: '#kosten', title: 'Einschätzen, was der Ausweis wert ist',
+          sub: 'Was ein Ausweis kostet – hilfreich, wenn Ihnen keiner gezeigt wird.' },
+      ],
+    }};
+
+    if (a1 === 'finanzierung') return { view: 'result', r: {
+      tone: 'no', badge: 'Keine gesetzliche Pflicht',
+      title: 'Aus der Finanzierung selbst folgt keine Pflicht.',
+      body: 'Das Gesetz verlangt einen Energieausweis bei Verkauf, Vermietung ' +
+            'und Neubau – nicht dafür, dass Sie einen Kredit aufnehmen. ' +
+            'Banken verlangen ihn aber in der Praxis regelmäßig zur ' +
+            'Bewertung der Immobilie, und die Energieeffizienzklasse ' +
+            'beeinflusst Förderungen und Konditionen. Wenn Sie ohnehin ' +
+            'kaufen, muss die Verkäuferseite Ihnen den Ausweis vorlegen.',
+      cites: ['vorlagepflicht'],
+      nexts: [
+        { href: '#effizienzklasse', title: 'Effizienzklasse bestimmen',
+          sub: 'Der Wert, nach dem die Bank und Förderprogramme fragen.' },
+        { href: '#kosten', title: 'Kosten einschätzen',
+          sub: 'Falls Sie den Ausweis selbst beauftragen müssen.' },
+      ],
     }};
 
     if (a1 === 'bestand') return { view: 'result', r: {
@@ -313,6 +514,12 @@
             'brauchen Sie keinen Energieausweis. Erst bei Verkauf oder ' +
             'Neuvermietung wird er Pflicht.',
       cites: ['pflicht_verkauf_vermietung'],
+      nexts: [
+        { href: '#effizienzklasse', title: 'Trotzdem wissen, wo Sie stehen',
+          sub: 'Effizienzklasse aus dem Verbrauch einordnen.' },
+        { href: '#gmodg', title: 'Was das neue Gesetz ändert',
+          sub: 'Ob sich Warten lohnt, wenn ein Verkauf ansteht.' },
+      ],
     }};
 
     if (a1 === 'neubau') return { view: 'result', r: {
@@ -329,13 +536,18 @@
       ],
       cites: ['pflicht_neubau'],
       carry: { art: 'bedarf' },
-      next: { href: '#kosten', title: 'Weiter: Was kostet das?',
-              sub: 'Bedarfsausweis-Preise – die Art ist bereits gesetzt.' },
+      nexts: [
+        { href: '#kosten', title: 'Kosten für den Bedarfsausweis',
+          sub: 'Die Ausweis-Art ist bereits gesetzt.' },
+        { href: '#effizienzklasse', title: 'Effizienzklasse einordnen',
+          sub: 'Was der berechnete Kennwert bedeutet.' },
+      ],
     }};
 
     /* Verkauf / Vermietung → Ausnahmen prüfen */
     var Q2 = {
-      eyebrow: 'Frage 2', text: 'Trifft eine dieser Ausnahmen auf das Gebäude zu?',
+      short: 'Ausnahmen',
+      text: 'Trifft eine dieser Ausnahmen auf das Gebäude zu?',
       options: [
         { value: 'denkmal', icon: 'columns', label: 'Ja, Baudenkmal', sub: 'Unter Denkmalschutz.' },
         { value: 'klein', icon: 'area', label: 'Ja, höchstens 50 m²', sub: 'Nutzfläche nicht mehr als 50 m².' },
@@ -351,6 +563,10 @@
       body: 'Gebäude mit nicht mehr als 50 m² Nutzfläche gelten als „kleine ' +
             'Gebäude“. Für sie gelten die Vorschriften zum Energieausweis nicht.',
       cites: ['ausnahme_klein'],
+      nexts: [
+        { href: '#pflicht', title: 'Die Ausnahmen im Detail nachlesen',
+          sub: 'Wortlaut und Grenzfälle – die Grenze ist „nicht mehr als“ 50 m².' },
+      ],
     }};
 
     if (a2 === 'denkmal') return { view: 'result', r: {
@@ -361,120 +577,159 @@
             'Befreiung – bei einem Neubau oder einer größeren Änderung des ' +
             'Gebäudes bleibt die Pflicht zum Bedarfsausweis bestehen.',
       cites: ['ausnahme_denkmal'],
+      nexts: [
+        { href: '#pflicht', title: 'Was beim Denkmal trotzdem gilt',
+          sub: 'Warum „Denkmal“ nicht „gar kein Energieausweis“ heißt.' },
+      ],
     }};
 
-    /* Wie weit ist der Vorgang? */
-    var verb = ans[0] === 'verkauf' ? 'Verkauf' : 'Vermietung';
-    var Q3 = {
-      eyebrow: 'Frage 3', text: 'Wie weit ist Ihr ' + verb + ' schon?',
-      options: [
-        { value: 'vorbereitung', icon: 'draft', label: 'In Vorbereitung', sub: 'Noch kein Inserat geschaltet.' },
-        { value: 'inseriert', icon: 'megaphone', label: 'Bereits inseriert', sub: 'Die Anzeige läuft schon.' },
-        { value: 'notartermin', icon: 'clock', label: 'Termin steht an', sub: 'Notar / Übergabe in Kürze.' },
-      ],
-    };
-    if (ans.length === 2) return { view: 'question', q: Q3, step: 1 };
-
     /* ── Segment 2: welche Art? ── */
-    var Q4 = {
-      eyebrow: 'Frage 4', text: 'Um was für ein Gebäude geht es?',
+    var Q3 = {
+      short: 'Gebäudeart',
+      text: 'Um was für ein Gebäude geht es?',
       options: [
         { value: 'wohn', icon: 'house', label: 'Wohngebäude', sub: 'Haus oder Wohnung.' },
         { value: 'nichtwohn', icon: 'building', label: 'Nichtwohngebäude', sub: 'Gewerbe, Büro, Halle.' },
       ],
     };
-    if (ans.length === 3) return { view: 'question', q: Q4, step: 2 };
+    if (ans.length === 2) return { view: 'question', q: Q3, step: 2 };
 
-    var Q5 = {
-      eyebrow: 'Frage 5', text: 'Wie viele Wohnungen hat das Gebäude?',
+    var Q4 = {
+      short: 'Wohnungen',
+      text: 'Wie viele Wohnungen hat das Gebäude?',
       options: [
         { value: 'ab5', icon: 'building', label: '5 oder mehr', sub: 'Mehrfamilienhaus.' },
         { value: 'bis4', icon: 'house', label: 'Bis zu 4', sub: 'Ein- bis Vierfamilienhaus.' },
       ],
     };
-    if (ans.length === 4 && ans[3] === 'wohn') return { view: 'question', q: Q5, step: 2 };
+    if (ans.length === 3 && ans[2] === 'wohn') return { view: 'question', q: Q4, step: 2 };
 
-    var Q6 = {
-      eyebrow: 'Frage 6', text: 'Wann wurde der Bauantrag gestellt?',
+    var Q5 = {
+      short: 'Bauantrag',
+      text: 'Wann wurde der Bauantrag gestellt?',
+      help: {
+        title: 'Wo finde ich das Bauantragsdatum?',
+        body: 'Am häufigsten steht es in den Bauunterlagen oder im Kaufvertrag, ' +
+              'bei Eigentumswohnungen auch in der Teilungserklärung. Sonst ' +
+              'hilft ein Blick in die Bauakte beim Bauamt Ihrer Gemeinde – ' +
+              'als Eigentümer dürfen Sie sie einsehen. Wichtig ist das Datum ' +
+              'des Bauantrags, nicht der Fertigstellung; beide können ein bis ' +
+              'zwei Jahre auseinanderliegen.',
+      },
       options: [
         { value: 'ab1977', icon: 'calendar', label: 'Am oder nach dem 1.11.1977', sub: 'Oder später gebaut.' },
         { value: 'vor1977', icon: 'calendarOld', label: 'Vor dem 1.11.1977', sub: 'Älteres Gebäude.' },
+        { value: 'unbekannt', icon: 'unknown', label: 'Weiß ich nicht', sub: 'Datum ist mir nicht bekannt.' },
       ],
     };
-    if (ans.length === 5 && ans[4] === 'bis4') return { view: 'question', q: Q6, step: 2 };
+    if (ans.length === 4 && ans[3] === 'bis4') return { view: 'question', q: Q5, step: 2 };
 
-    var Q7 = {
-      eyebrow: 'Frage 7 von 7',
-      text: 'Wurde das Haus auf den Dämmstandard von 1977 gebracht?',
+    var Q6 = {
+      short: 'Modernisierung',
+      text: 'Wurde das Haus nachträglich gedämmt?',
+      help: {
+        title: 'Was ist mit „Dämmstandard von 1977“ gemeint?',
+        body: 'Gemeint ist das Niveau der Wärmeschutzverordnung von 1977 – grob: ' +
+              'gedämmte Außenwände oder gedämmtes Dach und zeitgemäße Fenster. ' +
+              'Einzelne neue Fenster genügen dafür in der Regel nicht. ' +
+              'Ob Ihr Haus das Niveau erreicht, kann verlässlich nur eine nach ' +
+              '§ 88 GEG ausstellungsberechtigte Person beurteilen. Im Zweifel ' +
+              'wählen Sie „Bin mir nicht sicher“.',
+      },
       options: [
-        { value: 'ja', icon: 'reno', label: 'Ja, modernisiert', sub: 'Fenster, Dach oder Fassade gedämmt.' },
-        { value: 'nein', icon: 'house', label: 'Nein / unsicher', sub: 'Weitgehend im Originalzustand.' },
+        { value: 'ja', icon: 'reno', label: 'Ja, nachträglich gedämmt', sub: 'Fassade, Dach oder Fenster erneuert.' },
+        { value: 'nein', icon: 'house', label: 'Nein, im Originalzustand', sub: 'Nichts Wesentliches gemacht.' },
+        { value: 'unsicher', icon: 'unknown', label: 'Bin mir nicht sicher', sub: 'Weiß ich nicht.' },
       ],
     };
-    if (ans.length === 6 && ans[5] === 'vor1977') return { view: 'question', q: Q7, step: 2 };
+    if (ans.length === 5 && ans[4] === 'vor1977') return { view: 'question', q: Q6, step: 2 };
 
-    /* ── Combined result ── */
-    var a3 = ans[2];
-    var urgent = a3 === 'inseriert' || a3 === 'notartermin';
-    var head = needCert(urgent, verb);
+    /* ── Result ── */
+    var verb = a1 === 'verkauf' ? 'Verkauf' : 'Vermietung';
+    var typ = ans[2], wohnungen = ans[3], bauantrag = ans[4], daemmung = ans[5];
 
-    // Bedarfsausweis is only mandatory for: Wohngebäude, ≤4 Wohnungen,
-    // Bauantrag vor 01.11.1977, not brought to WSchV-1977 level.
+    // Bedarfsausweis is mandatory only for: Wohngebäude, ≤4 Wohnungen,
+    // Bauantrag before 01.11.1977, not brought to WSchV-1977 level.
     var bedarfPflicht =
-      ans[3] === 'wohn' && ans[4] === 'bis4' && ans[5] === 'vor1977' && ans[6] === 'nein';
+      typ === 'wohn' && wohnungen === 'bis4' && bauantrag === 'vor1977' && daemmung === 'nein';
 
-    var warn = null;
-    if (a3 === 'inseriert') {
-      warn = 'Ihre Anzeige läuft bereits – die Kennwerte aus dem Ausweis ' +
-             'müssen darin stehen. Bei Verstoß droht ein Bußgeld von bis zu ' +
-             '10.000 €. Holen Sie das kurzfristig nach.';
-    } else if (a3 === 'notartermin') {
-      warn = 'Ihr Termin steht kurz bevor. Der Ausweis muss spätestens bei ' +
-             'der Besichtigung vorliegen und nach Vertragsabschluss ' +
-             'übergeben werden.';
-    }
+    // Not knowing is not the same as "no". The Bedarfsausweis is always
+    // permissible, so it is the safe answer — but say how to find out,
+    // because the cheaper Verbrauchsausweis may well be allowed.
+    var unsicher =
+      typ === 'wohn' && wohnungen === 'bis4' &&
+      (bauantrag === 'unbekannt' || daemmung === 'unsicher');
 
     var r = {
-      tone: bedarfPflicht ? 'bedarf' : head.tone,
-      badge: bedarfPflicht ? 'Bedarfsausweis nötig' : head.badge,
-      warn: warn,
+      urgency: { verb: verb },
       steps: [
         'Pflichtangaben in die Immobilienanzeige aufnehmen (§ 87 GEG).',
         'Spätestens bei der Besichtigung vorlegen.',
         'Nach Vertragsabschluss übergeben.',
       ],
-      next: { href: '#inserat', title: 'Weiter: Anzeigentext erstellen',
-              sub: 'Die Pflichtangaben für Ihr Inserat – fertig zum Kopieren.' },
+      nexts: [
+        { href: '#inserat', title: 'Anzeigentext erstellen',
+          sub: 'Die fünf Pflichtangaben für Ihr Inserat – fertig zum Kopieren.' },
+        { href: '#kosten', title: 'Kosten einschätzen',
+          sub: 'Was Sie für diese Ausweis-Art einplanen sollten.' },
+      ],
     };
 
     if (bedarfPflicht) {
+      r.tone = 'bedarf';
+      r.badge = 'Bedarfsausweis nötig';
       r.title = 'Ja – und Sie brauchen einen Bedarfsausweis.';
       r.body = 'Bei ' + verb + ' ist ein Energieausweis Pflicht. Für kleine, ' +
                'ältere Wohngebäude – bis zu vier Wohnungen, Bauantrag vor dem ' +
-               '1. November 1977 und seither nicht auf den Dämmstandard von ' +
-               '1977 gebracht – schreibt das Gesetz ausdrücklich den ' +
-               'Bedarfsausweis vor. Sie haben hier keine Wahl.';
+               '1. November 1977 und seither nicht nachträglich gedämmt – ' +
+               'schreibt das Gesetz ausdrücklich den Bedarfsausweis vor. ' +
+               'Sie haben hier keine Wahl.';
       r.type = 'Bedarfsausweis (Pflicht)';
       r.cites = ['pflicht_verkauf_vermietung', 'bedarfspflicht_altbau'];
       r.carry = { art: 'bedarf' };
-      // The warning quotes the 10.000 € figure — cite where it comes from.
-      if (a3 === 'inseriert') r.cites.push('bussgeld');
+    } else if (unsicher) {
+      var was = bauantrag === 'unbekannt'
+        ? 'das Datum des Bauantrags'
+        : 'der Dämmzustand des Gebäudes';
+      r.tone = 'bedarf';
+      r.badge = 'Auf der sicheren Seite';
+      r.title = 'Ja – und mit dem Bedarfsausweis sind Sie sicher unterwegs.';
+      r.body = 'Bei ' + verb + ' ist ein Energieausweis Pflicht. Weil ' + was +
+               ' offen ist, lässt sich nicht abschließend sagen, ob der ' +
+               'günstigere Verbrauchsausweis zulässig wäre. Der ' +
+               'Bedarfsausweis ist immer erlaubt – mit ihm machen Sie in ' +
+               'keinem Fall etwas falsch.';
+      r.type = 'Bedarfsausweis (immer zulässig)';
+      r.cites = ['pflicht_verkauf_vermietung', 'bedarfspflicht_altbau'];
+      r.carry = { art: 'bedarf' };
+      r.steps = [
+        bauantrag === 'unbekannt'
+          ? 'Bauantragsdatum klären: Kaufvertrag, Bauunterlagen, Teilungserklärung oder Bauakte beim Bauamt.'
+          : 'Dämmzustand klären: Sanierungsbelege sichten oder eine nach § 88 GEG berechtigte Person fragen.',
+        'Ergibt sich daraus, dass die Ausnahme greift, genügt der günstigere Verbrauchsausweis.',
+        'Andernfalls den Bedarfsausweis erstellen lassen.',
+      ];
+      r.nexts.unshift({
+        href: '#kosten', title: 'Lohnt sich das Nachprüfen?',
+        sub: 'Preise beider Ausweis-Arten vergleichen – die Differenz zeigt es.',
+      });
     } else {
-      r.title = 'Ja – Sie brauchen einen Energieausweis.';
-      var why = ans[3] === 'nichtwohn'
+      var why = typ === 'nichtwohn'
         ? 'Bei Nichtwohngebäuden schreibt das Gesetz keine bestimmte Art vor.'
-        : ans[4] === 'ab5'
+        : wohnungen === 'ab5'
           ? 'Ab fünf Wohnungen schreibt das Gesetz keine bestimmte Art vor.'
-          : ans[5] === 'ab1977'
+          : bauantrag === 'ab1977'
             ? 'Für Gebäude ab dem 1. November 1977 schreibt das Gesetz keine bestimmte Art vor.'
-            : 'Da das Gebäude auf den Dämmstandard von 1977 gebracht wurde, entfällt die Pflicht zum Bedarfsausweis.';
+            : 'Da das Gebäude nachträglich gedämmt wurde, entfällt die Pflicht zum Bedarfsausweis.';
+      r.tone = 'yes';
+      r.badge = 'Pflicht: ja';
+      r.title = 'Ja – Sie brauchen einen Energieausweis.';
       r.body = 'Bei ' + verb + ' ist ein Energieausweis Pflicht. ' + why +
                ' Sie haben die freie Wahl – der Verbrauchsausweis ist in der ' +
                'Regel günstiger, sofern Verbrauchsdaten vorliegen.';
       r.type = 'Freie Wahl – Verbrauchsausweis meist günstiger';
       r.cites = ['pflicht_verkauf_vermietung', 'freie_wahl'];
       r.carry = { art: 'verbrauch' };
-      if (a3 === 'inseriert') r.cites.push('bussgeld');
     }
     return { view: 'result', r: r };
   };

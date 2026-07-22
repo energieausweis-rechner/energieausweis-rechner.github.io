@@ -69,13 +69,25 @@
   --fs-small: 1rem;      /* 16px — the floor; captions, legal notes */
   --lh-body: 1.65;
 
+  /* Tints — derived from --klasse-a, used for hover and icon tiles so the
+     green identity carries through without shouting. */
+  --tint: #eef6ea;
+  --tint-deep: #e2efdb;
+
   /* ── Geometry ─────────────────────────────────────────────────────────── */
-  --radius: 6px;
+  --radius: 8px;
+  --radius-lg: 14px;     /* tool cards — the primary surface */
   --maxw: 42rem;         /* reading measure for a single-column tool page */
   --maxw-wide: 60rem;
   --tap: 48px;           /* minimum interactive target */
   --nav-h: 56px;         /* sticky in-page nav */
   --space: 1rem;
+
+  /* Shadows stay soft and green-tinted rather than neutral grey, so cards
+     lift off the chalk background without looking like Material. */
+  --shadow-sm: 0 1px 2px rgb(20 35 27 / .05), 0 2px 6px rgb(20 35 27 / .04);
+  --shadow-md: 0 2px 4px rgb(20 35 27 / .06), 0 8px 24px rgb(20 35 27 / .07);
+  --shadow-lift: 0 4px 8px rgb(20 35 27 / .08), 0 12px 28px rgb(20 35 27 / .10);
 
   /* ── The Effizienzband ────────────────────────────────────────────────── */
   --band: linear-gradient(90deg, #0f8a3f, #4fa22f, #7fb52e, #a8c63b, #f2d43f,

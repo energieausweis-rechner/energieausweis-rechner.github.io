@@ -39,19 +39,25 @@
     </div>
   </header>
 
+  <!-- Orientation first: five numbered tools, visible before the fold and
+       pinned for the rest of the page. Placed ABOVE the tool so a phone user
+       does not have to scroll past a whole wizard to learn what is here. -->
+  <nav class="toolnav" aria-label="Die 5 kostenlosen Tools auf dieser Seite">
+    <ul>
+      <li><a href="#rechner"><span class="n" aria-hidden="true">1</span>Welcher Ausweis?</a></li>
+      <li><a href="#inserat"><span class="n" aria-hidden="true">2</span>Anzeigentext</a></li>
+      <li><a href="#effizienzklasse"><span class="n" aria-hidden="true">3</span>Effizienzklasse</a></li>
+      <li><a href="#kosten"><span class="n" aria-hidden="true">4</span>Kosten</a></li>
+      <li><a href="#gmodg"><span class="n" aria-hidden="true">5</span>Neues Gesetz</a></li>
+    </ul>
+  </nav>
+
   <main>
     <!-- ── THE TOOL. Nothing above it but its own heading. ────────────── -->
     <section class="hero" id="rechner">
       <div class="container">
         <h1>Welchen Energieausweis brauche ich?</h1>
-        <p class="sub">Beantworten Sie ein paar Fragen – Sie erfahren, ob Sie einen
-          Energieausweis brauchen und welche Art vorgeschrieben ist.</p>
-        <ul class="trust">
-          <li>In unter 1 Minute</li>
-          <li>100 % kostenlos</li>
-          <li>Ohne Anmeldung</li>
-          <li>Stand: GEG 07/2026</li>
-        </ul>
+        <p class="sub">Ein paar Fragen – dann wissen Sie, ob Sie einen brauchen und welchen.</p>
         <div class="card" data-mount>
           <noscript>
             <p><strong>Für den Rechner benötigen Sie JavaScript.</strong> Die
@@ -59,25 +65,28 @@
             siehe <a href="#pflicht">Wann ein Energieausweis Pflicht ist</a>.</p>
           </noscript>
         </div>
+        <ul class="trust">
+          <li>In unter 1 Minute</li>
+          <li>100 % kostenlos</li>
+          <li>Ohne Anmeldung</li>
+          <li>Stand: GEG 07/2026</li>
+        </ul>
+        <p class="privacy-note">Ihre Angaben bleiben in Ihrem Browser. Sie werden
+          nicht an uns übertragen und nicht gespeichert.</p>
       </div>
     </section>
-
-    <nav class="toolnav" aria-label="Werkzeuge auf dieser Seite">
-      <ul>
-        <li><a href="#rechner">Welcher Ausweis?</a></li>
-        <li><a href="#inserat">Anzeigentext</a></li>
-        <li><a href="#effizienzklasse">Effizienzklasse</a></li>
-        <li><a href="#kosten">Kosten</a></li>
-        <li><a href="#gmodg">Neues Gesetz</a></li>
-      </ul>
-    </nav>
 
     <!-- ── Anzeigentext-Generator ─────────────────────────────────────── -->
     <section id="inserat" class="alt">
       <div class="container">
-        <p class="eyebrow">Anzeigentext-Generator</p>
-        <h2>Was muss in meine Immobilienanzeige?</h2>
-        <p>In eine Immobilienanzeige gehören fünf Pflichtangaben aus dem
+        <header class="sec-head">
+          <span class="sec-num" aria-hidden="true">2</span>
+          <div>
+            <p class="eyebrow">Anzeigentext-Generator</p>
+            <h2>Was muss in meine Immobilienanzeige?</h2>
+          </div>
+        </header>
+        <p class="sec-intro">In eine Immobilienanzeige gehören fünf Pflichtangaben aus dem
           Energieausweis: die Art des Ausweises, der Endenergiewert, der wesentliche
           Energieträger der Heizung sowie – bei Wohngebäuden – Baujahr und
           Energieeffizienzklasse. Fehlen sie, droht ein Bußgeld von bis zu 10.000 €.</p>
@@ -88,9 +97,14 @@
     <!-- ── Effizienzklassen-Rechner ───────────────────────────────────── -->
     <section id="effizienzklasse">
       <div class="container">
-        <p class="eyebrow">Effizienzklassen-Rechner</p>
-        <h2>Welche Energieeffizienzklasse hat mein Haus?</h2>
-        <p>Die Effizienzklasse ergibt sich unmittelbar aus dem Endenergiewert Ihres
+        <header class="sec-head">
+          <span class="sec-num" aria-hidden="true">3</span>
+          <div>
+            <p class="eyebrow">Effizienzklassen-Rechner</p>
+            <h2>Welche Energieeffizienzklasse hat mein Haus?</h2>
+          </div>
+        </header>
+        <p class="sec-intro">Die Effizienzklasse ergibt sich unmittelbar aus dem Endenergiewert Ihres
           Gebäudes: bis 30 kWh/(m²·a) ist es A+, über 250 ist es H. Geben Sie den
           Kennwert von Seite 2 Ihres Energieausweises ein.</p>
         <div class="card" data-mount></div>
@@ -118,9 +132,14 @@
     <!-- ── Kostenrechner ──────────────────────────────────────────────── -->
     <section id="kosten" class="alt">
       <div class="container">
-        <p class="eyebrow">Kostenrechner</p>
-        <h2>Was kostet ein Energieausweis?</h2>
-        <p>Der Preis hängt vor allem von zwei Dingen ab: ob Sie einen Verbrauchs-
+        <header class="sec-head">
+          <span class="sec-num" aria-hidden="true">4</span>
+          <div>
+            <p class="eyebrow">Kostenrechner</p>
+            <h2>Was kostet ein Energieausweis?</h2>
+          </div>
+        </header>
+        <p class="sec-intro">Der Preis hängt vor allem von zwei Dingen ab: ob Sie einen Verbrauchs-
           oder einen Bedarfsausweis brauchen, und ob er online oder mit einem
           Vor-Ort-Termin erstellt wird.</p>
         <div class="card" data-mount></div>
@@ -130,9 +149,14 @@
     <!-- ── GModG ──────────────────────────────────────────────────────── -->
     <section id="gmodg">
       <div class="container">
-        <p class="eyebrow">Gesetzesänderung</p>
-        <h2>Energieausweis und das neue GModG – jetzt erstellen oder warten?</h2>
-        <p>Das Gebäudemodernisierungsgesetz soll das Gebäudeenergiegesetz ablösen
+        <header class="sec-head">
+          <span class="sec-num" aria-hidden="true">5</span>
+          <div>
+            <p class="eyebrow">Gesetzesänderung</p>
+            <h2>Energieausweis und das neue GModG – jetzt erstellen oder warten?</h2>
+          </div>
+        </header>
+        <p class="sec-intro">Das Gebäudemodernisierungsgesetz soll das Gebäudeenergiegesetz ablösen
           und dabei auch die Regeln zum Energieausweis ändern. Der Bundestag hat es
           beschlossen – verkündet ist es noch nicht.</p>
         <div class="card" data-mount></div>
@@ -170,11 +194,13 @@
           Haus den Standard schon bei der Fertigstellung, gilt die Pflicht ebenfalls
           nicht.</p>
         <div class="cite">
-          <div class="src"><strong>§ 80 Abs. 3 Sätze 2 bis 4 GEG</strong><span class="stand">Stand: 07/2026</span></div>
-          <blockquote>„In den Fällen des Satzes 1 ist für Wohngebäude, die weniger als
-            fünf Wohnungen haben und für die der Bauantrag vor dem 1. November 1977
-            gestellt worden ist, ein Energiebedarfsausweis auszustellen.“</blockquote>
-          <div class="src"><a href="https://www.gesetze-im-internet.de/geg/__80.html" rel="noopener" target="_blank">Gesetzestext auf gesetze-im-internet.de ↗</a></div>
+          <details open>
+            <summary><strong>§ 80 Abs. 3 Sätze 2 bis 4 GEG</strong><span class="stand">Stand: 07/2026</span></summary>
+            <blockquote>„In den Fällen des Satzes 1 ist für Wohngebäude, die weniger als
+              fünf Wohnungen haben und für die der Bauantrag vor dem 1. November 1977
+              gestellt worden ist, ein Energiebedarfsausweis auszustellen.“</blockquote>
+            <div class="src"><a href="https://www.gesetze-im-internet.de/geg/__80.html" rel="noopener" target="_blank">Gesetzestext auf gesetze-im-internet.de ↗</a></div>
+          </details>
         </div>
       </div>
     </section>
@@ -201,17 +227,55 @@
           umfassend geändert, bleibt die Pflicht zum Bedarfsausweis bestehen. Die
           verbreitete Aussage „Denkmal heißt gar kein Energieausweis“ ist zu pauschal.</p>
         <div class="cite">
-          <div class="src"><strong>§ 79 Abs. 4 GEG</strong><span class="stand">Stand: 07/2026</span></div>
-          <blockquote>„Auf ein kleines Gebäude sind die Vorschriften dieses Abschnitts
-            nicht anzuwenden. Auf ein Baudenkmal ist § 80 Absatz 3 bis 7 nicht
-            anzuwenden.“</blockquote>
-          <div class="src"><a href="https://www.gesetze-im-internet.de/geg/__79.html" rel="noopener" target="_blank">Gesetzestext auf gesetze-im-internet.de ↗</a></div>
+          <details open>
+            <summary><strong>§ 79 Abs. 4 GEG</strong><span class="stand">Stand: 07/2026</span></summary>
+            <blockquote>„Auf ein kleines Gebäude sind die Vorschriften dieses Abschnitts
+              nicht anzuwenden. Auf ein Baudenkmal ist § 80 Absatz 3 bis 7 nicht
+              anzuwenden.“</blockquote>
+            <div class="src"><a href="https://www.gesetze-im-internet.de/geg/__79.html" rel="noopener" target="_blank">Gesetzestext auf gesetze-im-internet.de ↗</a></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Overview recap ─────────────────────────────────────────────── -->
+    <section id="uebersicht">
+      <div class="container">
+        <h2>Alle Tools im Überblick</h2>
+        <p class="sec-intro">Alle fünf sind kostenlos, brauchen keine Anmeldung und
+          rechnen direkt in Ihrem Browser.</p>
+        <div class="tool-grid">
+          <a class="tool-card" href="#rechner">
+            <span class="n" aria-hidden="true">1</span>
+            <span><span class="t">Welchen Energieausweis brauche ich?</span>
+            <span class="s">Ob Pflicht besteht – und ob Bedarfs- oder Verbrauchsausweis.</span></span>
+          </a>
+          <a class="tool-card" href="#inserat">
+            <span class="n" aria-hidden="true">2</span>
+            <span><span class="t">Anzeigentext für das Inserat</span>
+            <span class="s">Die fünf Pflichtangaben nach § 87 GEG, fertig zum Kopieren.</span></span>
+          </a>
+          <a class="tool-card" href="#effizienzklasse">
+            <span class="n" aria-hidden="true">3</span>
+            <span><span class="t">Energieeffizienzklasse A+ bis H</span>
+            <span class="s">Kennwert eingeben, Klasse sofort ablesen.</span></span>
+          </a>
+          <a class="tool-card" href="#kosten">
+            <span class="n" aria-hidden="true">4</span>
+            <span><span class="t">Was kostet ein Energieausweis?</span>
+            <span class="s">Preisspanne nach Ausweis-Art, Erstellungsweg und Gebäude.</span></span>
+          </a>
+          <a class="tool-card" href="#gmodg">
+            <span class="n" aria-hidden="true">5</span>
+            <span><span class="t">Jetzt erstellen oder warten?</span>
+            <span class="s">Was sich mit dem neuen GModG ändert – und wann.</span></span>
+          </a>
         </div>
       </div>
     </section>
 
     <!-- ── FAQ ────────────────────────────────────────────────────────── -->
-    <section id="faq">
+    <section id="faq" class="alt">
       <div class="container">
         <h2>Häufige Fragen</h2>
 

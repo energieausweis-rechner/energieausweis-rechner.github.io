@@ -20,13 +20,25 @@ required pages exist alongside it. Tools are `<h2>` sections with stable anchors
 | `/datenschutz/` | Incl. the `sessionStorage` justification under TDDDG § 25 Abs. 2 |
 | `/transparenz/` | Affiliate funding disclosure |
 
-### Anchors are a permanent contract
+### Two permanent contracts
 
-`#rechner` `#inserat` `#effizienzklasse` `#kosten` `#gmodg` `#unterschied`
-`#bedarfspflicht` `#pflicht` `#faq`
+**Section anchors** — `#rechner` `#inserat` `#effizienzklasse` `#kosten`
+`#gmodg` `#unterschied` `#bedarfspflicht` `#pflicht` `#uebersicht` `#faq`
 
-Never rename one after launch — inbound links, shared results and AI citations
-break silently. Add new ones instead.
+**Wizard state tokens** — flow state lives in the `?r=` query parameter, *not*
+the hash (the hash belongs to the anchors; mixing them means navigating to
+`#kosten` would discard the user's answers):
+
+```
+/?r=verkauf.keine.wohn.bis4.vor1977.nein~inseriert#rechner
+     └─ answers, dot-separated, in question order   └─ optional follow-up
+```
+
+Never rename, reorder or renumber either set after launch. Inbound links,
+shared results and AI citations break silently — and a reordered answer token
+resolves an old link to a *different* legal result, which is worse than a 404.
+Add new values instead; unknown tokens already degrade to the furthest valid
+point rather than erroring.
 
 ## Files
 

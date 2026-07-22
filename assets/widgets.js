@@ -83,6 +83,20 @@
         el('span', { text: 'sparsam' }), el('span', { text: 'hoher Verbrauch' }),
       ]));
 
+      // A typo like 1200 silently produces "H" and looks authoritative.
+      // Flag implausible values instead of rendering a confident wrong answer.
+      if (has && (val < 10 || val > 600)) {
+        mount.appendChild(el('div', { class: 'warn' }, [
+          el('span', { class: 'mark', 'aria-hidden': 'true', text: '!' }),
+          el('span', { text: val < 10
+            ? 'Bitte prüfen: Werte unter 10 kWh/(m²·a) kommen praktisch nur bei ' +
+              'Passiv- und Nullenergiehäusern vor. Steht die Zahl wirklich so im Ausweis?'
+            : 'Bitte prüfen: Werte über 600 kWh/(m²·a) sind sehr ungewöhnlich. ' +
+              'Häufig wurde der Jahresverbrauch des ganzen Hauses eingetragen ' +
+              'statt des Werts pro Quadratmeter.' }),
+        ]));
+      }
+
       if (has) {
         var i = EAR.KLASSEN.indexOf(kl);
         var low = i === 0 ? 0 : EAR.KLASSEN[i - 1].max;
@@ -265,19 +279,23 @@
       var p = PREISE[state.art][state.weg][state.typ];
       mount.appendChild(el('div', { class: 'klass-out anim', 'aria-live': 'polite' }, [
         el('div', {}, [
-          el('strong', { style: 'font-size: var(--fs-h3)',
-            text: 'ca. ' + p[0] + ' – ' + p[1] + ' €' }),
-          el('div', { class: 'sub', text: 'Richtwert, je nach Anbieter und Gebäude.' }),
+          el('span', { class: 'figure', text: p[0] + ' – ' + p[1] + ' €' }),
+          el('span', { class: 'sub', text: 'Richtwert, je nach Anbieter und Gebäude.' }),
         ]),
       ]));
 
-      if (state.weg === 'vorort' && state.art === 'bedarf') {
-        mount.appendChild(el('p', { class: 'hint',
-          text: 'Ein Vor-Ort-Termin ist gesetzlich nicht vorgeschrieben – ' +
-                'auch ein Bedarfsausweis darf auf Grundlage der von Ihnen ' +
-                'gelieferten Gebäudedaten erstellt werden. Der Termin bringt ' +
-                'dafür belastbarere Werte und Sanierungshinweise.' }));
-      }
+      // The online/vor-Ort trade-off is the decision that actually moves the
+      // price, so explain it in every state rather than one combination.
+      mount.appendChild(el('p', { class: 'hint',
+        text: state.weg === 'online'
+          ? 'Ein Vor-Ort-Termin ist gesetzlich nicht vorgeschrieben: Der ' +
+            'Aussteller darf sich auf die Daten stützen, die Sie liefern – ' +
+            'für deren Richtigkeit haften allerdings Sie. Das ist der Grund, ' +
+            'warum Online-Ausweise so viel günstiger sind.'
+          : 'Beim Vor-Ort-Termin nimmt die ausstellende Person das Gebäude ' +
+            'selbst auf. Das kostet mehr, liefert dafür belastbarere Werte, ' +
+            'nimmt Ihnen die Verantwortung für die Datenqualität ab und ' +
+            'bringt meist konkrete Sanierungshinweise mit.' }));
 
       /* Provider block stays hidden until real partners are contracted. */
       var partners = EAR.PARTNERS.map(function (p2) {
@@ -350,14 +368,15 @@
       .filter(Boolean);
 
     if (!('IntersectionObserver' in window)) return;
+    // Highlight only. Deliberately does NOT touch the URL: rewriting it on
+    // every scroll means a copied address points at whatever happened to be
+    // in view, and it would fight the wizard's ?r= state.
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (!e.isIntersecting) return;
         links.forEach(function (a) { a.removeAttribute('aria-current'); });
         var a = byId[e.target.id];
         if (a) a.setAttribute('aria-current', 'true');
-        // Reflect position in the URL without spamming history.
-        if (history.replaceState) history.replaceState(null, '', '#' + e.target.id);
       });
     }, { rootMargin: '-20% 0px -70% 0px' });
     sections.forEach(function (s) { io.observe(s); });
@@ -384,18 +403,24 @@
     var mount = host.querySelector('[data-mount]');
     if (!mount) return;
     var done = false;
-    function run() { if (done) return; done = true; fn(mount); }
+    // The mount reserves height via CSS until it is filled, so a section that
+    // renders while the user is scrolling past does not shift content
+    // under them.
+    function run() { if (done) return; done = true; fn(mount); mount.classList.add('mounted'); }
     if (!('IntersectionObserver' in window)) { run(); return; }
     var io = new IntersectionObserver(function (es) {
       if (es.some(function (e) { return e.isIntersecting; })) { run(); io.disconnect(); }
-    }, { rootMargin: '400px' });
+    }, { rootMargin: '600px' });
     io.observe(host);
   }
 
   document.addEventListener('DOMContentLoaded', function () {
     var main = $('#rechner [data-mount]');
     if (main) {
-      EAR.renderWizard(main, EAR.flows.main, { steps: ['Situation', 'Gebäude', 'Ergebnis'] });
+      EAR.renderWizard(main, EAR.flows.main, {
+        steps: ['Situation', 'Gebäude', 'Ergebnis'],
+        maxQuestions: 6,
+      });
     }
     lazy('inserat', EAR.mountInserat);
     lazy('effizienzklasse', EAR.mountEffizienz);
