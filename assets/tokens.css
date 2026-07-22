@@ -8,10 +8,14 @@
    as newspaper or brochure, not as an authority. No shadows, no rounded
    pills, no gradients outside the Effizienzband.
 
-   Colour is INFORMATION, not decoration. It appears in three places only:
-     1. the A+→H Effizienzband, where hue IS the datum,
-     2. warnings and Bußgeld notices,
-     3. one accent for links and the current position.
+   Colour is INFORMATION, not decoration. Every hue on the page answers a
+   question the reader has:
+     1. the A+→H Effizienzband — hue IS the datum,
+     2. result tones — is this settled, prescribed, or urgent?
+     3. warnings and Bußgeld notices,
+     4. one accent for structure, links and the current position.
+   Nothing is coloured merely to look designed; equally, nothing that
+   carries meaning is left grey.
    The accent is deliberately blue, not green, so that UI colour can never
    be mistaken for an efficiency-class colour.
 
@@ -53,10 +57,18 @@
      be confused with an Effizienzklasse. */
   --accent: #1b4b7a;
   --accent-dk: #123a5f;
-  --accent-wash: #eaf0f5;
+  --accent-wash: #eef3f8;  /* light enough that --ink-soft stays AAA on it */
 
-  --danger: #8a2318;
-  --danger-bg: #f9eeec;
+  /* Result tones. These are OUTCOME colours — "nothing to do", "a specific
+     type is prescribed", "time-critical" — and are used only on result
+     cards and their badges. Deliberately distinct from the Effizienzband
+     hues so a result tint is never read as an efficiency class. */
+  --ok: #2f6b46;          /* no duty / free choice   — 6.9:1 on its wash */
+  --ok-wash: #edf5f0;
+  --attention: #8a5a12;   /* a particular Ausweis is mandatory */
+  --attention-wash: #fdf5e8;
+  --danger: #8a2318;      /* time-critical, Bußgeld */
+  --danger-bg: #fbefed;
 
   /* Partner CTAs only, never internal actions. */
   --cta: #8a6a12;
