@@ -195,12 +195,14 @@ section:first-of-type { border-top: none; }
 }
 
 /* ── Hero ───────────────────────────────────────────────────────────────── */
-.hero { padding: 2.25rem 0 2.5rem; border-top: none; }
+.hero { padding: 1.5rem 0 2.5rem; border-top: none; }
 /* No measure clamp: the H1 is a single line on desktop by design. It still
    wraps on a phone — 34 characters cannot fit 375px at a legible size — but
    nothing should break it earlier than the viewport does. */
 .hero h1 { margin-bottom: .4rem; text-wrap: balance; }
-.hero .sub {
+/* Direct child only: `.sub` also names the gloss inside an answer row, and
+   the tool card is a descendant of .hero. */
+.hero > .sub {
   font-size: var(--fs-body); color: var(--ink-soft);
   max-width: var(--maxw); margin-bottom: 1.5rem;
 }
@@ -243,7 +245,7 @@ section:first-of-type { border-top: none; }
 .steps {
   display: flex; align-items: baseline; gap: .5rem;
   font-family: var(--font-ui); font-size: .8125rem;
-  padding-bottom: .7rem; margin-bottom: 1.2rem;
+  padding-bottom: .6rem; margin-bottom: .9rem;
   border-bottom: var(--rule) solid var(--line-soft);
   color: var(--ink-soft);
 }
@@ -269,7 +271,7 @@ section:first-of-type { border-top: none; }
 .options { display: flex; flex-direction: column; border-top: var(--rule) solid var(--line-soft); }
 .opt {
   display: flex; align-items: center; gap: .9rem; width: 100%;
-  min-height: var(--tap); padding: .8rem .3rem; text-align: left;
+  min-height: var(--tap); padding: .6rem .3rem; text-align: left;
   background: none; border: none;
   border-bottom: var(--rule) solid var(--line-soft);
   border-radius: 0; cursor: pointer;
@@ -606,18 +608,45 @@ details > *:not(summary) { padding: 0 0 .9rem; }
 .prose li { margin-bottom: .35rem; }
 .prose code { font-family: var(--font-mono); font-size: .9em; }
 
-/* ── Small screens ────────────────────────────────────────────────────────
-   The whole budget here is the hero stack: h1 + sub + step bar. Measure
-   before changing — the first question must clear a 375×667 fold. */
+/* ── Fitting a whole question on one screen ───────────────────────────────
+   Goal: heading, question and every answer visible without scrolling.
+   The binding case is question 1, which has six answers. Everything below
+   is bought space — measure with scratchpad/fit-check before changing any
+   of it, and keep answer rows at or above the 48px target minimum. */
+@media (max-width: 48rem) {
+  /* The three-phase bar and "Frage X von max. 6" say the same thing. On a
+     phone only the more precise one survives. */
+  .steps { display: none; }
+
+  /* The strapline is context, not instruction — it moves below the tool so
+     it costs no fold. DOM order is unchanged, so reading order still runs
+     heading → date → tool → description. */
+  .hero { display: flex; flex-direction: column; }
+  .hero > h1 { order: 1 } .hero > .stand-line { order: 2 }
+  .hero > .card { order: 3 } .hero > .sub { order: 4 }
+  .hero > .trust { order: 5 } .hero > .privacy-note { order: 6 }
+  .hero > .sub { margin: 1.25rem 0 0; }
+
+  .site-header .inner { padding: .6rem 1.25rem; }
+  .toolnav a { min-height: 46px; }
+  .hero { padding: .75rem 0 1.75rem; }
+  .hero > h1 { margin-bottom: .3rem; }
+  .stand-line { margin-bottom: .55rem; }
+  .card { padding: .8rem .9rem 1rem; }
+  .step-back { margin: -.2rem 0 .3rem -.5rem; min-height: 36px; }
+  .q-text { margin-bottom: .55rem; }
+  .eyebrow { margin-bottom: .2rem; }
+
+  /* Answer rows: 50px, still clear of the 48px minimum. */
+  .opt { padding: .5rem .2rem; gap: .65rem; min-height: 50px; }
+  .opt .ico-tile { width: 34px; height: 34px; }
+  .opt .ico-tile svg { width: 24px; height: 24px; }
+  .opt .lbl { font-size: 1.0625rem; line-height: 1.25; }
+  .opt .sub { font-size: .8125rem; line-height: 1.3; }
+}
+
 @media (max-width: 26rem) {
-  :root { --fs-h1: 1.8rem; }
-  .hero { padding: 1.5rem 0 2rem; }
-  .hero .sub { margin-bottom: 1.1rem; }
-  .card { padding: 1.2rem 1rem; }
-  .opt { padding: .7rem .2rem; gap: .75rem; }
-  .opt .ico-tile { width: 36px; height: 36px; }
-  .opt .ico-tile svg { width: 26px; height: 26px; }
-  .steps { font-size: .75rem; }
+  :root { --fs-h1: 1.625rem; }
 }
 
 /* ── Print ──────────────────────────────────────────────────────────────── */

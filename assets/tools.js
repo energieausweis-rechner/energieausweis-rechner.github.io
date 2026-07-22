@@ -465,12 +465,12 @@
       short: 'Ihre Rolle',
       text: 'In welcher Rolle sind Sie – und was steht an?',
       options: [
-        { value: 'verkauf', icon: 'seller', label: 'Ich verkaufe', sub: 'Eigentümer, Verkauf.' },
-        { value: 'vermietung', icon: 'houseKey', label: 'Ich vermiete neu', sub: 'Eigentümer, neuer Mietvertrag.' },
-        { value: 'neubau', icon: 'crane', label: 'Ich baue neu', sub: 'Neubau / Fertigstellung.' },
-        { value: 'interessent', icon: 'buyer', label: 'Ich kaufe oder miete', sub: 'Interessent oder Mieter.' },
-        { value: 'finanzierung', icon: 'bank', label: 'Ich brauche ihn für die Bank', sub: 'Finanzierung, Kredit, Förderung.' },
-        { value: 'bestand', icon: 'house', label: 'Nichts davon', sub: 'Selbst nutzen, Bestand.' },
+        { value: 'verkauf', icon: 'seller', label: 'Ich verkaufe', sub: 'Als Eigentümer' },
+        { value: 'vermietung', icon: 'houseKey', label: 'Ich vermiete neu', sub: 'Neuer Mietvertrag' },
+        { value: 'neubau', icon: 'crane', label: 'Ich baue neu', sub: 'Neubau, Fertigstellung' },
+        { value: 'interessent', icon: 'buyer', label: 'Ich kaufe oder miete', sub: 'Interessent oder Mieter' },
+        { value: 'finanzierung', icon: 'bank', label: 'Ich brauche ihn für die Bank', sub: 'Kredit oder Förderung' },
+        { value: 'bestand', icon: 'house', label: 'Nichts davon', sub: 'Selbst nutzen' },
       ],
     };
     if (!ans.length) return { view: 'question', q: Q1, step: 1 };
@@ -552,9 +552,9 @@
       short: 'Ausnahmen',
       text: 'Trifft eine dieser Ausnahmen auf das Gebäude zu?',
       options: [
-        { value: 'denkmal', icon: 'columns', label: 'Ja, Baudenkmal', sub: 'Unter Denkmalschutz.' },
-        { value: 'klein', icon: 'area', label: 'Ja, höchstens 50 m²', sub: 'Nutzfläche nicht mehr als 50 m².' },
-        { value: 'keine', icon: 'none', label: 'Nein, keine davon', sub: 'Weder noch.' },
+        { value: 'denkmal', icon: 'columns', label: 'Ja, Baudenkmal', sub: 'Denkmalschutz' },
+        { value: 'klein', icon: 'area', label: 'Ja, höchstens 50 m²', sub: 'Nutzfläche bis 50 m²' },
+        { value: 'keine', icon: 'none', label: 'Nein, keine davon', sub: 'Weder noch' },
       ],
     };
     if (ans.length === 1) return { view: 'question', q: Q2, step: 1 };
@@ -591,8 +591,8 @@
       short: 'Gebäudeart',
       text: 'Um was für ein Gebäude geht es?',
       options: [
-        { value: 'wohn', icon: 'house', label: 'Wohngebäude', sub: 'Haus oder Wohnung.' },
-        { value: 'nichtwohn', icon: 'building', label: 'Nichtwohngebäude', sub: 'Gewerbe, Büro, Halle.' },
+        { value: 'wohn', icon: 'house', label: 'Wohngebäude', sub: 'Haus oder Wohnung' },
+        { value: 'nichtwohn', icon: 'building', label: 'Nichtwohngebäude', sub: 'Gewerbe, Büro, Halle' },
       ],
     };
     if (ans.length === 2) return { view: 'question', q: Q3, step: 2 };
@@ -601,8 +601,8 @@
       short: 'Wohnungen',
       text: 'Wie viele Wohnungen hat das Gebäude?',
       options: [
-        { value: 'ab5', icon: 'building', label: '5 oder mehr', sub: 'Mehrfamilienhaus.' },
-        { value: 'bis4', icon: 'house', label: 'Bis zu 4', sub: 'Ein- bis Vierfamilienhaus.' },
+        { value: 'ab5', icon: 'building', label: '5 oder mehr', sub: 'Mehrfamilienhaus' },
+        { value: 'bis4', icon: 'house', label: 'Bis zu 4', sub: 'Ein- bis Vierfamilienhaus' },
       ],
     };
     if (ans.length === 3 && ans[2] === 'wohn') return { view: 'question', q: Q4, step: 2 };
@@ -620,9 +620,9 @@
               'zwei Jahre auseinanderliegen.',
       },
       options: [
-        { value: 'ab1977', icon: 'calendar', label: 'Am oder nach dem 1.11.1977', sub: 'Oder später gebaut.' },
-        { value: 'vor1977', icon: 'calendarOld', label: 'Vor dem 1.11.1977', sub: 'Älteres Gebäude.' },
-        { value: 'unbekannt', icon: 'unknown', label: 'Weiß ich nicht', sub: 'Datum ist mir nicht bekannt.' },
+        { value: 'ab1977', icon: 'calendar', label: 'Am oder nach dem 1.11.1977', sub: 'Oder später' },
+        { value: 'vor1977', icon: 'calendarOld', label: 'Vor dem 1.11.1977', sub: 'Älteres Gebäude' },
+        { value: 'unbekannt', icon: 'unknown', label: 'Weiß ich nicht', sub: 'Datum unbekannt' },
       ],
     };
     if (ans.length === 4 && ans[3] === 'bis4') return { view: 'question', q: Q5, step: 2 };
@@ -640,9 +640,9 @@
               'wählen Sie „Bin mir nicht sicher“.',
       },
       options: [
-        { value: 'ja', icon: 'reno', label: 'Ja, nachträglich gedämmt', sub: 'Fassade, Dach oder Fenster erneuert.' },
-        { value: 'nein', icon: 'house', label: 'Nein, im Originalzustand', sub: 'Nichts Wesentliches gemacht.' },
-        { value: 'unsicher', icon: 'unknown', label: 'Bin mir nicht sicher', sub: 'Weiß ich nicht.' },
+        { value: 'ja', icon: 'reno', label: 'Ja, nachträglich gedämmt', sub: 'Fassade, Dach, Fenster' },
+        { value: 'nein', icon: 'house', label: 'Nein, im Originalzustand', sub: 'Im Originalzustand' },
+        { value: 'unsicher', icon: 'unknown', label: 'Bin mir nicht sicher', sub: 'Weiß ich nicht' },
       ],
     };
     if (ans.length === 5 && ans[4] === 'vor1977') return { view: 'question', q: Q6, step: 2 };
