@@ -1,21 +1,23 @@
 /* ─────────────────────────────────────────────────────────────────────────
    Energieausweis Rechner — design tokens
 
-   Aesthetic: an official document, not a web app. Warm paper, near-black
-   ink, hairline rules, squared corners, no shadows. Serif for prose,
-   sans only for controls, monospace for paragraph references and figures.
+   Register: German institutional web (Verbraucherzentrale, bund.de,
+   gesetze-im-internet.de). What those have in common, and what is copied
+   here, is restraint: a humanist sans throughout, near-white ground, plenty
+   of white space, hairline rules, one sober accent. No serif — serif reads
+   as newspaper or brochure, not as an authority. No shadows, no rounded
+   pills, no gradients outside the Effizienzband.
 
-   Colour is treated as INFORMATION, not decoration. It appears in exactly
-   three places:
+   Colour is INFORMATION, not decoration. It appears in three places only:
      1. the A+→H Effizienzband, where hue IS the datum,
      2. warnings and Bußgeld notices,
-     3. one restrained accent for links and the current position.
-   Everywhere else is ink on paper.
+     3. one accent for links and the current position.
+   The accent is deliberately blue, not green, so that UI colour can never
+   be mistaken for an efficiency-class colour.
 
-   Fonts: the serif is a system stack (no download, present everywhere).
-   IBM Plex Sans is SELF-HOSTED for controls — never loaded from
-   fonts.gstatic.com, which transfers the visitor's IP to a US server and
-   was ruled a GDPR violation (LG München I, 20.01.2022 – 3 O 17493/20).
+   IBM Plex Sans is SELF-HOSTED — never loaded from fonts.gstatic.com, which
+   transfers the visitor's IP to a US server and was ruled a GDPR violation
+   (LG München I, 20.01.2022 – 3 O 17493/20).
    ───────────────────────────────────────────────────────────────────────── */
 
 @font-face {
@@ -32,49 +34,49 @@
 }
 
 :root {
-  /* ── Ink & paper ──────────────────────────────────────────────────────── */
-  --ink: #1c1a17;         /* near-black, warm — body text */
-  --ink-soft: #55504a;    /* secondary text; still AA on paper */
-  --paper: #faf8f3;       /* warm document stock */
-  --surface: #ffffff;     /* inset panels */
-  --line: #cdc7bb;        /* hairline rule */
-  --line-soft: #e4dfd4;   /* faint rule, inside panels */
-  --line-strong: #1c1a17; /* heavy rule — section openers, table heads */
+  /* ── Ink & ground ─────────────────────────────────────────────────────── */
+  /* Contrast measured against --paper, the worst case. Both clear WCAG AAA
+     for normal text (7:1) — the audience makes that a requirement, not a
+     nicety. Darken further before lightening --paper. */
+  --ink: #1a1d20;         /* body text — 15.6:1 */
+  --ink-soft: #4b5257;    /* secondary text — 7.3:1 */
+  --paper: #f4f6f7;       /* cool near-white ground */
+  --surface: #ffffff;     /* panels, form areas */
+  --line: #d3d8dc;        /* hairline rule */
+  --line-soft: #e6eaec;   /* faint rule inside panels */
+  --line-strong: #1a1d20; /* heavy rule — section openers, table heads */
 
-  /* One accent. Deep, desaturated, on-topic — not a UI green. */
-  --accent: #2f4a39;
-  --accent-dk: #1e3325;
-  --accent-wash: #eef0eb;  /* barely-there fill for the current position */
+  /* One accent. Sober institutional blue — never green, so UI colour cannot
+     be confused with an Effizienzklasse. */
+  --accent: #1b4b7a;
+  --accent-dk: #123a5f;
+  --accent-wash: #eaf0f5;
 
-  /* Warnings. Kept deliberately dark and dry rather than alarm-red. */
   --danger: #8a2318;
-  --danger-bg: #f7eeec;
+  --danger-bg: #f9eeec;
 
-  /* Partner CTAs only — never for internal actions, so a paid link is
-     always visually distinct from a free one. */
+  /* Partner CTAs only, never internal actions. */
   --cta: #8a6a12;
   --cta-dk: #6d5310;
 
   /* ── Type ─────────────────────────────────────────────────────────────── */
-  --font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia,
-    'Times New Roman', 'Noto Serif', serif;
-  --font-ui: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-ui: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
-  /* Senior-first scale. Body never below 18px; set in rem so the browser's
-     text-size setting still scales everything. */
+  /* Senior-first scale. Body never below 18px; rem so browser text-size
+     settings still scale everything. */
   --fs-body: 1.125rem;   /* 18px */
-  --fs-lead: 1.1875rem;  /* 19px — option labels */
-  --fs-h3: 1.3125rem;    /* 21px */
-  --fs-h2: 1.625rem;     /* 26px */
-  --fs-h1: 2rem;         /* 32px */
-  --fs-small: 1rem;      /* 16px floor — captions, legal notes */
+  --fs-lead: 1.125rem;   /* 18px — option labels */
+  --fs-h3: 1.25rem;      /* 20px */
+  --fs-h2: 1.5rem;       /* 24px */
+  --fs-h1: 1.875rem;     /* 30px */
+  --fs-small: 1rem;      /* 16px floor */
   --lh-body: 1.6;
 
   /* ── Geometry ─────────────────────────────────────────────────────────── */
-  --radius: 2px;         /* essentially square; documents do not have pills */
-  --maxw: 40rem;         /* reading measure */
-  --maxw-page: 66rem;    /* text column + table of contents */
+  --radius: 3px;
+  --maxw: 40rem;
+  --maxw-page: 66rem;
   --toc-w: 15rem;
   --tap: 48px;
   --nav-h: 52px;
@@ -95,7 +97,7 @@
 }
 
 @media (min-width: 40rem) {
-  :root { --fs-h1: 2.375rem; --fs-h2: 1.875rem; }
+  :root { --fs-h1: 2.125rem; --fs-h2: 1.625rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

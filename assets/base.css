@@ -1,8 +1,10 @@
 /* ─────────────────────────────────────────────────────────────────────────
    Energieausweis Rechner — layout & components
 
-   Document typography: serif prose, sans controls, monospace references.
-   Structure is carried by rules and whitespace, not by cards and shadows.
+   Typography: one humanist sans throughout, monospace for paragraph
+   references and figures. Structure is carried by rules and whitespace,
+   not by cards, shadows or colour — the register of German institutional
+   sites (Verbraucherzentrale, bund.de), which is what earns trust here.
    Senior-first: 18px floor, 48px targets, one question per screen, AAA
    contrast on body text.
    ───────────────────────────────────────────────────────────────────────── */
@@ -15,19 +17,20 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-serif);
+  font-family: var(--font-ui);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
   scroll-padding-top: calc(var(--nav-h) + 1.5rem);
 }
 
 h1, h2, h3, h4 {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  line-height: 1.2;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  line-height: 1.25;
   margin: 0 0 .5em;
+  letter-spacing: -.011em;
 }
-h1 { font-size: var(--fs-h1); letter-spacing: -.01em; }
+h1 { font-size: var(--fs-h1); letter-spacing: -.018em; }
 h2 { font-size: var(--fs-h2); }
 h3 { font-size: var(--fs-h3); }
 h4 { font-size: var(--fs-body); }
@@ -60,7 +63,7 @@ a:hover { color: var(--accent); }
   font-family: var(--font-ui);
   font-size: .8125rem;
   font-weight: 600;
-  letter-spacing: .09em;
+  letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--ink-soft);
 }
@@ -77,7 +80,7 @@ a:hover { color: var(--accent); }
 }
 .brand {
   display: flex; align-items: center; gap: .6rem;
-  font-family: var(--font-serif); font-weight: 700; font-size: 1.15rem;
+  font-family: var(--font-ui); font-weight: 700; font-size: 1.15rem;
   color: var(--ink); text-decoration: none; letter-spacing: .01em;
 }
 .brand svg { flex: none; }
@@ -201,7 +204,7 @@ section:first-of-type { border-top: none; }
 .card {
   background: var(--surface);
   border: var(--rule) solid var(--line);
-  border-top: 2px solid var(--line-strong);
+  border-top: 3px solid var(--line-strong);
   border-radius: var(--radius);
   padding: 1.5rem 1.4rem;
 }
@@ -221,12 +224,12 @@ section:first-of-type { border-top: none; }
 .step-body { display: flex; align-items: baseline; gap: .35rem; }
 .step .mark { font-family: var(--font-mono); font-weight: 600; }
 .step .lbl { letter-spacing: .02em; }
-.step.on .mark, .step.on .lbl { color: var(--ink); font-weight: 700; }
+.step.on .mark, .step.on .lbl { color: var(--ink); font-weight: 600; }
 .step.done .mark { color: var(--accent-dk); }
 
 .q-text {
-  font-family: var(--font-serif); font-size: var(--fs-h3);
-  font-weight: 700; line-height: 1.3; margin: 0 0 1rem; max-width: 32ch;
+  font-family: var(--font-ui); font-size: var(--fs-h3);
+  font-weight: 600; line-height: 1.35; margin: 0 0 1rem; max-width: 34ch;
 }
 
 /* Answer rows — ruled list entries with a plain marker, like a form. */
@@ -249,7 +252,7 @@ section:first-of-type { border-top: none; }
 }
 .opt:hover .ico-tile { color: var(--accent-dk); border-color: var(--accent); }
 .opt .txt { flex: 1; min-width: 0; }
-.opt .lbl { display: block; font-size: var(--fs-lead); font-weight: 700; line-height: 1.3; }
+.opt .lbl { display: block; font-size: var(--fs-lead); font-weight: 600; line-height: 1.35; }
 .opt .sub {
   display: block; font-family: var(--font-ui); font-size: .875rem;
   color: var(--ink-soft); line-height: 1.4;
@@ -308,7 +311,7 @@ section:first-of-type { border-top: none; }
 }
 .type-out > span:first-child { display: block; margin-bottom: .15rem; }
 .type-out strong {
-  display: block; font-size: var(--fs-h3); font-weight: 700; line-height: 1.25;
+  display: block; font-size: var(--fs-h3); font-weight: 600; line-height: 1.3;
 }
 
 .result h4 { margin-top: 1.4rem; }
@@ -329,7 +332,7 @@ section:first-of-type { border-top: none; }
   border-bottom: var(--rule) solid var(--line-soft);
 }
 .next-link:hover { color: var(--accent-dk); }
-.next-link .t { font-weight: 700; }
+.next-link .t { font-weight: 600; }
 .next-link .s {
   font-family: var(--font-ui); font-size: .875rem; color: var(--ink-soft);
 }
@@ -447,7 +450,7 @@ input:focus { border-color: var(--ink); outline: 1px solid var(--ink); }
   display: block; font-family: var(--font-ui); font-size: .875rem; color: var(--ink-soft);
 }
 .klass-out .figure {
-  display: block; font-family: var(--font-serif); font-weight: 700;
+  display: block; font-family: var(--font-ui); font-weight: 600;
   font-size: 1.75rem; line-height: 1.15; margin-bottom: .15rem;
 }
 
@@ -494,7 +497,7 @@ td:first-child { font-family: var(--font-mono); }
 details { border-bottom: var(--rule) solid var(--line-soft); }
 summary {
   min-height: var(--tap); display: flex; align-items: center; gap: .8rem;
-  padding: .8rem 0; cursor: pointer; font-weight: 700; list-style: none;
+  padding: .8rem 0; cursor: pointer; font-weight: 600; list-style: none;
 }
 summary::-webkit-details-marker { display: none; }
 summary::after {
@@ -520,7 +523,7 @@ details > *:not(summary) { padding: 0 0 .9rem; }
 }
 .tool-card:hover { background: var(--accent-wash); color: var(--ink); }
 .tool-card .n { font-family: var(--font-mono); font-size: .8125rem; color: var(--ink-soft); }
-.tool-card .t { display: block; font-weight: 700; line-height: 1.3; }
+.tool-card .t { display: block; font-weight: 600; line-height: 1.35; }
 .tool-card .s {
   display: block; font-family: var(--font-ui); font-size: .875rem;
   color: var(--ink-soft); margin-top: .1rem; line-height: 1.4;
