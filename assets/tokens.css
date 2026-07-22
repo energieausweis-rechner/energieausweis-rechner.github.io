@@ -1,0 +1,111 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Energieausweis Rechner — design tokens
+   Identity: the A+→H Effizienzband. "Der Ausweis, modernisiert."
+
+   Carried over from the Claude Design project global.css. Fonts are
+   SELF-HOSTED, never loaded from fonts.gstatic.com — embedding Google Fonts
+   transfers the visitor's IP to a US server and was ruled a GDPR violation
+   (LG München I, 20.01.2022 – 3 O 17493/20).
+   ───────────────────────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('fonts/bricolage-400-800.woff2') format('woff2');
+  font-weight: 400 800;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('fonts/plexsans-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('fonts/plexsans-600.woff2') format('woff2');
+  font-weight: 600 700;
+  font-display: swap;
+}
+
+:root {
+  /* ── Colour ───────────────────────────────────────────────────────────── */
+  --ink: #14231b;        /* deep spruce — text/headlines */
+  --ink-soft: #46564d;   /* muted text */
+  --paper: #f5f8f3;      /* cool chalk — page background */
+  --surface: #ffffff;    /* cards/panels */
+  --line: #d7e0d5;       /* green-grey hairline */
+
+  --klasse-a: #1c8a4c;   /* efficiency green — primary/links/CTA */
+  --klasse-a-dk: #0f5e33;/* hover/active */
+  --signal: #e8852b;     /* warm amber — eyebrows/accents, sparing */
+
+  /* Partner-brand gold. OUTBOUND AFFILIATE CTAs ONLY — never for internal
+     actions, so a paid link is always visually distinct from a free one. */
+  --cta-yellow: #f5b301;
+  --cta-yellow-dk: #dca000;
+
+  --danger: #b42318;     /* penalty red — Bußgeld & legal warnings */
+  --danger-bg: #fdeceb;
+  --bedarf: #c2410c;     /* Bedarfsausweis-Pflicht result tone */
+  --bedarf-bg: #fff7ed;
+  --urgent: #c9252b;     /* time-critical result tone */
+  --urgent-bg: #fef2f2;
+
+  /* ── Type ─────────────────────────────────────────────────────────────── */
+  --font-display: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
+
+  /* Senior-first scale. Body never below 18px, and every step is set in rem
+     so the OS/browser text-size setting still scales the whole page. */
+  --fs-body: 1.125rem;   /* 18px */
+  --fs-lead: 1.25rem;    /* 20px — tool labels, option cards */
+  --fs-h3: 1.375rem;     /* 22px */
+  --fs-h2: 1.75rem;      /* 28px */
+  --fs-h1: 2.125rem;     /* 34px */
+  --fs-small: 1rem;      /* 16px — the floor; captions, legal notes */
+  --lh-body: 1.65;
+
+  /* ── Geometry ─────────────────────────────────────────────────────────── */
+  --radius: 6px;
+  --maxw: 42rem;         /* reading measure for a single-column tool page */
+  --maxw-wide: 60rem;
+  --tap: 48px;           /* minimum interactive target */
+  --nav-h: 56px;         /* sticky in-page nav */
+  --space: 1rem;
+
+  /* ── The Effizienzband ────────────────────────────────────────────────── */
+  --band: linear-gradient(90deg, #0f8a3f, #4fa22f, #7fb52e, #a8c63b, #f2d43f,
+    #f3a93c, #ec8b2e, #e2492f, #c9252b);
+
+  /* Per-class colours, A+ → H (GEG Anlage 10) */
+  --k-aplus: #0f8a3f;
+  --k-a: #4fa22f;
+  --k-b: #7fb52e;
+  --k-c: #a8c63b;
+  --k-d: #f2d43f;
+  --k-e: #f3a93c;
+  --k-f: #ec8b2e;
+  --k-g: #e2492f;
+  --k-h: #c9252b;
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --fs-h1: 2.5rem;   /* 40px */
+    --fs-h2: 2rem;     /* 32px */
+  }
+}
+
+/* Respect the OS reduced-motion setting — the result cards animate in. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

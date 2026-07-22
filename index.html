@@ -3,130 +3,263 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Energieausweis Rechner – Welcher Energieausweis ist Pflicht? (Verbrauchs- oder Bedarfsausweis)</title>
-  <meta name="description" content="Kostenloser Energieausweis-Rechner: In wenigen Fragen herausfinden, welcher Energieausweis für Ihr Gebäude Pflicht ist – Verbrauchsausweis oder Bedarfsausweis. Schnell, kostenlos und unverbindlich." />
+  <title>Welchen Energieausweis brauche ich? Kostenloser Rechner (GEG 2026)</title>
+  <meta name="description" content="In wenigen Fragen klären: Brauche ich einen Energieausweis – und Bedarfs- oder Verbrauchsausweis? Dazu Effizienzklassen-Rechner, Kostenrechner und Anzeigentext-Generator nach § 87 GEG. Kostenlos, ohne Anmeldung." />
   <meta name="robots" content="index, follow" />
   <meta name="google-site-verification" content="zNr4EaNPYB7QakMKWCqnzhUNw2TglRUbTxTZqMPlOsA" />
   <link rel="canonical" href="https://energieausweis-rechner.github.io/" />
-  <meta property="og:title" content="Energieausweis Rechner – Welcher Energieausweis ist Pflicht?" />
-  <meta property="og:description" content="Verbrauchsausweis oder Bedarfsausweis? In wenigen Fragen herausfinden, welcher Energieausweis für Ihr Gebäude vorgeschrieben ist. Kostenlos & unverbindlich." />
+
+  <meta property="og:title" content="Welchen Energieausweis brauche ich? Kostenloser Rechner" />
+  <meta property="og:description" content="Bedarfs- oder Verbrauchsausweis? In wenigen Fragen herausfinden, welcher Energieausweis für Ihr Gebäude vorgeschrieben ist. Kostenlos und ohne Anmeldung." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="de_DE" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2316a34a'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E%3F%3C/text%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="styles.css" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Verbrauchsausweis oder Bedarfsausweis – was ist der Unterschied?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Der Verbrauchsausweis basiert auf dem tatsächlichen Energieverbrauch der letzten drei Jahre und ist meist günstiger. Der Bedarfsausweis wird über eine technische Analyse des Gebäudes berechnet und ist unabhängig vom Heizverhalten der Bewohner." }
-      },
-      {
-        "@type": "Question",
-        "name": "Wann ist ein Energieausweis Pflicht?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Ein gültiger Energieausweis ist erforderlich, wenn ein Gebäude oder eine Wohnung verkauft, vermietet oder verpachtet wird. Ausgenommen sind unter anderem kleine Gebäude mit weniger als 50 m² Nutzfläche sowie bestimmte Baudenkmäler." }
-      },
-      {
-        "@type": "Question",
-        "name": "Wie lange ist ein Energieausweis gültig?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Ein Energieausweis ist nach Ausstellung 10 Jahre gültig. Danach muss für Verkauf oder Vermietung ein neuer ausgestellt werden." }
-      }
-    ]
-  }
-  </script>
+  <meta property="og:url" content="https://energieausweis-rechner.github.io/" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231c8a4c'/%3E%3Ctext x='50' y='73' font-size='58' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E%3F%3C/text%3E%3C/svg%3E" />
+  <link rel="preload" href="assets/fonts/plexsans-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/tokens.css" />
+  <link rel="stylesheet" href="assets/base.css" />
 </head>
 <body>
+  <a class="skip" href="#rechner">Direkt zum Rechner</a>
+  <div class="band" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="/">
+        <svg width="30" height="30" viewBox="0 0 36 36" aria-hidden="true">
+          <rect x="1.5" y="1.5" width="33" height="33" rx="6" fill="#fff" stroke="#d7e0d5"></rect>
+          <rect x="6" y="8"  width="24" height="3.4" rx="1.7" fill="#0f8a3f"></rect>
+          <rect x="6" y="14" width="24" height="3.4" rx="1.7" fill="#a8c63b"></rect>
+          <rect x="6" y="20" width="24" height="3.4" rx="1.7" fill="#f2d43f"></rect>
+          <rect x="6" y="26" width="24" height="3.4" rx="1.7" fill="#e2492f"></rect>
+        </svg>
+        Energieausweis&nbsp;Rechner
+      </a>
+    </div>
+  </header>
+
   <main>
-    <div class="ribbon" id="heroBand" aria-label="Energieeffizienzklassen von A+ bis H"></div>
-
-    <!-- TOOL FIRST -->
-    <section class="hero-tool" id="rechner">
+    <!-- ── THE TOOL. Nothing above it but its own heading. ────────────── -->
+    <section class="hero" id="rechner">
       <div class="container">
-        <h1>Welcher Energieausweis?</h1>
-        <p class="sub">Verbrauchsausweis oder Bedarfsausweis – finde es heraus:</p>
-
-        <div class="card" id="ausweis-wizard">
-          <div class="wizard-progress" aria-hidden="true"><div class="wizard-progress-bar" id="wizardBar"></div></div>
-          <div id="wizardStep"></div>
+        <h1>Welchen Energieausweis brauche ich?</h1>
+        <p class="sub">Beantworten Sie ein paar Fragen – Sie erfahren, ob Sie einen
+          Energieausweis brauchen und welche Art vorgeschrieben ist.</p>
+        <ul class="trust">
+          <li>In unter 1 Minute</li>
+          <li>100 % kostenlos</li>
+          <li>Ohne Anmeldung</li>
+          <li>Stand: GEG 07/2026</li>
+        </ul>
+        <div class="card" data-mount>
+          <noscript>
+            <p><strong>Für den Rechner benötigen Sie JavaScript.</strong> Die
+            wichtigsten Regeln stehen auch als Text weiter unten auf dieser Seite –
+            siehe <a href="#pflicht">Wann ein Energieausweis Pflicht ist</a>.</p>
+          </noscript>
         </div>
       </div>
     </section>
 
-    <!-- CONTENT / SEO -->
-    <section id="unterschied" class="content">
-      <div class="container narrow">
-        <h2>Verbrauchsausweis oder Bedarfsausweis – der Unterschied</h2>
-        <p>
-          In Deutschland gibt es zwei Arten von Energieausweisen. Der
-          <strong>Verbrauchsausweis</strong> basiert auf dem tatsächlichen Energieverbrauch
-          der letzten drei Jahre und ist in der Regel günstiger. Der
-          <strong>Bedarfsausweis</strong> wird über eine technische Analyse des Gebäudes
-          (Dämmung, Fenster, Heizung) berechnet und ist unabhängig vom Heizverhalten der
-          Bewohner. Für manche Gebäude schreibt das Gebäudeenergiegesetz (GEG) den
-          Bedarfsausweis ausdrücklich vor.
-        </p>
+    <nav class="toolnav" aria-label="Werkzeuge auf dieser Seite">
+      <ul>
+        <li><a href="#rechner">Welcher Ausweis?</a></li>
+        <li><a href="#inserat">Anzeigentext</a></li>
+        <li><a href="#effizienzklasse">Effizienzklasse</a></li>
+        <li><a href="#kosten">Kosten</a></li>
+        <li><a href="#gmodg">Neues Gesetz</a></li>
+      </ul>
+    </nav>
 
-        <h2>Wann ist ein Bedarfsausweis Pflicht?</h2>
-        <p>
-          Ein Bedarfsausweis ist insbesondere dann vorgeschrieben, wenn es sich um ein
-          <strong>Wohngebäude mit weniger als fünf Wohnungen</strong> handelt, dessen
-          Bauantrag <strong>vor dem 1. November 1977</strong> gestellt wurde und das
-          seitdem <strong>nicht</strong> energetisch auf den damaligen Mindeststandard
-          (Wärmeschutzverordnung 1977) modernisiert wurde. In den übrigen Fällen – etwa bei
-          Gebäuden mit fünf oder mehr Wohnungen oder bei Neubauten ab 1977 – besteht freie Wahl.
-        </p>
-
-        <h2>Wann ist ein Energieausweis überhaupt Pflicht?</h2>
-        <p>
-          Ein gültiger Energieausweis ist erforderlich, wenn ein Gebäude oder eine Wohnung
-          <strong>verkauft, vermietet oder verpachtet</strong> wird. Er muss spätestens bei
-          der Besichtigung vorgelegt und die Kennwerte in Immobilienanzeigen angegeben
-          werden. Ausgenommen sind unter anderem <strong>kleine Gebäude</strong> mit weniger
-          als 50 m² Nutzfläche sowie bestimmte <strong>Baudenkmäler</strong>.
-        </p>
+    <!-- ── Anzeigentext-Generator ─────────────────────────────────────── -->
+    <section id="inserat" class="alt">
+      <div class="container">
+        <p class="eyebrow">Anzeigentext-Generator</p>
+        <h2>Was muss in meine Immobilienanzeige?</h2>
+        <p>In eine Immobilienanzeige gehören fünf Pflichtangaben aus dem
+          Energieausweis: die Art des Ausweises, der Endenergiewert, der wesentliche
+          Energieträger der Heizung sowie – bei Wohngebäuden – Baujahr und
+          Energieeffizienzklasse. Fehlen sie, droht ein Bußgeld von bis zu 10.000 €.</p>
+        <div class="card" data-mount></div>
       </div>
     </section>
 
-    <!-- FAQ -->
-    <section id="faq" class="content content-alt">
-      <div class="container narrow">
-        <h2>Häufige Fragen (FAQ)</h2>
+    <!-- ── Effizienzklassen-Rechner ───────────────────────────────────── -->
+    <section id="effizienzklasse">
+      <div class="container">
+        <p class="eyebrow">Effizienzklassen-Rechner</p>
+        <h2>Welche Energieeffizienzklasse hat mein Haus?</h2>
+        <p>Die Effizienzklasse ergibt sich unmittelbar aus dem Endenergiewert Ihres
+          Gebäudes: bis 30 kWh/(m²·a) ist es A+, über 250 ist es H. Geben Sie den
+          Kennwert von Seite 2 Ihres Energieausweises ein.</p>
+        <div class="card" data-mount></div>
 
-        <details class="faq-item">
-          <summary>Wie verlässlich ist dieser Rechner?</summary>
-          <p>
-            Das Tool liefert eine <strong>unverbindliche Orientierung</strong> auf Basis der
-            Regeln des Gebäudeenergiegesetzes. Es ersetzt keinen amtlichen Energieausweis,
-            der nur von qualifizierten Ausstellern erstellt werden darf.
-          </p>
-        </details>
+        <div class="table-wrap">
+          <table>
+            <caption class="visually-hidden">Energieeffizienzklassen von Wohngebäuden nach GEG Anlage 10</caption>
+            <thead><tr><th>Klasse</th><th>Endenergie in kWh/(m²·a)</th></tr></thead>
+            <tbody>
+              <tr><td>A+</td><td>bis 30</td></tr>
+              <tr><td>A</td><td>bis 50</td></tr>
+              <tr><td>B</td><td>bis 75</td></tr>
+              <tr><td>C</td><td>bis 100</td></tr>
+              <tr><td>D</td><td>bis 130</td></tr>
+              <tr><td>E</td><td>bis 160</td></tr>
+              <tr><td>F</td><td>bis 200</td></tr>
+              <tr><td>G</td><td>bis 250</td></tr>
+              <tr><td>H</td><td>über 250</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-        <details class="faq-item">
-          <summary>Was kostet ein Energieausweis?</summary>
-          <p>
-            Ein Verbrauchsausweis ist meist günstiger als ein Bedarfsausweis, da kein
-            Vor-Ort-Termin und keine aufwendige Gebäudeanalyse nötig sind. Die genauen
-            Kosten hängen vom Gebäude und vom Anbieter ab.
-          </p>
-        </details>
+    <!-- ── Kostenrechner ──────────────────────────────────────────────── -->
+    <section id="kosten" class="alt">
+      <div class="container">
+        <p class="eyebrow">Kostenrechner</p>
+        <h2>Was kostet ein Energieausweis?</h2>
+        <p>Der Preis hängt vor allem von zwei Dingen ab: ob Sie einen Verbrauchs-
+          oder einen Bedarfsausweis brauchen, und ob er online oder mit einem
+          Vor-Ort-Termin erstellt wird.</p>
+        <div class="card" data-mount></div>
+      </div>
+    </section>
 
-        <details class="faq-item">
+    <!-- ── GModG ──────────────────────────────────────────────────────── -->
+    <section id="gmodg">
+      <div class="container">
+        <p class="eyebrow">Gesetzesänderung</p>
+        <h2>Energieausweis und das neue GModG – jetzt erstellen oder warten?</h2>
+        <p>Das Gebäudemodernisierungsgesetz soll das Gebäudeenergiegesetz ablösen
+          und dabei auch die Regeln zum Energieausweis ändern. Der Bundestag hat es
+          beschlossen – verkündet ist es noch nicht.</p>
+        <div class="card" data-mount></div>
+      </div>
+    </section>
+
+    <!-- ── Explainer ──────────────────────────────────────────────────── -->
+    <section id="unterschied" class="alt">
+      <div class="container">
+        <h2>Verbrauchsausweis oder Bedarfsausweis – der Unterschied</h2>
+        <p>Der <strong>Verbrauchsausweis</strong> beruht auf dem tatsächlichen
+          Energieverbrauch der vergangenen drei Jahre. Er ist meist günstiger, hängt
+          aber vom Heizverhalten der bisherigen Bewohner ab – ein sparsamer Vormieter
+          lässt das Haus besser aussehen, als es ist.</p>
+        <p>Der <strong>Bedarfsausweis</strong> wird aus den technischen Eigenschaften
+          des Gebäudes berechnet: Dämmung, Fenster, Heizung. Er ist aufwendiger und
+          teurer, dafür unabhängig vom Nutzerverhalten und aussagekräftiger, wenn Sie
+          eine Sanierung planen.</p>
+        <p>In den meisten Fällen dürfen Sie frei wählen. Nur für eine bestimmte
+          Gruppe älterer, kleiner Wohngebäude schreibt das Gesetz den Bedarfsausweis
+          zwingend vor – siehe den nächsten Abschnitt.</p>
+      </div>
+    </section>
+
+    <section id="bedarfspflicht">
+      <div class="container">
+        <h2>Wann ist ein Bedarfsausweis Pflicht?</h2>
+        <p>Ein Bedarfsausweis ist zwingend, wenn <strong>alle</strong> vier Punkte
+          zutreffen: Es handelt sich um ein <strong>Wohngebäude</strong>, es hat
+          <strong>weniger als fünf Wohnungen</strong>, der <strong>Bauantrag wurde vor
+          dem 1. November 1977</strong> gestellt, und das Gebäude wurde
+          <strong>nicht</strong> nachträglich auf den Dämmstandard der
+          Wärmeschutzverordnung von 1977 gebracht.</p>
+        <p>Fehlt auch nur einer dieser Punkte, haben Sie die freie Wahl. Erfüllte das
+          Haus den Standard schon bei der Fertigstellung, gilt die Pflicht ebenfalls
+          nicht.</p>
+        <div class="cite">
+          <div class="src"><strong>§ 80 Abs. 3 Sätze 2 bis 4 GEG</strong><span class="stand">Stand: 07/2026</span></div>
+          <blockquote>„In den Fällen des Satzes 1 ist für Wohngebäude, die weniger als
+            fünf Wohnungen haben und für die der Bauantrag vor dem 1. November 1977
+            gestellt worden ist, ein Energiebedarfsausweis auszustellen.“</blockquote>
+          <div class="src"><a href="https://www.gesetze-im-internet.de/geg/__80.html" rel="noopener" target="_blank">Gesetzestext auf gesetze-im-internet.de ↗</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pflicht" class="alt">
+      <div class="container">
+        <h2>Wann ist ein Energieausweis überhaupt Pflicht?</h2>
+        <p>Ein gültiger Energieausweis ist erforderlich, wenn ein Gebäude oder eine
+          Wohnung <strong>verkauft, vermietet, verpachtet oder verleast</strong> wird
+          – und wenn ein Gebäude <strong>neu errichtet</strong> wird. Er muss
+          spätestens bei der Besichtigung vorgelegt und nach Vertragsabschluss
+          übergeben werden.</p>
+        <p>Solange Sie Ihr Haus selbst nutzen oder ein bestehendes Mietverhältnis
+          einfach weiterläuft, brauchen Sie keinen.</p>
+
+        <h3>Die beiden Ausnahmen – und was oft falsch dargestellt wird</h3>
+        <p><strong>Kleine Gebäude</strong> sind ausgenommen. Maßgeblich ist die Grenze
+          von <strong>nicht mehr als 50 m² Nutzfläche</strong>. Ein Gebäude mit genau
+          50 m² fällt also noch unter die Ausnahme – häufig ist fälschlich von
+          „weniger als 50 m²“ die Rede.</p>
+        <p>Bei <strong>Baudenkmälern</strong> entfallen die Pflichten rund um Verkauf,
+          Vermietung, Vorlage und Aushang. Das ist aber <strong>keine vollständige
+          Befreiung</strong>: Wird ein denkmalgeschütztes Gebäude neu errichtet oder
+          umfassend geändert, bleibt die Pflicht zum Bedarfsausweis bestehen. Die
+          verbreitete Aussage „Denkmal heißt gar kein Energieausweis“ ist zu pauschal.</p>
+        <div class="cite">
+          <div class="src"><strong>§ 79 Abs. 4 GEG</strong><span class="stand">Stand: 07/2026</span></div>
+          <blockquote>„Auf ein kleines Gebäude sind die Vorschriften dieses Abschnitts
+            nicht anzuwenden. Auf ein Baudenkmal ist § 80 Absatz 3 bis 7 nicht
+            anzuwenden.“</blockquote>
+          <div class="src"><a href="https://www.gesetze-im-internet.de/geg/__79.html" rel="noopener" target="_blank">Gesetzestext auf gesetze-im-internet.de ↗</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FAQ ────────────────────────────────────────────────────────── -->
+    <section id="faq">
+      <div class="container">
+        <h2>Häufige Fragen</h2>
+
+        <details>
           <summary>Wie lange ist ein Energieausweis gültig?</summary>
-          <p>
-            Ein Energieausweis ist nach Ausstellung <strong>10 Jahre</strong> gültig.
-            Danach muss für Verkauf oder Vermietung ein neuer ausgestellt werden.
-          </p>
+          <p>Zehn Jahre ab Ausstellung. Er verliert seine Gültigkeit vorzeitig, wenn
+            das Gebäude so umfassend geändert wird, dass ein neuer Ausweis
+            erforderlich wird (§ 79 Abs. 3 GEG).</p>
         </details>
 
-        <details class="faq-item">
-          <summary>Brauche ich den Ausweis auch für die Eigennutzung?</summary>
-          <p>
-            Nein. Solange Sie Ihr Gebäude selbst nutzen und weder verkaufen noch vermieten,
-            besteht in der Regel keine Pflicht zur Vorlage eines Energieausweises.
-          </p>
+        <details>
+          <summary>Wie hoch ist das Bußgeld, wenn Angaben in der Anzeige fehlen?</summary>
+          <p>Bis zu <strong>10.000 €</strong>. Das Fehlen der Pflichtangaben nach
+            § 87 GEG ist eine Ordnungswidrigkeit nach § 108 Abs. 1 Nr. 27 GEG und
+            fällt in den Bußgeldrahmen des § 108 Abs. 2 Nr. 2 GEG. Die oft zitierten
+            15.000 € stammen aus der früheren EnEV und gelten hier nicht.</p>
+        </details>
+
+        <details>
+          <summary>Muss jemand mein Haus besichtigen, um den Ausweis zu erstellen?</summary>
+          <p>Nein. Das Gesetz schreibt keinen Vor-Ort-Termin vor. Der Aussteller darf
+            sich auf die Daten stützen, die Sie ihm liefern – Sie müssen für deren
+            Richtigkeit einstehen. Ein Vor-Ort-Termin liefert aber belastbarere Werte
+            und konkrete Sanierungshinweise.</p>
+        </details>
+
+        <details>
+          <summary>Wer darf einen Energieausweis überhaupt ausstellen?</summary>
+          <p>Nur bestimmte Berufsgruppen nach § 88 GEG – unter anderem Architekten,
+            Bauingenieure, bestimmte Handwerksmeister und staatlich anerkannte
+            Techniker, jeweils mit zusätzlicher Qualifikation oder Berufserfahrung.
+            Wer ohne diese Berechtigung einen Ausweis ausstellt, begeht eine
+            Ordnungswidrigkeit.</p>
+        </details>
+
+        <details>
+          <summary>Brauche ich als Mieter oder Käufer selbst einen Ausweis?</summary>
+          <p>Nein. Die Pflicht trifft immer die verkaufende oder vermietende Seite.
+            Sie haben umgekehrt einen Anspruch darauf, den Ausweis spätestens bei der
+            Besichtigung vorgelegt zu bekommen.</p>
+        </details>
+
+        <details>
+          <summary>Wie verlässlich sind diese Rechner?</summary>
+          <p>Sie geben eine unverbindliche Orientierung auf Grundlage der Regeln des
+            Gebäudeenergiegesetzes, Stand 07/2026. Sie ersetzen weder eine
+            Rechtsberatung noch einen amtlichen Energieausweis, den nur eine nach
+            § 88 GEG berechtigte Person ausstellen darf.</p>
         </details>
       </div>
     </section>
@@ -134,17 +267,120 @@
 
   <footer class="site-footer">
     <div class="container">
+      <nav aria-label="Rechtliches">
+        <a href="/impressum/">Impressum</a>
+        <a href="/datenschutz/">Datenschutz</a>
+        <a href="/transparenz/">Transparenz &amp; Finanzierung</a>
+      </nav>
       <p class="disclaimer">
-        <strong>Hinweis:</strong> Dieses Angebot dient ausschließlich zu Informations- und
-        Orientierungszwecken und stellt keine Rechts-, Energie- oder Steuerberatung dar.
+        <strong>Hinweis:</strong> Dieses Angebot dient ausschließlich der Information
+        und Orientierung und stellt keine Rechts-, Energie- oder Steuerberatung dar.
         Die Ergebnisse sind unverbindliche Einschätzungen und <strong>ersetzen keinen
-        amtlichen Energieausweis</strong>. Maßgeblich sind die Regelungen des
-        Gebäudeenergiegesetzes (GEG) sowie die Einschätzung eines qualifizierten Ausstellers.
+        amtlichen Energieausweis</strong>. Maßgeblich sind das Gebäudeenergiegesetz
+        (GEG) in seiner jeweils geltenden Fassung sowie die Einschätzung einer nach
+        § 88 GEG ausstellungsberechtigten Person. Rechtsstand: 07/2026.
       </p>
-      <p class="copyright">© <span id="year"></span> Energieausweis Rechner</p>
+      <p>© <span id="year">2026</span> Energieausweis Rechner</p>
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="assets/rules.js"></script>
+  <script src="assets/tools.js"></script>
+  <script src="assets/widgets.js"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://energieausweis-rechner.github.io/#website",
+        "url": "https://energieausweis-rechner.github.io/",
+        "name": "Energieausweis Rechner",
+        "inLanguage": "de-DE"
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://energieausweis-rechner.github.io/#rechner",
+        "url": "https://energieausweis-rechner.github.io/#rechner",
+        "name": "Welchen Energieausweis brauche ich?",
+        "description": "Klärt in wenigen Fragen, ob ein Energieausweis Pflicht ist und ob ein Bedarfs- oder ein Verbrauchsausweis vorgeschrieben ist.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "de-DE",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://energieausweis-rechner.github.io/#inserat",
+        "url": "https://energieausweis-rechner.github.io/#inserat",
+        "name": "Anzeigentext-Generator für Immobilienanzeigen",
+        "description": "Erzeugt die fünf Pflichtangaben nach § 87 GEG als fertigen Textblock für Immobilienanzeigen.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "de-DE",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://energieausweis-rechner.github.io/#effizienzklasse",
+        "url": "https://energieausweis-rechner.github.io/#effizienzklasse",
+        "name": "Energieeffizienzklassen-Rechner A+ bis H",
+        "description": "Ordnet einen Endenergie-Kennwert der Effizienzklasse nach GEG Anlage 10 zu.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "de-DE",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://energieausweis-rechner.github.io/#kosten",
+        "url": "https://energieausweis-rechner.github.io/#kosten",
+        "name": "Energieausweis-Kostenrechner",
+        "description": "Schätzt die Kosten je nach Ausweis-Art, Erstellungsweg und Gebäudetyp.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "de-DE",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://energieausweis-rechner.github.io/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Wie lange ist ein Energieausweis gültig?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Zehn Jahre ab Ausstellung. Er verliert seine Gültigkeit vorzeitig, wenn das Gebäude so umfassend geändert wird, dass ein neuer Ausweis erforderlich wird (§ 79 Abs. 3 GEG)." }
+          },
+          {
+            "@type": "Question",
+            "name": "Wie hoch ist das Bußgeld, wenn Angaben in der Immobilienanzeige fehlen?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Bis zu 10.000 Euro. Das Fehlen der Pflichtangaben nach § 87 GEG ist eine Ordnungswidrigkeit nach § 108 Abs. 1 Nr. 27 GEG und fällt in den Bußgeldrahmen des § 108 Abs. 2 Nr. 2 GEG. Die oft zitierten 15.000 Euro stammen aus der früheren EnEV und gelten hier nicht." }
+          },
+          {
+            "@type": "Question",
+            "name": "Wann ist ein Bedarfsausweis Pflicht?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Wenn alle vier Punkte zutreffen: Wohngebäude, weniger als fünf Wohnungen, Bauantrag vor dem 1. November 1977, und das Gebäude wurde nicht nachträglich auf den Standard der Wärmeschutzverordnung 1977 gebracht (§ 80 Abs. 3 Sätze 2 bis 4 GEG). Sonst besteht freie Wahl." }
+          },
+          {
+            "@type": "Question",
+            "name": "Sind Baudenkmäler vom Energieausweis befreit?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Nur teilweise. Nach § 79 Abs. 4 Satz 2 GEG entfallen bei einem Baudenkmal die Pflichten des § 80 Abs. 3 bis 7, also Verkauf, Vermietung, Vorlage und Aushang. Bei Neubau oder größerer Änderung nach § 80 Abs. 1 und 2 bleibt die Pflicht bestehen." }
+          },
+          {
+            "@type": "Question",
+            "name": "Ab welcher Größe ist ein Gebäude von der Energieausweispflicht ausgenommen?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Bei nicht mehr als 50 Quadratmetern Nutzfläche. Solche Gebäude gelten nach § 3 Abs. 1 Nr. 17 GEG als kleine Gebäude, auf die die Vorschriften zum Energieausweis nach § 79 Abs. 4 Satz 1 GEG nicht anzuwenden sind. Die Grenze lautet nicht mehr als 50 Quadratmeter, nicht weniger als 50." }
+          },
+          {
+            "@type": "Question",
+            "name": "Muss jemand das Haus besichtigen, um einen Energieausweis zu erstellen?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Nein. Das GEG schreibt keinen Vor-Ort-Termin vor. Der Aussteller darf sich auf die vom Eigentümer gelieferten Daten stützen; für deren Richtigkeit haftet der Eigentümer." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </body>
 </html>
