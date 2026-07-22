@@ -36,12 +36,15 @@
 :root {
   /* ── Ink & ground ─────────────────────────────────────────────────────── */
   /* Contrast measured against --paper, the worst case. Both clear WCAG AAA
-     for normal text (7:1) — the audience makes that a requirement, not a
-     nicety. Darken further before lightening --paper. */
-  --ink: #1a1d20;         /* body text — 15.6:1 */
-  --ink-soft: #4b5257;    /* secondary text — 7.3:1 */
-  --paper: #f4f6f7;       /* cool near-white ground */
-  --surface: #ffffff;     /* panels, form areas */
+     for normal text (7:1) against BOTH the white page and the grey inset —
+     the audience makes that a requirement, not a nicety. */
+  --ink: #1a1d20;         /* body text — 16.9:1 on white */
+  --ink-soft: #4b5257;    /* secondary text — 7.9:1 on white */
+  --paper: #ffffff;       /* the page. German institutional sites are white,
+                             not tinted — Verbraucherzentrale, bund.de. */
+  --surface: #f3f6f7;     /* INSET panels: the tool area, results, the
+                             disclaimer. Grey form on a white page, the way a
+                             German Formular reads. */
   --line: #d3d8dc;        /* hairline rule */
   --line-soft: #e6eaec;   /* faint rule inside panels */
   --line-strong: #1a1d20; /* heavy rule — section openers, table heads */

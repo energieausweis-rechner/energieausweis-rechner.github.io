@@ -181,6 +181,19 @@ section:first-of-type { border-top: none; }
 }
 .sec-intro { max-width: var(--maxw); margin-bottom: 1.5rem; }
 
+/* Publication date, directly under the heading and behind a short rule.
+   This is the German convention for legal and advice content — on a page
+   whose subject matter is mid-reform, it is the most important trust
+   signal on the page, so it does not get buried in a badge row. */
+.stand-line {
+  display: flex; align-items: center; gap: .6rem;
+  margin: 0 0 .9rem; font-size: .9375rem; color: var(--ink-soft);
+}
+.stand-line::before {
+  content: ''; width: 1.6rem; height: 0; flex: none;
+  border-top: 2px solid var(--ink);
+}
+
 /* ── Hero ───────────────────────────────────────────────────────────────── */
 .hero { padding: 2.25rem 0 2.5rem; border-top: none; }
 .hero h1 { margin-bottom: .4rem; max-width: 22ch; }
@@ -278,7 +291,7 @@ section:first-of-type { border-top: none; }
   border: var(--rule) solid var(--line);
   border-left: 3px solid var(--ink);
   border-radius: var(--radius);
-  padding: 1.35rem 1.3rem; background: var(--surface);
+  padding: 1.35rem 1.3rem; background: var(--paper);
 }
 .result:focus { outline: none; }
 .result.yes, .result.wahl { border-left-color: var(--accent); }
@@ -343,7 +356,7 @@ section:first-of-type { border-top: none; }
   border: var(--rule) solid var(--line-soft);
   border-left: 2px solid var(--line);
   border-radius: var(--radius);
-  background: var(--paper);
+  background: var(--surface);
   font-size: var(--fs-small);
 }
 .cite details { background: none; border: none; margin: 0; }
@@ -418,7 +431,7 @@ details.help > *:not(summary) {
 input[type='number'], input[type='text'] {
   width: 100%; min-height: var(--tap); padding: .5rem .75rem;
   font-family: var(--font-mono); font-size: var(--fs-lead);
-  background: var(--surface); color: var(--ink);
+  background: var(--paper); color: var(--ink);
   border: var(--rule) solid var(--line); border-radius: var(--radius);
 }
 input:focus { border-color: var(--ink); outline: 1px solid var(--ink); }
@@ -458,7 +471,7 @@ input:focus { border-color: var(--ink); outline: 1px solid var(--ink); }
 .output {
   font-family: var(--font-mono); font-size: .9375rem; line-height: 1.7;
   white-space: pre-wrap; word-break: break-word;
-  background: var(--surface); border: var(--rule) solid var(--line);
+  background: var(--paper); border: var(--rule) solid var(--line);
   border-left: 2px solid var(--ink);
   border-radius: var(--radius); padding: .95rem; margin: 0 0 .8rem;
 }
@@ -468,7 +481,7 @@ input:focus { border-color: var(--ink); outline: 1px solid var(--ink); }
 .partner {
   margin-top: 1.25rem; padding: 1rem;
   border: var(--rule) solid var(--line); border-left: 3px solid var(--cta);
-  border-radius: var(--radius); background: var(--surface);
+  border-radius: var(--radius); background: var(--paper);
 }
 .partner .ad-label { display: block; margin-bottom: .5rem; color: var(--cta-dk); }
 .partner a.cta {
