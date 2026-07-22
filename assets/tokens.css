@@ -1,22 +1,23 @@
 /* ─────────────────────────────────────────────────────────────────────────
    Energieausweis Rechner — design tokens
-   Identity: the A+→H Effizienzband. "Der Ausweis, modernisiert."
 
-   Carried over from the Claude Design project global.css. Fonts are
-   SELF-HOSTED, never loaded from fonts.gstatic.com — embedding Google Fonts
-   transfers the visitor's IP to a US server and was ruled a GDPR violation
-   (LG München I, 20.01.2022 – 3 O 17493/20).
+   Aesthetic: an official document, not a web app. Warm paper, near-black
+   ink, hairline rules, squared corners, no shadows. Serif for prose,
+   sans only for controls, monospace for paragraph references and figures.
+
+   Colour is treated as INFORMATION, not decoration. It appears in exactly
+   three places:
+     1. the A+→H Effizienzband, where hue IS the datum,
+     2. warnings and Bußgeld notices,
+     3. one restrained accent for links and the current position.
+   Everywhere else is ink on paper.
+
+   Fonts: the serif is a system stack (no download, present everywhere).
+   IBM Plex Sans is SELF-HOSTED for controls — never loaded from
+   fonts.gstatic.com, which transfers the visitor's IP to a US server and
+   was ruled a GDPR violation (LG München I, 20.01.2022 – 3 O 17493/20).
    ───────────────────────────────────────────────────────────────────────── */
 
-@font-face {
-  font-family: 'Bricolage Grotesque';
-  src: url('fonts/bricolage-400-800.woff2') format('woff2');
-  font-weight: 400 800;
-  font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
-}
 @font-face {
   font-family: 'IBM Plex Sans';
   src: url('fonts/plexsans-400.woff2') format('woff2');
@@ -31,93 +32,77 @@
 }
 
 :root {
-  /* ── Colour ───────────────────────────────────────────────────────────── */
-  --ink: #14231b;        /* deep spruce — text/headlines */
-  --ink-soft: #46564d;   /* muted text */
-  --paper: #f5f8f3;      /* cool chalk — page background */
-  --surface: #ffffff;    /* cards/panels */
-  --line: #d7e0d5;       /* green-grey hairline */
+  /* ── Ink & paper ──────────────────────────────────────────────────────── */
+  --ink: #1c1a17;         /* near-black, warm — body text */
+  --ink-soft: #55504a;    /* secondary text; still AA on paper */
+  --paper: #faf8f3;       /* warm document stock */
+  --surface: #ffffff;     /* inset panels */
+  --line: #cdc7bb;        /* hairline rule */
+  --line-soft: #e4dfd4;   /* faint rule, inside panels */
+  --line-strong: #1c1a17; /* heavy rule — section openers, table heads */
 
-  --klasse-a: #1c8a4c;   /* efficiency green — primary/links/CTA */
-  --klasse-a-dk: #0f5e33;/* hover/active */
-  --signal: #e8852b;     /* warm amber — eyebrows/accents, sparing */
+  /* One accent. Deep, desaturated, on-topic — not a UI green. */
+  --accent: #2f4a39;
+  --accent-dk: #1e3325;
+  --accent-wash: #eef0eb;  /* barely-there fill for the current position */
 
-  /* Partner-brand gold. OUTBOUND AFFILIATE CTAs ONLY — never for internal
-     actions, so a paid link is always visually distinct from a free one. */
-  --cta-yellow: #f5b301;
-  --cta-yellow-dk: #dca000;
+  /* Warnings. Kept deliberately dark and dry rather than alarm-red. */
+  --danger: #8a2318;
+  --danger-bg: #f7eeec;
 
-  --danger: #b42318;     /* penalty red — Bußgeld & legal warnings */
-  --danger-bg: #fdeceb;
-  --bedarf: #c2410c;     /* Bedarfsausweis-Pflicht result tone */
-  --bedarf-bg: #fff7ed;
-  --urgent: #c9252b;     /* time-critical result tone */
-  --urgent-bg: #fef2f2;
+  /* Partner CTAs only — never for internal actions, so a paid link is
+     always visually distinct from a free one. */
+  --cta: #8a6a12;
+  --cta-dk: #6d5310;
 
   /* ── Type ─────────────────────────────────────────────────────────────── */
-  --font-display: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
-  --font-body: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
+  --font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia,
+    'Times New Roman', 'Noto Serif', serif;
+  --font-ui: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
-  /* Senior-first scale. Body never below 18px, and every step is set in rem
-     so the OS/browser text-size setting still scales the whole page. */
+  /* Senior-first scale. Body never below 18px; set in rem so the browser's
+     text-size setting still scales everything. */
   --fs-body: 1.125rem;   /* 18px */
-  --fs-lead: 1.25rem;    /* 20px — tool labels, option cards */
-  --fs-h3: 1.375rem;     /* 22px */
-  --fs-h2: 1.75rem;      /* 28px */
-  --fs-h1: 2.125rem;     /* 34px */
-  --fs-small: 1rem;      /* 16px — the floor; captions, legal notes */
-  --lh-body: 1.65;
-
-  /* Tints — derived from --klasse-a, used for hover and icon tiles so the
-     green identity carries through without shouting. */
-  --tint: #eef6ea;
-  --tint-deep: #e2efdb;
+  --fs-lead: 1.1875rem;  /* 19px — option labels */
+  --fs-h3: 1.3125rem;    /* 21px */
+  --fs-h2: 1.625rem;     /* 26px */
+  --fs-h1: 2rem;         /* 32px */
+  --fs-small: 1rem;      /* 16px floor — captions, legal notes */
+  --lh-body: 1.6;
 
   /* ── Geometry ─────────────────────────────────────────────────────────── */
-  --radius: 8px;
-  --radius-lg: 14px;     /* tool cards — the primary surface */
-  --maxw: 42rem;         /* reading measure for a single-column tool page */
-  --maxw-wide: 60rem;
-  --tap: 48px;           /* minimum interactive target */
-  --nav-h: 56px;         /* sticky in-page nav */
-  --space: 1rem;
+  --radius: 2px;         /* essentially square; documents do not have pills */
+  --maxw: 40rem;         /* reading measure */
+  --maxw-page: 66rem;    /* text column + table of contents */
+  --toc-w: 15rem;
+  --tap: 48px;
+  --nav-h: 52px;
+  --rule: 1px;
 
-  /* Shadows stay soft and green-tinted rather than neutral grey, so cards
-     lift off the chalk background without looking like Material. */
-  --shadow-sm: 0 1px 2px rgb(20 35 27 / .05), 0 2px 6px rgb(20 35 27 / .04);
-  --shadow-md: 0 2px 4px rgb(20 35 27 / .06), 0 8px 24px rgb(20 35 27 / .07);
-  --shadow-lift: 0 4px 8px rgb(20 35 27 / .08), 0 12px 28px rgb(20 35 27 / .10);
-
-  /* ── The Effizienzband ────────────────────────────────────────────────── */
-  --band: linear-gradient(90deg, #0f8a3f, #4fa22f, #7fb52e, #a8c63b, #f2d43f,
-    #f3a93c, #ec8b2e, #e2492f, #c9252b);
-
-  /* Per-class colours, A+ → H (GEG Anlage 10) */
-  --k-aplus: #0f8a3f;
-  --k-a: #4fa22f;
-  --k-b: #7fb52e;
-  --k-c: #a8c63b;
-  --k-d: #f2d43f;
-  --k-e: #f3a93c;
-  --k-f: #ec8b2e;
-  --k-g: #e2492f;
-  --k-h: #c9252b;
+  /* ── The Effizienzband — the one place hue carries meaning ────────────── */
+  --band: linear-gradient(90deg, #1d6b39, #4d8a33, #7ba233, #a8bb3c, #d9c23f,
+    #dba43c, #c9822f, #b25430, #96262a);
+  --k-aplus: #1d6b39;
+  --k-a: #4d8a33;
+  --k-b: #7ba233;
+  --k-c: #a8bb3c;
+  --k-d: #d9c23f;
+  --k-e: #dba43c;
+  --k-f: #c9822f;
+  --k-g: #b25430;
+  --k-h: #96262a;
 }
 
 @media (min-width: 40rem) {
-  :root {
-    --fs-h1: 2.5rem;   /* 40px */
-    --fs-h2: 2rem;     /* 32px */
-  }
+  :root { --fs-h1: 2.375rem; --fs-h2: 1.875rem; }
 }
 
-/* Respect the OS reduced-motion setting — the result cards animate in. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
 }

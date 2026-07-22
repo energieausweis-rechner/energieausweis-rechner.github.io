@@ -357,14 +357,19 @@
   /* ── Sticky nav: highlight the section in view, keep the hash honest ───── */
 
   function initNav() {
-    var nav = $('.toolnav');
-    if (!nav) return;
-    var links = [].slice.call(nav.querySelectorAll('a'));
+    // Two navigations for two form factors: the strip on mobile, the
+    // Inhaltsverzeichnis on desktop. Only one is visible at a time, but both
+    // are kept in sync so nothing depends on which is showing.
+    var links = [].slice.call(document.querySelectorAll('.toolnav a, .toc a'));
+    if (!links.length) return;
     var byId = {};
-    links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    links.forEach(function (a) {
+      var id = a.getAttribute('href').slice(1);
+      (byId[id] = byId[id] || []).push(a);
+    });
 
-    var sections = links
-      .map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); })
+    var sections = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
       .filter(Boolean);
 
     if (!('IntersectionObserver' in window)) return;
@@ -375,8 +380,9 @@
       entries.forEach(function (e) {
         if (!e.isIntersecting) return;
         links.forEach(function (a) { a.removeAttribute('aria-current'); });
-        var a = byId[e.target.id];
-        if (a) a.setAttribute('aria-current', 'true');
+        (byId[e.target.id] || []).forEach(function (a) {
+          a.setAttribute('aria-current', 'true');
+        });
       });
     }, { rootMargin: '-20% 0px -70% 0px' });
     sections.forEach(function (s) { io.observe(s); });
