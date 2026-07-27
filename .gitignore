@@ -5,3 +5,8 @@ mockup-*.html
 preview-*.html
 variant-*.css
 probe*.html
+
+# Exported claude.ai design reference. Loads Google Fonts (GDPR — LG München I,
+# 3 O 17493/20) and carries mockup vendor data; it must never reach the live
+# site. Local design reference only.
+Energieausweis-Tools.standalone.html
