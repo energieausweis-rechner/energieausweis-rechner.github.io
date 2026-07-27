@@ -492,6 +492,14 @@ section:first-of-type { border-top: none; }
 }
 .chip:hover { border-color: var(--ink); background: var(--accent-wash); }
 .chip-edit { color: var(--ink-soft); }
+/* Restart sits in the chips row (it acts on the inputs, like them) but is an
+   action, not a stored answer — dashed border and accent color set it apart. */
+.chip-restart {
+  border-style: dashed; border-color: var(--accent-dk);
+  color: var(--accent-dk); font-weight: 600;
+  background: var(--accent-wash);
+}
+.chip-restart:hover { background: var(--accent-wash); border-color: var(--accent-dk); }
 .next-head { margin: 1.4rem 0 .3rem; }
 
 /* Inline help on jargon questions. */
@@ -648,6 +656,12 @@ th, td { text-align: left; padding: .55rem .8rem .55rem 0; }
 th { border-bottom: var(--rule) solid var(--line-strong); padding-bottom: .4rem; }
 td { border-bottom: var(--rule) solid var(--line-soft); }
 td:first-child { font-family: var(--font-mono); }
+/* Comparison table (wizard results): row labels are quiet — their border
+   matches the row's cells, not the darker column-head rule above. */
+table.compare th[scope="row"] {
+  border-bottom: var(--rule) solid var(--line-soft);
+  padding: .55rem .8rem .55rem 0;
+}
 
 /* ── Accordions ─────────────────────────────────────────────────────────── */
 details { border-bottom: var(--rule) solid var(--line-soft); }

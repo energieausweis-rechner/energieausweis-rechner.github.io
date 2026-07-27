@@ -308,6 +308,8 @@
 
   var PREISE = {
     // [art][weg][gebäude] → [von, bis] in Euro
+    // Die statische Kostentabelle in index.html (#kosten) zeigt dieselben
+    // Spannen für Leser ohne JavaScript — bei Änderungen beide pflegen.
     verbrauch: {
       online:  { efh: [50, 100],  mfh: [60, 120],  nwg: [90, 200] },
       vorort:  { efh: [100, 200], mfh: [150, 300], nwg: [250, 500] },
@@ -317,6 +319,9 @@
       vorort:  { efh: [300, 600], mfh: [600, 1200], nwg: [800, 2000] },
     },
   };
+  // Exposed so every price shown anywhere (Kosten tool, Vergleichstabelle,
+  // static table in index.html) reads from this one matrix.
+  EAR.PREISE = PREISE;
 
   EAR.mountKosten = function (mount) {
     var state = { art: EAR.recall('art') || 'verbrauch', weg: 'online', typ: 'efh' };

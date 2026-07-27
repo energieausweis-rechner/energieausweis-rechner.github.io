@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Welchen Energieausweis brauche ich? Kostenloser Rechner (GEG 2026)</title>
   <meta name="description" content="In wenigen Fragen klären: Brauche ich einen Energieausweis – und Bedarfs- oder Verbrauchsausweis? Dazu Effizienzklassen-Rechner, Kostenrechner und Anzeigentext-Generator nach § 87 GEG. Kostenlos, ohne Anmeldung." />
   <meta name="robots" content="index, follow" />
@@ -20,148 +20,303 @@
   <meta property="og:image:alt" content="Energieausweis Rechner – kostenloses Online-Tool: Pflicht-Check, Ausweis-Art, Kosten, Effizienzklasse und Inserat-Text nach GEG" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 30'%3E%3Crect width='26' height='30' fill='%23faf8f3'/%3E%3Crect x='4' y='5' width='18' height='3' fill='%231d6b39'/%3E%3Crect x='4' y='10' width='18' height='3' fill='%23a8bb3c'/%3E%3Crect x='4' y='15' width='18' height='3' fill='%23d9c23f'/%3E%3Crect x='4' y='20' width='18' height='3' fill='%23c9822f'/%3E%3Crect x='4' y='25' width='18' height='3' fill='%2396262a'/%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='6' fill='%231c8a4c'/%3E%3Crect x='6' y='7' width='24' height='3.2' rx='1.6' fill='%230f8a3f'/%3E%3Crect x='6' y='12' width='24' height='3.2' rx='1.6' fill='%23a8c63b'/%3E%3Crect x='6' y='17' width='24' height='3.2' rx='1.6' fill='%23f2d43f'/%3E%3Crect x='6' y='22' width='24' height='3.2' rx='1.6' fill='%23ec8b2e'/%3E%3Crect x='6' y='27' width='24' height='3.2' rx='1.6' fill='%23c9252b'/%3E%3C/svg%3E" />
+
+  <link rel="preload" href="assets/fonts/bricolage-var.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/plexsans-400.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="assets/tokens.css" />
+
+  <!-- Load order matters: the real tool component styles FIRST, then the Wissen
+       bridge LAST so equal-specificity rules resolve in the bridge's favour.
+       CSS custom properties resolve after the full cascade regardless of order,
+       so base.css still picks up the bridged token values. -->
   <link rel="stylesheet" href="assets/base.css" />
+  <link rel="stylesheet" href="assets/wissen.css" />
+
+  <style>
+    /* Page shell (from the Wissen design's tool page — inline-styled chrome). */
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.65;
+      font-size: 1.125rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* ── Brand row above the grid — spans both columns ──────────────────── */
+    .eaw-head {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 11px; flex-wrap: wrap;
+    }
+    .eaw-brand { display: flex; align-items: center; gap: 11px; }
+    .eaw-brand .logo { flex: none; }
+    .eaw-brand .name {
+      font-family: var(--font-display); font-weight: 800;
+      font-size: 19px; letter-spacing: -0.02em; line-height: 1;
+    }
+    .eaw-brand .kicker {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--signal); margin-top: 3px;
+    }
+    .eaw-head .spacer { flex: 1; }
+    .eaw-share {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--surface); border: 2px solid var(--line);
+      border-radius: 99px; padding: 7px 13px;
+      font-family: var(--font-body); font-weight: 700; font-size: 14px;
+      color: var(--klasse-a-dk); cursor: pointer; transition: border-color 0.15s ease;
+    }
+    .eaw-share:hover { border-color: var(--klasse-a); }
+    .eaw-sharemsg { font-size: 13px; font-weight: 600; color: var(--klasse-a-dk); }
+
+    /* ── Main area: tool column + info sidebar ──────────────────────────── */
+    .eaw-main {
+      max-width: 1160px; margin: 0 auto; padding: 26px 16px 56px;
+      display: grid; grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 26px; align-items: start;
+    }
+    .eaw-card {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 6px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(20, 35, 27, 0.08);
+    }
+    .eaw-bandstrip { height: 6px; background: var(--band); }
+
+    /* Tabs live inside the card, directly under the band strip. */
+    .eaw-tabs { border-bottom: 1px solid var(--line); padding: 2px 8px 0; }
+    .eaw-tabrow {
+      display: flex; gap: 2px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .eaw-tab {
+      flex: none; font-family: var(--font-body); font-weight: 700;
+      font-size: 14px; white-space: nowrap; background: none; border: none;
+      border-bottom: 3px solid transparent; padding: 13px 13px 11px;
+      color: var(--ink-soft); cursor: pointer; transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .eaw-tab:hover { color: var(--klasse-a-dk); }
+    .eaw-tab[aria-selected="true"] {
+      color: var(--klasse-a-dk); border-bottom-color: var(--klasse-a);
+    }
+    /* Completed step: the ✓ alone says "erledigt". The green underline is
+       reserved for the ACTIVE tab — when several tabs are done, a shared
+       underline hides where the reader currently is. */
+    .eaw-tab.done { color: var(--ink); }
+    .eaw-tab.done::before {
+      content: '✓'; color: var(--klasse-a); font-weight: 700;
+      margin-right: 6px;
+    }
+    .eaw-tab.done[aria-selected="true"] { color: var(--klasse-a-dk); }
+
+    /* ── Sidebar: hero pitch, trust marks, tool list ────────────────────── */
+    .eaw-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 14px; }
+    .eaw-hero .kicker {
+      font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--klasse-a-dk); margin: 0 0 8px;
+    }
+    .eaw-hero h1 {
+      font-family: var(--font-display); font-weight: 800; font-size: 22px;
+      line-height: 1.2; letter-spacing: -0.01em; margin: 0 0 8px;
+    }
+    .eaw-hero p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+    .eaw-sidenote {
+      margin: 0; padding: 0 4px;
+      font-size: 12px; color: var(--ink-soft); line-height: 1.5;
+    }
+    .eaw-sidebox {
+      border: 1px solid var(--line); border-radius: 10px;
+      background: var(--surface); padding: 14px 16px;
+      box-shadow: 0 1px 3px rgba(20, 35, 27, 0.06);
+    }
+    .eaw-sidebox h3 {
+      display: flex; align-items: center; gap: 8px; margin: 0 0 5px;
+      font-family: var(--font-display); font-weight: 800; font-size: 15px;
+    }
+    .eaw-sidebox h3 svg { flex: none; }
+    .eaw-sidebox p { margin: 0; font-size: 13px; color: var(--ink-soft); line-height: 1.55; }
+    .eaw-siderow {
+      display: flex; gap: 10px; align-items: flex-start; width: 100%;
+      background: none; border: none; border-top: 1px solid var(--line);
+      padding: 9px 0; margin: 0; text-align: left; font: inherit; cursor: pointer;
+    }
+    .eaw-siderow:first-of-type { border-top: none; }
+    .eaw-siderow svg { color: var(--klasse-a); flex: none; margin-top: 1px; }
+    .eaw-siderow strong { display: block; font-size: 13.5px; line-height: 1.3; color: var(--ink); }
+    .eaw-siderow .s { font-size: 12px; color: var(--ink-soft); }
+    .eaw-siderow:hover strong { color: var(--klasse-a-dk); text-decoration: underline; }
+    .eaw-chip-time {
+      display: flex; align-items: center; gap: 9px;
+      border-radius: 10px; padding: 12px 14px;
+      background: color-mix(in srgb, var(--cta-yellow) 13%, #fff);
+      border: 1px solid color-mix(in srgb, var(--cta-yellow) 42%, #fff);
+      font-size: 13px; font-weight: 700;
+    }
+    .eaw-chip-time svg { color: var(--cta-yellow-dk); flex: none; }
+
+    @media (max-width: 1023px) {
+      .eaw-main { grid-template-columns: 1fr; }
+      .eaw-side { display: none; }
+    }
+
+    .eaw-panel { padding: 22px 20px 26px; }
+
+    .eaw-note {
+      font-size: 12.5px; color: var(--ink-soft); line-height: 1.55;
+      margin: 18px 4px 0; text-align: center;
+    }
+
+    /* fade-in on tool swap */
+    @keyframes eawIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .eaw-panel > [data-mount] { animation: eawIn 0.3s ease both; }
+    @media (prefers-reduced-motion: reduce) { .eaw-panel > [data-mount] { animation: none; } }
+
+    .eaw-footlinks {
+      margin: 14px 4px 0; text-align: center;
+      font-size: 12.5px; color: var(--ink-soft);
+    }
+    .eaw-footlinks a { color: var(--klasse-a-dk); font-weight: 600; text-decoration: none; }
+    .eaw-footlinks a:hover { text-decoration: underline; }
+
+    /* Gesamt-Zusammenfassung: button in the head row, document in print. The
+       summary container is invisible on screen and only becomes the printed
+       page when the button added body.eaw-printing — the wizard's own
+       "Drucken" button keeps printing the normal page. */
+    .eaw-printsum { display: none; }
+    @media print {
+      body.eaw-printing .eaw-main { display: none !important; }
+      body.eaw-printing .eaw-printsum {
+        display: block; font-family: var(--font-body); color: #000;
+        font-size: 12pt; line-height: 1.5;
+      }
+      .eaw-printsum h1 { font-size: 19pt; margin: 0 0 4pt; line-height: 1.2; }
+      .eaw-printsum h2 {
+        font-size: 13pt; margin: 16pt 0 4pt; padding-bottom: 2pt;
+        border-bottom: 1px solid #999;
+      }
+      .eaw-printsum p { margin: 4pt 0; }
+      .eaw-printsum .meta { color: #444; font-size: 9.5pt; }
+      .eaw-printsum pre {
+        font: inherit; white-space: pre-wrap; border: 1px solid #999;
+        padding: 8pt; margin: 6pt 0;
+      }
+      .eaw-printsum ul { list-style: none; margin: 4pt 0; padding: 0; }
+      .eaw-printsum li { margin: 3pt 0; }
+    }
+  </style>
 </head>
 <body>
-  <a class="skip" href="#rechner">Direkt zum Rechner</a>
-  <div class="band" aria-hidden="true"></div>
-
-  <header class="site-header">
-    <div class="inner">
-      <a class="brand" href="/">
-        <svg width="26" height="30" viewBox="0 0 26 30" aria-hidden="true">
-          <rect x="0.5" y="0.5" width="25" height="29" fill="none" stroke="#1c1a17"></rect>
-          <rect x="4" y="5"  width="18" height="3" fill="#1d6b39"></rect>
-          <rect x="4" y="10" width="18" height="3" fill="#a8bb3c"></rect>
-          <rect x="4" y="15" width="18" height="3" fill="#d9c23f"></rect>
-          <rect x="4" y="20" width="18" height="3" fill="#c9822f"></rect>
-          <rect x="4" y="25" width="18" height="3" fill="#96262a"></rect>
+  <div class="eaw-main">
+    <div class="eaw-head">
+      <div class="eaw-brand">
+        <svg class="logo" width="34" height="34" viewBox="0 0 36 36" aria-hidden="true">
+          <rect x="1.5" y="1.5" width="33" height="33" rx="6" fill="#fff" stroke="var(--line)"></rect>
+          <rect x="6" y="7" width="24" height="3.2" rx="1.6" fill="#0f8a3f"></rect>
+          <rect x="6" y="12" width="24" height="3.2" rx="1.6" fill="#a8c63b"></rect>
+          <rect x="6" y="17" width="24" height="3.2" rx="1.6" fill="#f2d43f"></rect>
+          <rect x="6" y="22" width="24" height="3.2" rx="1.6" fill="#ec8b2e"></rect>
+          <rect x="6" y="27" width="24" height="3.2" rx="1.6" fill="#c9252b"></rect>
         </svg>
-        Energieausweis&nbsp;Rechner
-      </a>
+        <div>
+          <div class="name">Energieausweis Rechner</div>
+          <div class="kicker">Kostenlose Tools</div>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <span class="eaw-sharemsg" id="summaryMsg" hidden></span>
+      <button type="button" class="eaw-share" id="summaryBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Alles drucken / als PDF speichern
+      </button>
+      <span class="eaw-sharemsg" id="shareMsg" hidden></span>
+      <button type="button" class="eaw-share" id="shareBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5 15.4 17.5M15.4 6.5 8.6 10.5"/></svg>
+        Teilen
+      </button>
     </div>
-  </header>
 
-  <!-- Orientation first: five numbered tools, visible before the fold and
-       pinned for the rest of the page. Placed ABOVE the tool so a phone user
-       does not have to scroll past a whole wizard to learn what is here. -->
-  <nav class="toolnav" aria-label="Die 5 kostenlosen Tools auf dieser Seite">
-    <ul>
-      <li><a href="#rechner"><span class="n" aria-hidden="true">1</span>Welcher Ausweis?</a></li>
-      <li><a href="#inserat"><span class="n" aria-hidden="true">2</span>Anzeigentext</a></li>
-      <li><a href="#effizienzklasse"><span class="n" aria-hidden="true">3</span>Effizienzklasse</a></li>
-      <li><a href="#kosten"><span class="n" aria-hidden="true">4</span>Kosten</a></li>
-      <li><a href="#gmodg"><span class="n" aria-hidden="true">5</span>Neues Gesetz</a></li>
-    </ul>
-  </nav>
-
-  <div class="layout">
-  <main>
-    <!-- ── THE TOOL. Nothing above it but its own heading. ────────────── -->
-    <section class="hero" id="rechner">
-        <h1>Welchen Energieausweis brauche ich?</h1>
-        <p class="stand-line">Stand: Juli 2026 · GEG</p>
-        <p class="sub">Ein paar Fragen – dann wissen Sie, ob Sie einen brauchen und welchen.</p>
-        <div class="card" data-mount>
-          <noscript>
-            <p><strong>Für den Rechner benötigen Sie JavaScript.</strong> Die
-            wichtigsten Regeln stehen auch als Text weiter unten auf dieser Seite –
-            siehe <a href="#pflicht">Wann ein Energieausweis Pflicht ist</a>.</p>
-          </noscript>
+    <main class="eaw-colmain">
+      <div class="eaw-card">
+        <div class="eaw-bandstrip"></div>
+        <div class="eaw-tabs">
+          <div class="eaw-tabrow" id="tabrow" role="tablist" aria-label="Tools"></div>
         </div>
-        <ul class="trust">
-          <li>In unter 1 Minute</li>
-          <li>100 % kostenlos</li>
-          <li>Ohne Anmeldung</li>
-          <li>Keine Cookies</li>
-        </ul>
-        <p class="privacy-note">Ihre Angaben bleiben in Ihrem Browser. Sie werden
-          nicht an uns übertragen und nicht gespeichert.</p>
-    </section>
-
-    <!-- ── Anzeigentext-Generator ─────────────────────────────────────── -->
-    <section id="inserat">
-        <header class="sec-head">
-          <span class="sec-num" aria-hidden="true">2</span>
-          <div>
-            <p class="eyebrow">Anzeigentext-Generator</p>
-            <h2>Was muss in meine Immobilienanzeige?</h2>
-          </div>
-        </header>
-        <p class="sec-intro">In eine Immobilienanzeige gehören fünf Pflichtangaben aus dem
-          Energieausweis: die Art des Ausweises, der Endenergiewert, der wesentliche
-          Energieträger der Heizung sowie – bei Wohngebäuden – Baujahr und
-          Energieeffizienzklasse. Fehlen sie, droht ein Bußgeld von bis zu 10.000 €.</p>
-        <div class="card" data-mount></div>
-    </section>
-
-    <!-- ── Effizienzklassen-Rechner ───────────────────────────────────── -->
-    <section id="effizienzklasse">
-        <header class="sec-head">
-          <span class="sec-num" aria-hidden="true">3</span>
-          <div>
-            <p class="eyebrow">Effizienzklassen-Rechner</p>
-            <h2>Welche Energieeffizienzklasse hat mein Haus?</h2>
-          </div>
-        </header>
-        <p class="sec-intro">Die Effizienzklasse ergibt sich unmittelbar aus dem Endenergiewert Ihres
-          Gebäudes: bis 30 kWh/(m²·a) ist es A+, über 250 ist es H. Geben Sie den
-          Kennwert von Seite 2 Ihres Energieausweises ein.</p>
-        <div class="card" data-mount></div>
-
-        <div class="table-wrap">
-          <table>
-            <caption class="visually-hidden">Energieeffizienzklassen von Wohngebäuden nach GEG Anlage 10</caption>
-            <thead><tr><th>Klasse</th><th>Endenergie in kWh/(m²·a)</th></tr></thead>
-            <tbody>
-              <tr><td>A+</td><td>bis 30</td></tr>
-              <tr><td>A</td><td>bis 50</td></tr>
-              <tr><td>B</td><td>bis 75</td></tr>
-              <tr><td>C</td><td>bis 100</td></tr>
-              <tr><td>D</td><td>bis 130</td></tr>
-              <tr><td>E</td><td>bis 160</td></tr>
-              <tr><td>F</td><td>bis 200</td></tr>
-              <tr><td>G</td><td>bis 250</td></tr>
-              <tr><td>H</td><td>über 250</td></tr>
-            </tbody>
-          </table>
+        <div class="eaw-panel">
+          <div data-mount></div>
         </div>
-    </section>
+      </div>
 
-    <!-- ── Kostenrechner ──────────────────────────────────────────────── -->
-    <section id="kosten">
-        <header class="sec-head">
-          <span class="sec-num" aria-hidden="true">4</span>
-          <div>
-            <p class="eyebrow">Kostenrechner</p>
-            <h2>Was kostet ein Energieausweis?</h2>
-          </div>
-        </header>
-        <p class="sec-intro">Der Preis hängt vor allem von zwei Dingen ab: ob Sie einen Verbrauchs-
-          oder einen Bedarfsausweis brauchen, und ob er online oder mit einem
-          Vor-Ort-Termin erstellt wird.</p>
-        <div class="card" data-mount></div>
-    </section>
+      <!-- The note that stood here duplicated the sidebar's Rechtlicher
+           Hinweis and explained a button that explains itself; removed
+           2026-07-27 (user feedback). -->
+      <p class="eaw-footlinks">
+        <a href="/impressum/">Impressum</a> ·
+        <a href="/datenschutz/">Datenschutz</a> ·
+        <a href="/transparenz/">Transparenz</a>
+      </p>
+    </main>
 
-    <!-- ── GModG ──────────────────────────────────────────────────────── -->
-    <section id="gmodg">
-        <header class="sec-head">
-          <span class="sec-num" aria-hidden="true">5</span>
-          <div>
-            <p class="eyebrow">Gesetzesänderung</p>
-            <h2>Energieausweis und das neue GModG – jetzt erstellen oder warten?</h2>
-          </div>
-        </header>
-        <p class="sec-intro">Das Gebäudemodernisierungsgesetz soll das Gebäudeenergiegesetz ablösen
-          und dabei auch die Regeln zum Energieausweis ändern. Der Bundestag hat es
-          beschlossen – verkündet ist es noch nicht.</p>
-        <div class="card" data-mount></div>
-    </section>
+    <aside class="eaw-side" aria-label="Über dieses Tool">
+      <div class="eaw-hero">
+        <p class="kicker">Stand <span id="heroStand"></span> · GEG</p>
+        <h1>Alles zum Energieausweis – in fünf Schritten geklärt.</h1>
+        <p>Fünf Rechner, eine klare Antwort: vom Pflicht-Check bis zum fertigen
+          Anzeigentext – kostenlos, ohne Anmeldung, nach aktuellem GEG-Stand.</p>
+      </div>
 
-    <!-- ── Explainer ──────────────────────────────────────────────────── -->
+      <div class="eaw-sidebox">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3.5 8.2-7 9.5-3.5-1.3-7-4.5-7-9.5V6z"/><path d="M9 12l2 2 4-4.5"/></svg>
+          Auf Basis des GEG
+        </h3>
+        <p>Alle Ergebnisse basieren auf dem Gebäudeenergiegesetz in der aktuell
+          geltenden Fassung – Stand <span id="trustStand"></span>. Jede Aussage
+          ist mit §-Zitat im Wortlaut belegt.</p>
+      </div>
+
+      <div class="eaw-sidebox">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          100 % kostenlos &amp; privat
+        </h3>
+        <p>Keine Registrierung, keine Cookies. Ihre Angaben bleiben in Ihrem
+          Browser – keine Speicherung, keine Weitergabe.</p>
+      </div>
+
+      <!-- "Am Ende erhalten Sie" sidebox removed 2026-07-27 (user feedback);
+           design archived in mockup-am-ende-sidebar.html (gitignored). The
+           .eaw-siderow wiring in boot() stays for an easy restore. -->
+
+      <div class="eaw-chip-time">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8.5"/><path d="M12 8.5V13l3 2M9.5 3h5"/></svg>
+        In nur 2 Minuten zur klaren Antwort
+      </div>
+
+      <p class="eaw-sidenote">Rechtlicher Hinweis: Dieser Rechner bietet eine
+        erste Einschätzung und ersetzt keine individuelle Rechtsberatung.</p>
+    </aside>
+  </div>
+
+  <!-- Statischer Wissensteil — identische Inhalte wie die frühere
+       Einzelseite, damit Crawler, Answer-Engines und Leser ohne JavaScript
+       jede Antwort (Kosten, Klassengrenzen, §§, FAQ) im HTML vorfinden.
+       Die Tools oben sind die interaktive Schicht darüber. -->
+  <style>
+    .eaw-wissen { max-width: 820px; margin: 10px auto 0; padding: 0 16px 34px; }
+    .eaw-wissen section { margin: 38px 0; }
+    .eaw-wissen h2 {
+      font-family: var(--font-display); font-weight: 800; font-size: 24px;
+      line-height: 1.25; letter-spacing: -0.01em; margin: 0 0 10px;
+    }
+    .eaw-wissen h3 { font-family: var(--font-display); font-weight: 800; font-size: 17px; }
+    .eaw-wissen .sec-head { margin-bottom: 6px; }
+    .eaw-wissen .card {
+      border: 1px solid var(--line); border-radius: 10px;
+      background: var(--surface); padding: 16px 18px;
+      box-shadow: 0 1px 3px rgba(20, 35, 27, 0.06);
+    }
+  </style>
+  <div class="eaw-wissen">
     <section id="unterschied">
         <h2>Verbrauchsausweis oder Bedarfsausweis – der Unterschied</h2>
         <p>Der <strong>Verbrauchsausweis</strong> beruht auf dem tatsächlichen
@@ -176,7 +331,6 @@
           Gruppe älterer, kleiner Wohngebäude schreibt das Gesetz den Bedarfsausweis
           zwingend vor – siehe den nächsten Abschnitt.</p>
     </section>
-
     <section id="bedarfspflicht">
         <h2>Wann ist ein Bedarfsausweis Pflicht?</h2>
         <p>Ein Bedarfsausweis ist zwingend, wenn <strong>alle</strong> vier Punkte
@@ -189,6 +343,10 @@
           Haus den Standard schon bei der Fertigstellung, gilt die Pflicht ebenfalls
           nicht.</p>
         <div class="cite">
+          <p class="cite-lead">
+            <span class="cite-badge"><span class="cite-ico"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M8 21h8M4 7h16"/><path d="M6 7l-3 6a3 3 0 0 0 6 0zM18 7l-3 6a3 3 0 0 0 6 0z"/></svg></span><span>Gesetzesgrundlage</span></span>
+            <span>für diese Antwort</span>
+          </p>
           <details open>
             <summary><strong>§ 80 Abs. 3 Sätze 2 bis 4 GEG</strong><span class="stand">Stand: 07/2026</span></summary>
             <blockquote>„In den Fällen des Satzes 1 ist für Wohngebäude, die weniger als
@@ -198,7 +356,6 @@
           </details>
         </div>
     </section>
-
     <section id="pflicht">
         <h2>Wann ist ein Energieausweis überhaupt Pflicht?</h2>
         <p>Ein gültiger Energieausweis ist erforderlich, wenn ein Gebäude oder eine
@@ -220,6 +377,10 @@
           umfassend geändert, bleibt die Pflicht zum Bedarfsausweis bestehen. Die
           verbreitete Aussage „Denkmal heißt gar kein Energieausweis“ ist zu pauschal.</p>
         <div class="cite">
+          <p class="cite-lead">
+            <span class="cite-badge"><span class="cite-ico"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M8 21h8M4 7h16"/><path d="M6 7l-3 6a3 3 0 0 0 6 0zM18 7l-3 6a3 3 0 0 0 6 0z"/></svg></span><span>Gesetzesgrundlage</span></span>
+            <span>für diese Antwort</span>
+          </p>
           <details open>
             <summary><strong>§ 79 Abs. 4 GEG</strong><span class="stand">Stand: 07/2026</span></summary>
             <blockquote>„Auf ein kleines Gebäude sind die Vorschriften dieses Abschnitts
@@ -229,42 +390,45 @@
           </details>
         </div>
     </section>
-
-    <!-- ── Overview recap ─────────────────────────────────────────────── -->
-    <section id="uebersicht">
-        <h2>Alle Tools im Überblick</h2>
-        <p class="sec-intro">Alle fünf sind kostenlos, brauchen keine Anmeldung und
-          rechnen direkt in Ihrem Browser.</p>
-        <div class="tool-grid">
-          <a class="tool-card" href="#rechner">
-            <span class="n" aria-hidden="true">1</span>
-            <span><span class="t">Welchen Energieausweis brauche ich?</span>
-            <span class="s">Ob Pflicht besteht – und ob Bedarfs- oder Verbrauchsausweis.</span></span>
-          </a>
-          <a class="tool-card" href="#inserat">
-            <span class="n" aria-hidden="true">2</span>
-            <span><span class="t">Anzeigentext für das Inserat</span>
-            <span class="s">Die fünf Pflichtangaben nach § 87 GEG, fertig zum Kopieren.</span></span>
-          </a>
-          <a class="tool-card" href="#effizienzklasse">
-            <span class="n" aria-hidden="true">3</span>
-            <span><span class="t">Energieeffizienzklasse A+ bis H</span>
-            <span class="s">Kennwert eingeben, Klasse sofort ablesen.</span></span>
-          </a>
-          <a class="tool-card" href="#kosten">
-            <span class="n" aria-hidden="true">4</span>
-            <span><span class="t">Was kostet ein Energieausweis?</span>
-            <span class="s">Preisspanne nach Ausweis-Art, Erstellungsweg und Gebäude.</span></span>
-          </a>
-          <a class="tool-card" href="#gmodg">
-            <span class="n" aria-hidden="true">5</span>
-            <span><span class="t">Jetzt erstellen oder warten?</span>
-            <span class="s">Was sich mit dem neuen GModG ändert – und wann.</span></span>
-          </a>
+    <section id="kosten">
+        <header class="sec-head">
+          <div>
+            <p class="eyebrow">Kostenrechner</p>
+            <h2>Was kostet ein Energieausweis?</h2>
+          </div>
+        </header>
+        <p class="sec-intro">Der Preis hängt vor allem von zwei Dingen ab: ob Sie einen Verbrauchs-
+          oder einen Bedarfsausweis brauchen, und ob er online oder mit einem
+          Vor-Ort-Termin erstellt wird.</p>
+        
+        <div class="table-wrap">
+          <table>
+            <caption class="visually-hidden">Richtwerte für die Kosten eines Energieausweises nach Ausweis-Art, Erstellungsweg und Gebäudetyp</caption>
+            <thead><tr><th>Ausweis-Art und Weg</th><th>Ein-/Zweifamilienhaus</th><th>Mehrfamilienhaus</th><th>Gewerbe</th></tr></thead>
+            <tbody>
+              <tr><td>Verbrauchsausweis, online</td><td>50 – 100 €</td><td>60 – 120 €</td><td>90 – 200 €</td></tr>
+              <tr><td>Verbrauchsausweis, vor Ort</td><td>100 – 200 €</td><td>150 – 300 €</td><td>250 – 500 €</td></tr>
+              <tr><td>Bedarfsausweis, online</td><td>80 – 150 €</td><td>150 – 350 €</td><td>300 – 700 €</td></tr>
+              <tr><td>Bedarfsausweis, vor Ort</td><td>300 – 600 €</td><td>600 – 1.200 €</td><td>800 – 2.000 €</td></tr>
+            </tbody>
+          </table>
         </div>
+        <p>Alle Beträge sind Richtwerte, je nach Anbieter und Gebäude. Online-Ausweise
+          sind günstiger, weil kein Vor-Ort-Termin stattfindet – für die Richtigkeit
+          der gelieferten Daten haften dann Sie als Eigentümer.</p>
     </section>
-
-    <!-- ── FAQ ────────────────────────────────────────────────────────── -->
+    <section id="gmodg">
+        <header class="sec-head">
+          <div>
+            <p class="eyebrow">Gesetzesänderung</p>
+            <h2>Energieausweis und das neue GModG – jetzt erstellen oder warten?</h2>
+          </div>
+        </header>
+        <p class="sec-intro">Das Gebäudemodernisierungsgesetz soll das Gebäudeenergiegesetz ablösen
+          und dabei auch die Regeln zum Energieausweis ändern. Der Bundestag hat es
+          beschlossen – verkündet ist es noch nicht.</p>
+        <div class="card" data-mount></div>
+    </section>
     <section id="faq">
         <h2>Häufige Fragen</h2>
 
@@ -315,58 +479,839 @@
             § 88 GEG berechtigte Person ausstellen darf.</p>
         </details>
     </section>
-  </main>
-
-    <!-- Inhaltsverzeichnis — desktop only. On a wide screen there is room to
-         show the whole offering at once, so the reader never has to scroll to
-         find out what else is here. Mobile keeps the compact strip nav. -->
-    <aside class="toc">
-      <h2>Inhalt</h2>
-      <ol>
-        <li><a href="#rechner"><span class="t">Welchen Energieausweis brauche ich?<span class="s">Pflicht, und Bedarfs- oder Verbrauchsausweis</span></span></a></li>
-        <li><a href="#inserat"><span class="t">Anzeigentext fürs Inserat<span class="s">Pflichtangaben nach § 87 GEG</span></span></a></li>
-        <li><a href="#effizienzklasse"><span class="t">Energieeffizienzklasse<span class="s">Kennwert zu Klasse A+ bis H</span></span></a></li>
-        <li><a href="#kosten"><span class="t">Kosten<span class="s">Preisspanne nach Art und Weg</span></span></a></li>
-        <li><a href="#gmodg"><span class="t">Das neue GModG<span class="s">Jetzt erstellen oder warten?</span></span></a></li>
-      </ol>
-      <p class="foot">Alle Rechner sind kostenlos, ohne Anmeldung, und rechnen
-        in Ihrem Browser. Rechtsstand GEG 07/2026.</p>
-    </aside>
   </div>
 
-  <footer class="site-footer">
-    <div class="layout">
-      <nav aria-label="Rechtliches">
-        <a href="/impressum/">Impressum</a>
-        <a href="/datenschutz/">Datenschutz</a>
-        <a href="/transparenz/">Transparenz &amp; Finanzierung</a>
-      </nav>
-      <p class="disclaimer">
-        <strong>Hinweis:</strong> Dieses Angebot dient ausschließlich der Information
-        und Orientierung und stellt keine Rechts-, Energie- oder Steuerberatung dar.
-        Die Ergebnisse sind unverbindliche Einschätzungen und <strong>ersetzen keinen
-        amtlichen Energieausweis</strong>. Maßgeblich sind das Gebäudeenergiegesetz
-        (GEG) in seiner jeweils geltenden Fassung sowie die Einschätzung einer nach
-        § 88 GEG ausstellungsberechtigten Person. Rechtsstand: 07/2026.
-      </p>
-      <p>© <span id="year">2026</span> Energieausweis Rechner</p>
-    </div>
-  </footer>
+  <!-- Print-only: the combined summary, filled by buildSummary() on demand. -->
+  <div class="eaw-printsum" id="printsum" aria-hidden="true"></div>
 
   <script src="assets/rules.js"></script>
   <script src="assets/tools.js"></script>
   <script src="assets/widgets.js"></script>
+  <script>
+  (function () {
+    // This page has ONE global action set (header: "Alles drucken / als PDF
+    // speichern" + "Teilen") — tell the wizard engine to omit its per-result
+    // copy/print buttons, which would compete at another scroll position.
+    EAR.GLOBAL_ACTIONS = true;
 
+    // ── What to have ready before the Bedarfsausweis appointment. Shown open
+    // on the "Bedarfsausweis nötig" result and repeated in the combined
+    // summary, so the handoff from the tool to a real energy consultant is a
+    // list the user can tick off — not something they have to remember.
+    var BEDARF_CHECKLIST = {
+      title: 'Das brauchen Sie zur Beantragung',
+      items: [
+        'Grundriss oder Baupläne des Gebäudes (alternativ: Wohnflächenberechnung)',
+        'Baujahr und Angaben zur Bauweise',
+        'Angaben zur Heizungsanlage: Typ, Baujahr, Energieträger (Typenschild, Schornsteinfeger-Protokoll)',
+        'Angaben zur Dämmung, falls bekannt oder nachträglich saniert (Belege über Sanierungen)',
+        'Fotos der Gebäudehülle: Fassade, Fenster, Dach bzw. Dachboden (bei manchen Anbietern für die Online-Erfassung)',
+        'Angaben zu Keller und Dachgeschoss: beheizt oder unbeheizt?',
+      ],
+      note: 'Ohne Vor-Ort-Termin möglich bei den meisten Online-Anbietern, wenn die Unterlagen vorliegen.',
+    };
+
+    // ── Pflicht-Check — MINIMAL obligation check (restructured 2026-07-24).
+    // The duty follows from the OCCASION, not the building: 1 question for most
+    // paths; Verkauf/Vermietung add the exception question and the stage
+    // question ("Wie weit …?", per the standalone design — it tailors the
+    // warning, never the legal outcome). Building details (age, units,
+    // Dämmung) belong to the TYPE question and live in the "Welcher Ausweis?"
+    // flow, which the "Ja"-result hands over to.
+    // Legal grounding: rules.js only — pflicht_verkauf_vermietung,
+    // pflicht_neubau, ausnahme_klein (≤ 50 m², not < 50), ausnahme_denkmal
+    // (exempt ONLY from § 80 Abs. 3–7), vorlagepflicht. No-duty wordings are
+    // reused verbatim from EAR.flows.main.
+    function pflichtFlow(ans) {
+      var Q1 = {
+        short: 'Anlass',
+        text: 'Was steht an?',
+        options: [
+          { value: 'verkauf', icon: 'seller', label: 'Ich verkaufe', sub: 'Als Eigentümer' },
+          { value: 'vermietung', icon: 'houseKey', label: 'Ich vermiete neu', sub: 'Neuer Mietvertrag' },
+          { value: 'neubau', icon: 'crane', label: 'Ich baue neu', sub: 'Neubau, Fertigstellung' },
+          { value: 'interessent', icon: 'buyer', label: 'Ich kaufe oder miete', sub: 'Interessent oder Mieter' },
+          { value: 'finanzierung', icon: 'bank', label: 'Ich brauche ihn für die Bank', sub: 'Kredit oder Förderung' },
+          { value: 'bestand', icon: 'house', label: 'Nichts davon', sub: 'Selbst nutzen', chip: 'Nur Selbstnutzung' },
+        ],
+      };
+      if (!ans.length) return { view: 'question', q: Q1, step: 1 };
+      var a1 = ans[0];
+
+      if (a1 === 'interessent') return { view: 'result', r: {
+        tone: 'no', badge: 'Für Sie kostenlos',
+        title: 'Sie müssen keinen Energieausweis erstellen.',
+        body: 'Als Käufer oder Mieter erstellen Sie keinen Energieausweis. ' +
+              'Verkäufer bzw. Vermieter müssen ihn Ihnen spätestens bei der ' +
+              'Besichtigung vorlegen und nach Vertragsabschluss übergeben – ' +
+              'bestehen Sie darauf.',
+        cites: ['vorlagepflicht'],
+        nexts: [
+          { href: '#effizienzklasse', title: 'Effizienzklasse einordnen',
+            sub: 'Kennwert aus dem vorgelegten Ausweis eingeben – A+ bis H.' },
+        ],
+      } };
+
+      if (a1 === 'finanzierung') return { view: 'result', r: {
+        tone: 'no', badge: 'Keine gesetzliche Pflicht',
+        title: 'Aus der Finanzierung selbst folgt keine Pflicht.',
+        body: 'Das Gesetz verlangt einen Energieausweis bei Verkauf, Vermietung ' +
+              'und Neubau – nicht dafür, dass Sie einen Kredit aufnehmen. ' +
+              'Banken verlangen ihn aber in der Praxis regelmäßig zur ' +
+              'Bewertung der Immobilie, und die Energieeffizienzklasse ' +
+              'beeinflusst Förderungen und Konditionen. Wenn Sie ohnehin ' +
+              'kaufen, muss die Verkäuferseite Ihnen den Ausweis vorlegen.',
+        cites: ['vorlagepflicht'],
+        nexts: [
+          { href: '#effizienzklasse', title: 'Effizienzklasse bestimmen',
+            sub: 'Der Wert, nach dem die Bank und Förderprogramme fragen.' },
+          { href: '#kosten', title: 'Kosten einschätzen',
+            sub: 'Falls Sie den Ausweis selbst beauftragen müssen.' },
+        ],
+      } };
+
+      if (a1 === 'bestand') return { view: 'result', r: {
+        tone: 'no', badge: 'Pflicht: nein',
+        title: 'Nein – aktuell besteht keine Pflicht.',
+        body: 'Für reine Eigennutzung oder ein weiterlaufendes Mietverhältnis ' +
+              'brauchen Sie keinen Energieausweis. Erst bei Verkauf oder ' +
+              'Neuvermietung wird er Pflicht.',
+        cites: ['pflicht_verkauf_vermietung'],
+        nexts: [
+          { href: '#effizienzklasse', title: 'Trotzdem wissen, wo Sie stehen',
+            sub: 'Effizienzklasse aus dem Verbrauch einordnen.' },
+        ],
+      } };
+
+      if (a1 === 'neubau') return { view: 'result', r: {
+        tone: 'yes', badge: 'Pflicht: ja',
+        title: 'Ja – für den Neubau ist ein Energieausweis Pflicht.',
+        body: 'Bei der Errichtung eines Gebäudes muss die Energieeffizienz ' +
+              'nachgewiesen werden; der Ausweis wird im Zuge der ' +
+              'Fertigstellung ausgestellt. Vorgeschrieben ist dafür der ' +
+              'Bedarfsausweis – die Ausweis-Art-Frage stellt sich hier nicht.',
+        type: 'Bedarfsausweis',
+        cites: ['pflicht_neubau'],
+        carry: { art: 'bedarf' },
+        nexts: [
+          { href: '#kosten', title: 'Kosten für den Bedarfsausweis',
+            sub: 'Die Ausweis-Art ist bereits vorausgewählt.' },
+        ],
+      } };
+
+      /* verkauf / vermietung → one exception question, then the answer */
+      var verb = a1 === 'verkauf' ? 'Verkauf' : 'Vermietung';
+      var Q2 = {
+        short: 'Ausnahmen',
+        text: 'Gilt für das Gebäude eine dieser Ausnahmen?',
+        options: [
+          { value: 'keine', icon: 'house', label: 'Nein, keine davon', sub: 'normales Wohn- oder Gewerbegebäude', chip: 'Keine Ausnahme' },
+          { value: 'klein', icon: 'area', label: 'Höchstens 50 m² Nutzfläche', sub: 'kleines Gebäude, nicht Wohnung!' },
+          { value: 'denkmal', icon: 'columns', label: 'Baudenkmal', sub: 'unter Denkmalschutz' },
+        ],
+      };
+      if (ans.length === 1) return { view: 'question', q: Q2, step: 2 };
+
+      if (ans[1] === 'klein') return { view: 'result', r: {
+        tone: 'no', badge: 'Ausnahme',
+        title: 'Nein – kleine Gebäude sind ausgenommen.',
+        body: 'Für Gebäude mit nicht mehr als 50 Quadratmetern Nutzfläche ' +
+              'gelten die Energieausweis-Vorschriften nicht. Die Grenze ist ' +
+              '„nicht mehr als 50 m²“ – ein Gebäude mit genau 50 m² ist also ' +
+              'noch ausgenommen. Achtung: Das gilt für kleine GEBÄUDE, nicht ' +
+              'für kleine Wohnungen in größeren Häusern.',
+        cites: ['ausnahme_klein'],
+      } };
+
+      if (ans[1] === 'denkmal') return { view: 'result', r: {
+        tone: 'no', badge: 'Ausnahme',
+        title: 'Nein – für ' + verb + ' eines Baudenkmals nicht.',
+        body: 'Baudenkmäler sind von der Ausweispflicht bei Verkauf und ' +
+              'Vermietung ausgenommen. Aber Vorsicht: Die Befreiung gilt nur ' +
+              'dafür – bei Neubau oder einer größeren Änderung des Gebäudes ' +
+              'bleibt die Pflicht bestehen. „Denkmal = nie ein Energieausweis“ ' +
+              'ist ein verbreiteter Irrtum.',
+        cites: ['ausnahme_denkmal'],
+      } };
+
+      /* Stage question — asked as its own step, as in the standalone design
+         ("Wie weit ist Ihr Verkauf schon?"). Options mirror the standalone;
+         values are EAR.URGENCY keys so the result reuses the engine's vetted
+         warning texts. It tailors the advice, never the legal outcome. */
+      var Q3 = {
+        short: 'Stand',
+        text: a1 === 'verkauf' ? 'Wie weit ist Ihr Verkauf schon?'
+                               : 'Wie weit ist Ihre Vermietung schon?',
+        options: [
+          { value: 'vorbereitung', icon: 'draft', label: 'In Vorbereitung', sub: 'Noch kein Inserat geschaltet.' },
+          { value: 'inseriert', icon: 'megaphone', label: 'Bereits inseriert', sub: 'Anzeige läuft schon.' },
+          { value: 'notartermin', icon: 'clock', label: 'Termin steht an', sub: 'Notar / Übergabe in Kürze.' },
+        ],
+      };
+      if (ans.length === 2) return { view: 'question', q: Q3, step: 2 };
+      var stage = ans[2];
+
+      return { view: 'result', r: {
+        tone: 'yes', badge: 'Pflicht: ja',
+        title: 'Ja – für ' + verb + ' brauchen Sie einen Energieausweis.',
+        body: 'Sie müssen den Ausweis spätestens bei der Besichtigung ' +
+              'unaufgefordert vorlegen und nach Vertragsabschluss übergeben. ' +
+              'Schon die Immobilienanzeige muss die Pflichtangaben enthalten. ' +
+              'Welche Ausweis-Art Sie brauchen, hängt vom Gebäude ab – das ' +
+              'klärt der nächste Schritt.',
+        warn: EAR.URGENCY[stage] ? EAR.URGENCY[stage].warn(verb) : null,
+        cites: ['pflicht_verkauf_vermietung'],
+        steps: [
+          'Pflichtangaben in die Immobilienanzeige aufnehmen (§ 87 GEG).',
+          'Spätestens bei der Besichtigung vorlegen.',
+          'Nach Vertragsabschluss übergeben.',
+        ],
+        nexts: [
+          { href: '#welcher', title: 'Welche Ausweis-Art brauchen Sie?',
+            sub: 'Bedarfs- oder Verbrauchsausweis – 3 Fragen zum Gebäude.' },
+          { href: '#inserat', title: 'Anzeigentext erstellen',
+            sub: 'Die fünf Pflichtangaben für Ihr Inserat – fertig zum Kopieren.' },
+        ],
+      } };
+    }
+
+    // ── "Welcher Ausweis?" — a NEW preview flow, grounded in the REAL rules.js
+    // legal distinctions (NOT copied from the design's own logic):
+    //   • § 79 Abs. 1 GEG  → free choice of ausweis type by default (freie_wahl)
+    //   • § 80 Abs. 3 GEG  → Bedarfsausweis mandatory for Wohngebäude with <5
+    //     units AND Bauantrag before 1977-11-01, unless brought up to the
+    //     Wärmeschutzverordnung 1977 standard (bedarfspflicht_altbau).
+    // Same object shape as EAR.flows.main, so EAR.renderWizard styles it exactly
+    // like the Pflicht-Check and renders the § wortlaut straight from EAR.RULES.
+    // Comparison for "freie Wahl" results: when both types are allowed, the
+    // decision needs the trade-offs side by side. Preise kommen aus
+    // kostenRange — derselben Quelle wie der Kosten-Tab, nie von Hand.
+    function compareFor(typ) {
+      var typLabel = { efh: 'Ein-/Zweifamilienhaus', mfh: 'Mehrfamilienhaus', nwg: 'Nichtwohngebäude' }[typ];
+      function span(art, weg) {
+        var r = kostenRange(art, weg, typ);
+        return 'ca. ' + r[0] + ' – ' + r[1] + ' €';
+      }
+      var rows = [
+        ['Grundlage', 'Tatsächlicher Energieverbrauch der letzten 3 Jahre', 'Technische Bausubstanz: Dämmung, Fenster, Heizung'],
+        ['Kosten online', span('verbrauch', 'online'), span('bedarf', 'online')],
+        ['Kosten vor Ort', span('verbrauch', 'vorort'), span('bedarf', 'vorort')],
+        ['Aussagekraft', 'Hängt vom Heizverhalten der Vorbewohner ab', 'Unabhängig vom Nutzerverhalten'],
+        ['Gut für', 'Schnellen, günstigen Nachweis', 'Genauere Aussage, z. B. vor einer Sanierung'],
+      ];
+      return {
+        caption: 'Verbrauchs- und Bedarfsausweis im Vergleich (' + typLabel + ')',
+        head: ['', 'Verbrauchsausweis', 'Bedarfsausweis'],
+        rows: rows,
+        tip: 'Ein Bedarfsausweis erfordert in der Regel eine Begehung oder detaillierte Bauunterlagen, ist dafür aber unabhängig vom bisherigen Nutzerverhalten – relevant z. B. bei länger leerstehenden Gebäuden.',
+      };
+    }
+
+    function welcherFlow(ans) {
+      var Q1 = { short: 'Gebäude', text: 'Um was für ein Gebäude geht es?', options: [
+        { value: 'wohn', icon: 'house',    label: 'Wohngebäude',       sub: 'Haus oder Wohnung' },
+        { value: 'nwg',  icon: 'building', label: 'Nichtwohngebäude',  sub: 'Gewerbe, Büro, Praxis' },
+      ] };
+      if (!ans.length) return { view: 'question', q: Q1, step: 1 };
+
+      var freieWahl = {
+        tone: 'wahl', badge: 'Freie Wahl', title: 'Sie haben die freie Wahl.',
+        type: 'Verbrauchs- oder Bedarfsausweis', cites: ['freie_wahl'],
+        // 'art' means "a wizard DETERMINED the Art". Freie Wahl withdraws any
+        // earlier determination — carrying '' clears the store so a previous
+        // Bedarf run stops preselecting Kosten/Inserat and the downstream
+        // invalidation fires. Without this, Bedarf → freie Wahl kept the
+        // stale art and no checkmark ever waved off.
+        carry: { art: '' },
+        nexts: [
+          { href: '#kosten', title: 'Kosten & Anbieter vergleichen',
+            sub: 'Preise beider Ausweis-Arten nebeneinander sehen.' },
+        ],
+      };
+
+      if (ans[0] === 'nwg') return { view: 'result', r: Object.assign({}, freieWahl, {
+        body: 'Für Nichtwohngebäude schreibt das GEG keine bestimmte Ausweis-Art vor. ' +
+              'Zulässig ist der Bedarfs- oder der Verbrauchsausweis; der Verbrauchsausweis ist meist deutlich günstiger.',
+        compare: compareFor('nwg'),
+      }) };
+
+      var Q2 = { short: 'Wohnungen', text: 'Wie viele Wohnungen hat das Gebäude?', options: [
+        { value: 'lt5', icon: 'house',   label: 'Weniger als 5 Wohnungen', sub: 'z. B. Ein- oder Zweifamilienhaus' },
+        { value: 'ge5', icon: 'columns', label: '5 oder mehr Wohnungen',   sub: 'größeres Mehrfamilienhaus' },
+      ] };
+      if (ans.length === 1) return { view: 'question', q: Q2, step: 1 };
+      if (ans[1] === 'ge5') return { view: 'result', r: Object.assign({}, freieWahl, {
+        body: 'Bei Wohngebäuden mit fünf oder mehr Wohnungen dürfen Sie zwischen Bedarfs- und ' +
+              'Verbrauchsausweis frei wählen. Der Verbrauchsausweis ist in der Regel günstiger.',
+        compare: compareFor('mfh'),
+      }) };
+
+      var Q3 = { short: 'Baujahr', text: 'Wurde der Bauantrag vor dem 1. November 1977 gestellt?', options: [
+        { value: 'vor77', icon: 'calendarOld', label: 'Ja, vor dem 1.11.1977', sub: 'älterer Altbau' },
+        { value: 'ab77',  icon: 'calendar',    label: 'Nein, ab dem 1.11.1977', sub: 'oder später gebaut' },
+        { value: 'unklar', icon: 'unknown',    label: 'Weiß ich nicht',        sub: '', chip: 'Baujahr unklar' },
+      ] };
+      if (ans.length === 2) return { view: 'question', q: Q3, step: 2 };
+      if (ans[2] === 'ab77') return { view: 'result', r: Object.assign({}, freieWahl, {
+        body: 'Für Wohngebäude mit Bauantrag ab dem 1. November 1977 ist keine bestimmte Ausweis-Art ' +
+              'vorgeschrieben. Der Verbrauchsausweis ist in der Regel günstiger.',
+        compare: compareFor('efh'),
+      }) };
+
+      var Q4 = { short: 'Wärmeschutz', text: 'Erfüllt das Gebäude den Wärmeschutz-Standard von 1977 – von Anfang an oder durch spätere Sanierung?', options: [
+        { value: 'ja',   icon: 'reno',    label: 'Ja, auf Stand 1977 gebracht', sub: 'Dämmung, neue Fenster o. Ä.' },
+        { value: 'nein', icon: 'none',    label: 'Nein / unsaniert',            sub: 'weitgehend im Originalzustand' },
+        { value: 'unklar', icon: 'unknown', label: 'Weiß ich nicht',            sub: '', chip: 'Sanierungsstand unklar' },
+      ] };
+      if (ans.length === 3) return { view: 'question', q: Q4, step: 2 };
+
+      if (ans[3] === 'ja') return { view: 'result', r: Object.assign({}, freieWahl, {
+        cites: ['bedarfspflicht_altbau'],
+        body: 'Erfüllt das Gebäude den Standard der Wärmeschutzverordnung 1977, entfällt die ' +
+              'Bedarfsausweis-Pflicht – Sie dürfen auch den günstigeren Verbrauchsausweis wählen.',
+        compare: compareFor('efh'),
+      }) };
+
+      // nein / unklar → Bedarfsausweis (carried into the Kosten tool)
+      return { view: 'result', r: {
+        tone: 'bedarf', badge: 'Bedarfsausweis nötig', type: 'Bedarfsausweis', cites: ['bedarfspflicht_altbau'],
+        title: ans[3] === 'unklar' ? 'Wahrscheinlich ist ein Bedarfsausweis nötig.'
+                                   : 'Für Ihr Gebäude ist der Bedarfsausweis vorgeschrieben.',
+        body: 'Wohngebäude mit weniger als fünf Wohnungen und Bauantrag vor dem 1. November 1977, die ' +
+              'nicht auf den Wärmeschutz-Standard von 1977 gebracht wurden, brauchen einen ' +
+              'Energiebedarfsausweis.' +
+              (ans[3] === 'unklar' ? ' Ist der Sanierungsstand unklar, ist der Bedarfsausweis die sichere Wahl.' : ''),
+        checklist: BEDARF_CHECKLIST,
+        carry: { art: 'bedarf' },
+        nexts: [
+          { href: '#kosten', title: 'Kosten für den Bedarfsausweis',
+            sub: 'Die Ausweis-Art ist bereits vorausgewählt.' },
+        ],
+      } };
+    }
+
+    // ── Kosten — the Wissen design's Kosten tool, launch-ready (2026-07-28):
+    // prices come from EAR.PREISE, providers only via EAR.renderPartnerList()
+    // — which renders nothing while EAR.PARTNERS is empty. The mockup's
+    // invented vendor cards are gone.
+    // Hoisted out of renderKosten so the combined summary (printsum) can
+    // reproduce the same estimate without the Kosten tab being mounted.
+    var artLabels = { verbrauch: 'Verbrauchsausweis', bedarf: 'Bedarfsausweis' };
+    var wegLabels = { online: 'Online', vorort: 'Vor-Ort-Termin' };
+    var typLabels = { efh: 'Einfamilienhaus', mfh: 'Mehrfamilienhaus', nwg: 'Gewerbe' };
+    // Preise kommen IMMER aus EAR.PREISE (widgets.js) — die eine Matrix, die
+    // auch der statische Kostenblock und die Vergleichstabelle nutzen. Das
+    // frühere KTABLE aus dem Design-Mockup ist ersetzt.
+    function kostenRange(art, weg, typ) {
+      return EAR.PREISE[art][weg][typ];
+    }
+
+    function renderKosten(mount) {
+      var selectStyle = 'width:100%;box-sizing:border-box;font:inherit;font-size:15px;font-weight:600;color:var(--ink);padding:10px 12px;border:2px solid var(--line);border-radius:6px;background:var(--surface);cursor:pointer;';
+      var labelStyle = 'display:block;font-weight:700;font-size:12px;margin:0 0 5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;';
+      // Pick up the Ausweis-Art carried over from the Pflicht-Check / Welcher-
+      // Ausweis result (EAR.carry in the wizard results → EAR.recall here).
+      var carriedArt = (window.EAR && EAR.recall) ? EAR.recall('art') : null;
+      var state = { kArt: carriedArt || 'verbrauch', kWeg: 'online', kTyp: 'efh' };
+
+      function h(tag, attrs, kids) {
+        var e = document.createElement(tag);
+        if (attrs) Object.keys(attrs).forEach(function (k) {
+          if (k === 'style') e.setAttribute('style', attrs[k]);
+          else if (k === 'html') e.innerHTML = attrs[k];
+          else if (k === 'text') e.textContent = attrs[k];
+          else e.setAttribute(k, attrs[k]);
+        });
+        (kids || []).forEach(function (c) { if (c) e.appendChild(c); });
+        return e;
+      }
+      function selectEl(name, opts, val, onch) {
+        var s = h('select', { style: selectStyle, 'aria-label': name });
+        opts.forEach(function (o) { var op = h('option', { value: o.v, text: o.label }); if (o.v === val) op.selected = true; s.appendChild(op); });
+        s.addEventListener('change', function () { onch(s.value); });
+        return s;
+      }
+      function field(name, node) { return h('label', { style: 'display:block;' }, [h('span', { style: labelStyle, text: name }), node]); }
+
+      function draw() {
+        // Remember the selection for the combined summary. Deliberately does
+        // NOT carry 'art': that key means "a wizard determined the Art" and
+        // drives the Übernommen banners — the Kosten dropdown must not fake it.
+        EAR.carry('kweg', state.kWeg);
+        EAR.carry('ktyp', state.kTyp);
+        mount.innerHTML = '';
+        var wrap = h('div', {});
+
+        // "Übernommen aus dem Check" banner — markup from the standalone design.
+        if (carriedArt) {
+          wrap.appendChild(h('div', { style: 'display:flex;gap:10px;align-items:center;background:#eef5ea;border:1px solid #bcd8bf;border-radius:8px;padding:12px 14px;margin-bottom:16px;' }, [
+            h('span', { style: 'flex:none;width:24px;height:24px;border-radius:50%;background:var(--klasse-a);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;', text: '✓' }),
+            h('p', { style: 'margin:0;font-size:14px;font-weight:600;line-height:1.4;color:var(--klasse-a-dk);', text: 'Übernommen aus dem Check: ' + artLabels[carriedArt] + ' ist für Ihr Gebäude vorgesehen.' }),
+          ]));
+        }
+
+        wrap.appendChild(h('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;' }, [
+          field('Ausweis-Art', selectEl('Ausweis-Art', [{ v: 'verbrauch', label: 'Verbrauchsausweis' }, { v: 'bedarf', label: 'Bedarfsausweis' }], state.kArt, function (v) { state.kArt = v; draw(); })),
+          field('Erstellungsweg', selectEl('Erstellungsweg', [{ v: 'online', label: 'Online' }, { v: 'vorort', label: 'Vor-Ort-Termin' }], state.kWeg, function (v) { state.kWeg = v; draw(); })),
+          field('Gebäude', selectEl('Gebäude', [{ v: 'efh', label: 'Einfamilienhaus' }, { v: 'mfh', label: 'Mehrfamilienhaus' }, { v: 'nwg', label: 'Gewerbe' }], state.kTyp, function (v) { state.kTyp = v; draw(); })),
+        ]));
+
+        var rg = kostenRange(state.kArt, state.kWeg, state.kTyp);
+        wrap.appendChild(h('div', { style: 'text-align:center;padding:26px 20px;background:var(--klasse-a);border-radius:10px;margin:20px 0 4px;' }, [
+          h('div', { style: 'font-family:var(--font-mono);font-size:12px;font-weight:600;color:rgba(255,255,255,.82);text-transform:uppercase;letter-spacing:.12em;', text: 'Geschätzte Kosten' }),
+          h('div', { style: 'font-family:var(--font-display);font-weight:800;font-size:52px;color:#fff;line-height:1;margin-top:6px;', text: rg[0] + ' – ' + rg[1] + ' €' }),
+          h('div', { style: 'font-size:14px;color:rgba(255,255,255,.85);margin-top:8px;', text: artLabels[state.kArt] + ' · ' + wegLabels[state.kWeg] + ' · ' + typLabels[state.kTyp] }),
+        ]));
+
+        wrap.appendChild(h('p', { style: 'font-size:13px;color:var(--ink-soft);margin:10px 0 0;', text: 'Richtwerte, je nach Anbieter und Gebäude. Online-Ausweise sind günstiger, weil kein Vor-Ort-Termin stattfindet – für die Richtigkeit der gelieferten Daten haften dann Sie als Eigentümer.' }));
+
+        /* Anbieter ausschließlich über die geprüfte Partner-Schiene aus
+           tools.js (§ 5a Abs. 4 UWG-Labelung dort gebündelt). Solange
+           EAR.PARTNERS leer ist, rendert das nichts — keine Anbieter,
+           keine Preise. Die erfundenen Mockup-VENDORS sind entfernt. */
+        var partnerList = EAR.renderPartnerList();
+        if (partnerList) wrap.appendChild(partnerList);
+
+        // Woran erkennt man einen legitimen Aussteller? Praktische Prüfpunkte;
+        // die Rechtsgrundlage (§ 88, § 85) kommt wie immer aus EAR.cite.
+        var tickRow = function (text, link) {
+          var p = h('p', { style: 'display:flex;gap:9px;align-items:baseline;margin:0 0 9px;font-size:14px;line-height:1.5;' }, [
+            h('span', { style: 'flex:none;color:var(--klasse-a);font-weight:700;', text: '✓' }),
+            h('span', {}, [document.createTextNode(text)]),
+          ]);
+          if (link) {
+            p.lastChild.appendChild(document.createTextNode(' '));
+            p.lastChild.appendChild(h('a', { href: link.href, rel: 'noopener', target: '_blank', style: 'color:var(--klasse-a-dk);font-weight:600;', text: link.text }));
+            p.lastChild.appendChild(document.createTextNode('.'));
+          }
+          return p;
+        };
+        var issuer = h('div', { style: 'margin-top:22px;border:1px solid var(--line);border-radius:10px;padding:16px 16px 8px;background:#fff;' }, [
+          h('p', { style: 'font-family:var(--font-display);font-weight:800;font-size:17px;margin:0 0 10px;', text: 'Woran Sie einen seriösen Aussteller erkennen' }),
+          tickRow('Ausstellen darf nur, wer nach § 88 GEG dazu berechtigt ist – etwa Architekten, ' +
+            'Bauingenieure, bestimmte Handwerksmeister und staatlich geprüfte Techniker mit ' +
+            'Zusatzqualifikation. Seriöse Anbieter nennen ihre Qualifikation unaufgefordert; ' +
+            'fragen Sie im Zweifel nach.'),
+          tickRow('Geprüfte Fachleute finden Sie in der Energieeffizienz-Expertenliste der dena ' +
+            'sowie über die Architekten- und Ingenieurkammern der Länder:',
+            { href: 'https://www.energie-effizienz-experten.de', text: 'energie-effizienz-experten.de ↗' }),
+          tickRow('Der fertige Ausweis muss eine Registriernummer sowie Name, Anschrift, ' +
+            'Berufsbezeichnung und Unterschrift des Ausstellers tragen – fehlt das, ist er ' +
+            'nicht ordnungsgemäß.'),
+        ]);
+        var issuerCite = EAR.cite('aussteller');
+        if (issuerCite) issuer.appendChild(issuerCite);
+        wrap.appendChild(issuer);
+
+        var actions = h('div', { style: 'display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;' });
+        var shareToolBtn = h('button', { type: 'button', class: 'btn-ghost', text: '↗ Tool teilen' });
+        shareToolBtn.addEventListener('click', function () { var b = document.getElementById('shareBtn'); if (b) b.click(); });
+        actions.appendChild(shareToolBtn);
+        wrap.appendChild(actions);
+
+        mount.appendChild(wrap);
+      }
+      draw();
+    }
+
+    // ── FAQ — the answers older readers actually look for. The three most
+    // important ones (Gültigkeit, Bußgeld, Ausstellungsberechtigung) render
+    // OPEN by default: users who don't click "+" elements must still see them.
+    // Texts mirror the FAQ on index.html; every § comes from EAR.cite.
+    function renderFaq(mount) {
+      var el = EAR.el;
+      var FAQ = [
+        { open: true, cite: 'gueltigkeit',
+          q: 'Wie lange ist ein Energieausweis gültig?',
+          a: 'Zehn Jahre ab Ausstellung. Er verliert seine Gültigkeit vorzeitig, ' +
+             'wenn das Gebäude so umfassend geändert wird, dass ein neuer ' +
+             'Ausweis erforderlich wird.' },
+        { open: true, cite: 'bussgeld',
+          q: 'Wie hoch ist das Bußgeld, wenn Angaben in der Anzeige fehlen?',
+          a: 'Bis zu 10.000 €. Das Fehlen der Pflichtangaben in der ' +
+             'Immobilienanzeige ist eine Ordnungswidrigkeit. Die oft zitierten ' +
+             '15.000 € stammen aus der früheren EnEV und gelten hier nicht.' },
+        { open: true, cite: 'aussteller',
+          q: 'Wer darf einen Energieausweis überhaupt ausstellen?',
+          a: 'Nur bestimmte Berufsgruppen nach § 88 GEG – unter anderem ' +
+             'Architekten, Bauingenieure, bestimmte Handwerksmeister und ' +
+             'staatlich anerkannte Techniker, jeweils mit zusätzlicher ' +
+             'Qualifikation oder Berufserfahrung. Wer ohne diese Berechtigung ' +
+             'einen Ausweis ausstellt, begeht eine Ordnungswidrigkeit.' },
+        { q: 'Muss jemand mein Haus besichtigen, um den Ausweis zu erstellen?',
+          a: 'Nein. Das Gesetz schreibt keinen Vor-Ort-Termin vor. Der ' +
+             'Aussteller darf sich auf die Daten stützen, die Sie ihm liefern – ' +
+             'Sie müssen für deren Richtigkeit einstehen. Ein Vor-Ort-Termin ' +
+             'liefert aber belastbarere Werte und konkrete Sanierungshinweise.' },
+        { cite: 'vorlagepflicht',
+          q: 'Brauche ich als Mieter oder Käufer selbst einen Ausweis?',
+          a: 'Nein. Die Pflicht trifft immer die verkaufende oder vermietende ' +
+             'Seite. Sie haben umgekehrt einen Anspruch darauf, den Ausweis ' +
+             'spätestens bei der Besichtigung vorgelegt zu bekommen.' },
+        { q: 'Wie verlässlich sind diese Rechner?',
+          a: 'Sie geben eine unverbindliche Orientierung auf Grundlage der ' +
+             'Regeln des Gebäudeenergiegesetzes, Stand ' + EAR.STAND.stand + '. ' +
+             'Sie ersetzen weder eine Rechtsberatung noch einen amtlichen ' +
+             'Energieausweis, den nur eine nach § 88 GEG berechtigte Person ' +
+             'ausstellen darf.' },
+      ];
+      mount.appendChild(el('h3', { text: 'Häufige Fragen' }));
+      FAQ.forEach(function (f) {
+        var kids = [
+          el('summary', { text: f.q }),
+          el('p', { text: f.a }),
+        ];
+        var c = f.cite ? EAR.cite(f.cite) : null;
+        if (c) kids.push(c);
+        mount.appendChild(el('details', { open: f.open === true }, kids));
+      });
+    }
+
+    // ── Gesamt-Zusammenfassung — one document for the whole journey.
+    // Everything the tools carried into the cross-tool store (Ausweis-Art,
+    // Kosten-Auswahl, Kennwert/Klasse, Inserat-Text) is composed into a
+    // print-only view; the browser's print dialog turns it into a PDF.
+    // Nothing leaves the browser, no PDF library needed.
+    function buildSummary() {
+      var el = EAR.el;
+      var box = document.getElementById('printsum');
+      var art = EAR.recall('art');
+      var kennwert = EAR.recall('kennwert');
+      var klasse = EAR.recall('klasse');
+      var inserat = EAR.recall('inserat');
+      var kweg = EAR.recall('kweg') || 'online';
+      var ktyp = EAR.recall('ktyp') || 'efh';
+      if (!art && !kennwert && !inserat) return false;
+
+      while (box.firstChild) box.removeChild(box.firstChild);
+      box.appendChild(el('h1', { text: 'Energieausweis – Ihre Zusammenfassung' }));
+      box.appendChild(el('p', { class: 'meta',
+        text: 'Erstellt am ' + new Date().toLocaleDateString('de-DE',
+          { day: 'numeric', month: 'long', year: 'numeric' }) +
+          ' mit den Energieausweis-Tools · GEG-Stand ' + EAR.STAND.stand }));
+
+      box.appendChild(el('h2', { text: '1. Welche Ausweis-Art?' }));
+      box.appendChild(el('p', { text: art
+        ? 'Ergebnis Ihres Checks: ' + artLabels[art] + '.' +
+          (art === 'bedarf'
+            ? ' Für Ihr Gebäude ist der Bedarfsausweis vorgesehen.'
+            : ' Der Verbrauchsausweis ist zulässig und in der Regel günstiger.')
+        : 'Noch nicht ermittelt – Tab „Welcher Ausweis?“ ausfüllen.' }));
+
+      box.appendChild(el('h2', { text: '2. Geschätzte Kosten' }));
+      var kArt = art || 'verbrauch';
+      var rg = kostenRange(kArt, kweg, ktyp);
+      box.appendChild(el('p', { text: rg[0] + ' – ' + rg[1] + ' € (' +
+        artLabels[kArt] + ' · ' + wegLabels[kweg] + ' · ' + typLabels[ktyp] + '). ' +
+        'Richtwert je nach Anbieter und Gebäude.' }));
+
+      box.appendChild(el('h2', { text: '3. Energieeffizienzklasse' }));
+      box.appendChild(el('p', { text: klasse && kennwert
+        ? 'Klasse ' + klasse + ' bei einem Kennwert von ' + kennwert + ' kWh/(m²·a).'
+        : 'Noch nicht bestimmt – Tab „Effizienzklasse“ ausfüllen.' }));
+
+      box.appendChild(el('h2', { text: '4. Pflichtangaben für Ihr Inserat' }));
+      if (inserat) box.appendChild(el('pre', { text: inserat }));
+      else box.appendChild(el('p', { text: 'Noch nicht erstellt – Tab „Inserat-Text“ ausfüllen.' }));
+
+      if (art === 'bedarf') {
+        box.appendChild(el('h2', { text: '5. ' + BEDARF_CHECKLIST.title }));
+        box.appendChild(el('ul', {}, BEDARF_CHECKLIST.items.map(function (i) {
+          return el('li', { text: '☐  ' + i });
+        })));
+      }
+
+      box.appendChild(el('p', { class: 'meta',
+        text: 'Unverbindliche Orientierung nach GEG-Stand ' + EAR.STAND.stand +
+          '; ersetzt keine Rechts- oder Energieberatung. Einen amtlichen ' +
+          'Energieausweis darf nur eine nach § 88 GEG berechtigte Person ' +
+          'ausstellen. ' + location.origin + location.pathname }));
+      return true;
+    }
+
+    function initSummary() {
+      var btn = document.getElementById('summaryBtn');
+      var msg = document.getElementById('summaryMsg');
+      btn.addEventListener('click', function () {
+        if (!buildSummary()) {
+          msg.textContent = 'Noch keine Ergebnisse – füllen Sie zuerst eines der Tools aus.';
+          msg.hidden = false;
+          setTimeout(function () { msg.hidden = true; }, 3600);
+          return;
+        }
+        document.body.classList.add('eaw-printing');
+        var done = function () {
+          document.body.classList.remove('eaw-printing');
+          window.removeEventListener('afterprint', done);
+        };
+        window.addEventListener('afterprint', done);
+        window.print();
+      });
+    }
+
+    // ── Tab completion state ─────────────────────────────────────────────
+    // A tab counts as "done" once its tool produced something: the wizards a
+    // result (recorded by the tracked() wrapper below), Kosten a shown
+    // estimate, Effizienz a computed class, Inserat a built text — all read
+    // from the same sessionStorage carries the tools already write. The FAQ
+    // is reference content, not a step, so it never gets a checkmark.
+    // "Neu starten" withdraws the whole case, not a single answer — so every
+    // tool LATER in the journey loses its stored result and checkmark too
+    // (restarting the Pflicht-Check may mean a different property; a Welcher-
+    // restart keeps the Pflicht result, which stands on its own). This is
+    // deliberately stronger than the change-triggered invalidation below,
+    // which only reacts to a DIFFERENT upstream value.
+    var JOURNEY = ['pflicht', 'welcher', 'kosten', 'effizienz', 'inserat'];
+    var TOOL_KEYS = {
+      pflicht: ['done.pflicht'],
+      welcher: ['done.welcher', 'art'],
+      kosten: ['kweg', 'ktyp'],
+      effizienz: ['kennwert', 'klasse'],
+      inserat: ['inserat'],
+    };
+    function wipeFrom(id) {
+      JOURNEY.slice(JOURNEY.indexOf(id)).forEach(function (t) {
+        TOOL_KEYS[t].forEach(function (k) { EAR.carry(k, ''); });
+      });
+    }
+
+    function tracked(id, flow) {
+      return function (ans) {
+        var out = flow(ans);
+        if (out.view === 'result' && out.r) {
+          EAR.carry('done.' + id, 'Antwort: ' + out.r.title);
+        }
+        return out;
+      };
+    }
+
+    var DONE = {
+      pflicht: function () { return EAR.recall('done.pflicht'); },
+      welcher: function () { return EAR.recall('done.welcher'); },
+      kosten: function () {
+        var weg = EAR.recall('kweg');
+        if (!weg) return null;
+        var rg = kostenRange(EAR.recall('art') || 'verbrauch', weg, EAR.recall('ktyp') || 'efh');
+        return 'Geschätzt: ' + rg[0] + ' – ' + rg[1] + ' €';
+      },
+      effizienz: function () {
+        var k = EAR.recall('klasse');
+        if (!k) return null;
+        var v = EAR.recall('kennwert');
+        return 'Klasse ' + k + (v ? ' bei ' + v + ' kWh/(m²·a)' : '');
+      },
+      inserat: function () {
+        return EAR.recall('inserat') ? 'Anzeigentext erstellt – fertig zum Kopieren' : null;
+      },
+    };
+
+    function refreshTabs() {
+      TOOLS.forEach(function (t) {
+        if (!DONE[t.id]) return;
+        var b = document.querySelector('.eaw-tab[data-tool="' + t.id + '"]');
+        if (!b) return;
+        var txt = DONE[t.id]();
+        b.classList.toggle('done', !!txt);
+        if (txt) b.setAttribute('title', txt);
+        else b.removeAttribute('title');
+      });
+    }
+
+    // ── Downstream invalidation ──────────────────────────────────────────
+    // A checkmark certifies a result computed from upstream inputs. When
+    // Pflicht-Check or "Welcher Ausweis?" deliver a DIFFERENT Ausweis-Art,
+    // the Kosten estimate and a built Inserat-Text were made for the wrong
+    // type (the § 87 mistake the generator warns about), so their carries
+    // are cleared: the ✓ disappears and the print summary cannot export
+    // the stale text. A changed Kennwert/Klasse likewise invalidates the
+    // Inserat-Text. Merely revisiting a tab never clears anything, and a
+    // re-run that lands on the SAME answer keeps all checkmarks.
+    var UPSTREAM = {
+      art: ['kweg', 'inserat'],
+      kennwert: ['inserat'],
+      klasse: ['inserat'],
+    };
+    var lastSeen = {};
+    Object.keys(UPSTREAM).forEach(function (k) { lastSeen[k] = EAR.recall(k); });
+    document.addEventListener('ear:carry', function (e) {
+      var k = e.detail.key;
+      if (!(k in UPSTREAM)) return;
+      // Any transition counts, including unset → set and set → withdrawn
+      // (freie Wahl carries art:''). Clearing already-empty downstream keys
+      // is a harmless no-op, so no null guard is needed.
+      var changed = lastSeen[k] !== e.detail.value;
+      lastSeen[k] = e.detail.value;
+      if (!changed) return;
+      // carry('', …) both empties the stored value and re-fires refreshTabs
+      // through the ear:carry listener registered in boot().
+      UPSTREAM[k].forEach(function (dep) { EAR.carry(dep, ''); });
+    });
+
+    // Tab order per the design. Pflicht-Check = minimal obligation check (1–2
+    // questions), "Welcher Ausweis?" = the building questions for the type;
+    // the Ja-result of the first hands over to the second, which hands over to
+    // Kosten with the Art preselected. Effizienz/Inserat use the real engine
+    // styled by the bridge.
+    var TOOLS = [
+      { id: 'pflicht',   tab: 'Pflicht-Check',    mount: function (m) {
+          EAR.renderWizard(m, tracked('pflicht', pflichtFlow), { steps: ['Situation', 'Details', 'Ergebnis'], maxQuestions: 3, reveal: 'page', onRestart: function () { wipeFrom('pflicht'); } });
+      } },
+      { id: 'welcher',   tab: 'Welcher Ausweis?', mount: function (m) {
+          EAR.renderWizard(m, tracked('welcher', welcherFlow), { steps: ['Gebäude', 'Details', 'Ergebnis'], maxQuestions: 6, reveal: 'page', onRestart: function () { wipeFrom('welcher'); } });
+      } },
+      { id: 'kosten',    tab: 'Kosten',           mount: renderKosten },
+      { id: 'effizienz', tab: 'Effizienzklasse',  mount: function (m) { EAR.mountEffizienz(m); } },
+      { id: 'inserat',   tab: 'Inserat-Text',     mount: function (m) {
+          // "Übernommen aus dem Check" banner (standalone markup) when a wizard
+          // carried the Ausweis-Art here. Kept OUTSIDE the engine's mount div so
+          // mountInserat's redraws cannot wipe it.
+          var art = (window.EAR && EAR.recall) ? EAR.recall('art') : null;
+          if (art === 'bedarf' || art === 'verbrauch') {
+            var label = art === 'bedarf' ? 'Bedarfsausweis' : 'Verbrauchsausweis';
+            var banner = document.createElement('div');
+            banner.setAttribute('style', 'display:flex;gap:10px;align-items:center;background:#eef5ea;border:1px solid #bcd8bf;border-radius:8px;padding:12px 14px;margin-bottom:16px;');
+            var tick = document.createElement('span');
+            tick.setAttribute('style', 'flex:none;width:24px;height:24px;border-radius:50%;background:var(--klasse-a);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;');
+            tick.textContent = '✓';
+            var txt = document.createElement('p');
+            txt.setAttribute('style', 'margin:0;font-size:14px;font-weight:600;line-height:1.4;color:var(--klasse-a-dk);');
+            txt.textContent = 'Übernommen aus dem Check: ' + label + ' ist für Ihr Gebäude vorgesehen. Die Art ist unten vorausgewählt.';
+            banner.appendChild(tick); banner.appendChild(txt);
+            m.appendChild(banner);
+          }
+          var inner = document.createElement('div');
+          m.appendChild(inner);
+          EAR.mountInserat(inner);
+      } },
+      { id: 'faq',       tab: 'Häufige Fragen',   mount: renderFaq },
+    ];
+
+    // The wizard's "Wie geht es weiter?" result links are section anchors on
+    // the real one-page site (#kosten, #inserat, …). Here they switch tabs.
+    var ANCHOR_TO_TAB = {
+      '#pflicht': 'pflicht', '#welcher': 'welcher', '#kosten': 'kosten',
+      '#effizienzklasse': 'effizienz', '#inserat': 'inserat', '#faq': 'faq',
+    };
+
+    function panelMount() { return document.querySelector('.eaw-panel [data-mount]'); }
+
+    function activate(id) {
+      var tool = TOOLS.filter(function (t) { return t.id === id; })[0] || TOOLS[0];
+      // reset the mount so re-entering a tab starts clean
+      var old = panelMount();
+      var fresh = document.createElement('div');
+      fresh.setAttribute('data-mount', '');
+      old.parentNode.replaceChild(fresh, old);
+      // tab a11y state
+      [].forEach.call(document.querySelectorAll('.eaw-tab'), function (b) {
+        var on = b.getAttribute('data-tool') === tool.id;
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      try { tool.mount(fresh); } catch (e) {
+        fresh.innerHTML = '<p class="hint">Dieses Tool konnte nicht geladen werden: ' + (e && e.message) + '</p>';
+        if (window.console) console.error(e);
+      }
+      // Every tool switch starts at the top of the page — brand, tabs and
+      // step bar visible — no matter how far down the previous tool was
+      // scrolled (long results, provider lists).
+      if (window.pageYOffset > 0) window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function buildTabs() {
+      var row = document.getElementById('tabrow');
+      TOOLS.forEach(function (t) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'eaw-tab';
+        b.setAttribute('role', 'tab');
+        b.setAttribute('data-tool', t.id);
+        b.setAttribute('aria-selected', 'false');
+        b.textContent = t.tab;
+        b.addEventListener('click', function () { activate(t.id); });
+        row.appendChild(b);
+      });
+    }
+
+    function initShare() {
+      var btn = document.getElementById('shareBtn');
+      var msg = document.getElementById('shareMsg');
+      btn.addEventListener('click', function () {
+        var url = location.href;
+        var data = { title: 'Energieausweis-Tools', text: 'Kostenlos prüfen: Brauche ich einen Energieausweis, welchen und was kostet er?', url: url };
+        function copied() { msg.textContent = 'Link kopiert ✓'; msg.hidden = false; setTimeout(function () { msg.hidden = true; }, 2200); }
+        if (navigator.share) { navigator.share(data).catch(function () {}); return; }
+        if (navigator.clipboard) { navigator.clipboard.writeText(url).then(copied, function () {}); }
+      });
+    }
+
+    function boot() {
+      buildTabs();
+      initShare();
+      initSummary();
+
+      // Stand stamps in the sidebar (hero kicker, trust row) — always from
+      // rules.js, never hand-written into the markup.
+      var stand = (window.EAR && EAR.STAND) ? EAR.STAND.stand : '';
+      var hs = document.getElementById('heroStand');
+      if (hs) hs.textContent = stand;
+      var ts = document.getElementById('trustStand');
+      if (ts) ts.textContent = stand;
+
+      // Sidebar "Am Ende erhalten Sie" rows jump straight into the tool.
+      [].forEach.call(document.querySelectorAll('.eaw-siderow'), function (b) {
+        b.addEventListener('click', function () { activate(b.getAttribute('data-tool')); });
+      });
+
+      // Checkmarks on completed tabs: refresh whenever a tool carries new
+      // state (results, estimates, built texts all go through EAR.carry).
+      document.addEventListener('ear:carry', refreshTabs);
+      refreshTabs();
+      // Delegate clicks on wizard result links (a[href="#kosten"] etc.) to the
+      // tab switcher instead of jumping to a non-existent page anchor.
+      document.querySelector('.eaw-panel').addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('a[href^="#"]');
+        if (!a) return;
+        var id = ANCHOR_TO_TAB[a.getAttribute('href')];
+        if (id) { e.preventDefault(); activate(id); }
+      });
+      activate(TOOLS[0].id);
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot);
+    } else { boot(); }
+  })();
+  </script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@graph": [
       {
+        "@type": "Organization",
+        "@id": "https://energieausweis-rechner.github.io/#organisation",
+        "name": "Energieausweis Rechner",
+        "url": "https://energieausweis-rechner.github.io/",
+        "publishingPrinciples": "https://energieausweis-rechner.github.io/transparenz/",
+        "ownershipFundingInfo": "https://energieausweis-rechner.github.io/transparenz/"
+      },
+      {
         "@type": "WebSite",
         "@id": "https://energieausweis-rechner.github.io/#website",
         "url": "https://energieausweis-rechner.github.io/",
         "name": "Energieausweis Rechner",
-        "inLanguage": "de-DE"
+        "inLanguage": "de-DE",
+        "publisher": { "@id": "https://energieausweis-rechner.github.io/#organisation" }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://energieausweis-rechner.github.io/#webpage",
+        "url": "https://energieausweis-rechner.github.io/",
+        "name": "Welchen Energieausweis brauche ich? Kostenloser Rechner (GEG 2026)",
+        "description": "In wenigen Fragen klären: Brauche ich einen Energieausweis – und Bedarfs- oder Verbrauchsausweis? Dazu Effizienzklassen-Rechner, Kostenrechner und Anzeigentext-Generator nach § 87 GEG.",
+        "isPartOf": { "@id": "https://energieausweis-rechner.github.io/#website" },
+        "inLanguage": "de-DE",
+        "datePublished": "2026-06-23",
+        "dateModified": "2026-07-28",
+        "publisher": { "@id": "https://energieausweis-rechner.github.io/#organisation" }
       },
       {
         "@type": "WebApplication",
@@ -423,28 +1368,28 @@
           },
           {
             "@type": "Question",
-            "name": "Wie hoch ist das Bußgeld, wenn Angaben in der Immobilienanzeige fehlen?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Bis zu 10.000 Euro. Das Fehlen der Pflichtangaben nach § 87 GEG ist eine Ordnungswidrigkeit nach § 108 Abs. 1 Nr. 27 GEG und fällt in den Bußgeldrahmen des § 108 Abs. 2 Nr. 2 GEG. Die oft zitierten 15.000 Euro stammen aus der früheren EnEV und gelten hier nicht." }
+            "name": "Wie hoch ist das Bußgeld, wenn Angaben in der Anzeige fehlen?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Bis zu 10.000 €. Das Fehlen der Pflichtangaben nach § 87 GEG ist eine Ordnungswidrigkeit nach § 108 Abs. 1 Nr. 27 GEG und fällt in den Bußgeldrahmen des § 108 Abs. 2 Nr. 2 GEG. Die oft zitierten 15.000 € stammen aus der früheren EnEV und gelten hier nicht." }
           },
           {
             "@type": "Question",
-            "name": "Wann ist ein Bedarfsausweis Pflicht?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Wenn alle vier Punkte zutreffen: Wohngebäude, weniger als fünf Wohnungen, Bauantrag vor dem 1. November 1977, und das Gebäude wurde nicht nachträglich auf den Standard der Wärmeschutzverordnung 1977 gebracht (§ 80 Abs. 3 Sätze 2 bis 4 GEG). Sonst besteht freie Wahl." }
+            "name": "Muss jemand mein Haus besichtigen, um den Ausweis zu erstellen?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Nein. Das Gesetz schreibt keinen Vor-Ort-Termin vor. Der Aussteller darf sich auf die Daten stützen, die Sie ihm liefern – Sie müssen für deren Richtigkeit einstehen. Ein Vor-Ort-Termin liefert aber belastbarere Werte und konkrete Sanierungshinweise." }
           },
           {
             "@type": "Question",
-            "name": "Sind Baudenkmäler vom Energieausweis befreit?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Nur teilweise. Nach § 79 Abs. 4 Satz 2 GEG entfallen bei einem Baudenkmal die Pflichten des § 80 Abs. 3 bis 7, also Verkauf, Vermietung, Vorlage und Aushang. Bei Neubau oder größerer Änderung nach § 80 Abs. 1 und 2 bleibt die Pflicht bestehen." }
+            "name": "Wer darf einen Energieausweis überhaupt ausstellen?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Nur bestimmte Berufsgruppen nach § 88 GEG – unter anderem Architekten, Bauingenieure, bestimmte Handwerksmeister und staatlich anerkannte Techniker, jeweils mit zusätzlicher Qualifikation oder Berufserfahrung. Wer ohne diese Berechtigung einen Ausweis ausstellt, begeht eine Ordnungswidrigkeit." }
           },
           {
             "@type": "Question",
-            "name": "Ab welcher Größe ist ein Gebäude von der Energieausweispflicht ausgenommen?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Bei nicht mehr als 50 Quadratmetern Nutzfläche. Solche Gebäude gelten nach § 3 Abs. 1 Nr. 17 GEG als kleine Gebäude, auf die die Vorschriften zum Energieausweis nach § 79 Abs. 4 Satz 1 GEG nicht anzuwenden sind. Die Grenze lautet nicht mehr als 50 Quadratmeter, nicht weniger als 50." }
+            "name": "Brauche ich als Mieter oder Käufer selbst einen Ausweis?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Nein. Die Pflicht trifft immer die verkaufende oder vermietende Seite. Sie haben umgekehrt einen Anspruch darauf, den Ausweis spätestens bei der Besichtigung vorgelegt zu bekommen." }
           },
           {
             "@type": "Question",
-            "name": "Muss jemand das Haus besichtigen, um einen Energieausweis zu erstellen?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Nein. Das GEG schreibt keinen Vor-Ort-Termin vor. Der Aussteller darf sich auf die vom Eigentümer gelieferten Daten stützen; für deren Richtigkeit haftet der Eigentümer." }
+            "name": "Wie verlässlich sind diese Rechner?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Sie geben eine unverbindliche Orientierung auf Grundlage der Regeln des Gebäudeenergiegesetzes, Stand 07/2026. Sie ersetzen weder eine Rechtsberatung noch einen amtlichen Energieausweis, den nur eine nach § 88 GEG berechtigte Person ausstellen darf." }
           }
         ]
       }

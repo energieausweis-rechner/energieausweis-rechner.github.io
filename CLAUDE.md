@@ -23,8 +23,9 @@ This project uses the design system defined in `assets/tokens.css` (design token
   was ruled a GDPR violation (LG München I, 20.01.2022 – 3 O 17493/20).
 - **Design reference: `Energieausweis-Tools.standalone.html`** (the exported
   "Energieausweis Wissen" design). Use it as the single source of truth for
-  layout, component look and visual patterns in the Wissen redesign work
-  (`preview-wissen.html` / `assets/variant-wissen.css`).
+  layout, component look and visual patterns in the Wissen design, which is
+  LIVE as `index.html` since 2026-07-28 (skin: `assets/wissen.css`;
+  `preview-wissen.html` remains a gitignored local scratchpad).
   EXCEPTION — fonts: the standalone loads Bricolage Grotesque from Google
   Fonts; never copy that part. Fonts stay self-hosted from `assets/fonts/`
   (GDPR, see above). Copy the look, not the font loading.

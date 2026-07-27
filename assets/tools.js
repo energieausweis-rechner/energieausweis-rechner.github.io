@@ -94,15 +94,12 @@
 
   /* ── Legal citation block ─────────────────────────────────────────────── */
 
-  /* The § reference and Stand are always visible — they are the credibility
-     signal and the anchor an answer engine cites. The verbatim Gesetzestext
-     is collapsed by default: German statutory sentences run long enough to
-     fill a whole phone screen, which would wall off everything below the
-     result. Using <details> keeps the wording in the DOM (still crawlable,
-     still citable) without making the reader scroll past it.
-     opts.open renders it expanded — for results where the legal proof is the
-     point (a "Pflicht: ja"), the quote should be visible without a click,
-     same treatment as the top FAQ answers. */
+  /* The § reference, Stand AND the verbatim Gesetzestext are all expanded by
+     default (user decision 2026-07: no §-quote may hide behind a click —
+     the senior audience does not discover accordions, and the visible quote
+     is the credibility signal an answer engine cites). <details> is kept
+     only so a reader can fold long statutes away; opts.open === false
+     renders one collapsed where space genuinely forbids it. */
   var SCALE_ICO =
     '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" ' +
     'fill="none" stroke="currentColor" stroke-width="1.8" ' +
@@ -130,7 +127,7 @@
         ]),
         el('span', { text: 'für diese Antwort' }),
       ]),
-      el('details', { open: !!(opts && opts.open) }, [
+      el('details', { open: !(opts && opts.open === false) }, [
         el('summary', {}, [
           el('strong', { text: r.zitat }),
           el('span', { class: 'stand', text: 'Stand: ' + EAR.STAND.stand }),
@@ -260,7 +257,10 @@
       var step = flow(answers.slice(0, i));
       if (step.view !== 'question') break;
       var opt = step.q.options.filter(function (o) { return o.value === answers[i]; })[0];
-      out.push({ index: i, short: step.q.short || step.q.text, label: opt ? opt.label : answers[i] });
+      // opt.chip overrides the button label on the answer chips: a label like
+      // "Nein, keine davon" is clear under its question but meaningless once
+      // it stands alone on the result screen.
+      out.push({ index: i, short: step.q.short || step.q.text, label: opt ? (opt.chip || opt.label) : answers[i] });
     }
     return out;
   }
@@ -305,6 +305,7 @@
       if (r.checklist) {
         lines.push('', r.checklist.title + ':');
         r.checklist.items.forEach(function (i) { lines.push('☐ ' + i); });
+        if (r.checklist.note) lines.push('→ ' + r.checklist.note);
       }
       (r.cites || []).forEach(function (k) {
         if (R[k]) lines.push('', R[k].zitat + ': „' + R[k].wortlaut + '“');
@@ -427,6 +428,28 @@
           el('strong', { text: r.type }),
         ]));
       }
+      // Side-by-side comparison — for "freie Wahl" results, where the reader
+      // must decide between both types and needs the trade-offs in one view.
+      // r.compare = { caption, head: [...], rows: [[label, a, b], ...], tip }
+      if (r.compare) {
+        card.appendChild(el('div', { class: 'table-wrap' }, [
+          el('table', { class: 'compare' }, [
+            r.compare.caption ? el('caption', { class: 'visually-hidden', text: r.compare.caption }) : null,
+            el('thead', {}, [el('tr', {}, r.compare.head.map(function (hd) {
+              return el('th', { scope: 'col', text: hd });
+            }))]),
+            el('tbody', {}, r.compare.rows.map(function (row) {
+              return el('tr', {}, row.map(function (cell, i) {
+                return i === 0 ? el('th', { scope: 'row', text: cell })
+                               : el('td', { text: cell });
+              }));
+            })),
+          ]),
+        ]));
+        if (r.compare.tip) {
+          card.appendChild(el('p', { class: 'hint', text: '💡 ' + r.compare.tip }));
+        }
+      }
       if (r.steps) {
         card.appendChild(el('h4', { text: 'Ihre nächsten Schritte' }));
         card.appendChild(el('ol', { class: 'steps-next' },
@@ -440,6 +463,9 @@
         card.appendChild(el('h4', { text: r.checklist.title }));
         card.appendChild(el('ul', { class: 'doc-check' },
           r.checklist.items.map(function (s) { return el('li', { text: s }); })));
+        if (r.checklist.note) {
+          card.appendChild(el('p', { class: 'hint', text: '→ ' + r.checklist.note }));
+        }
         card.appendChild(el('div', { class: 'wizard-actions noprint' }, [
           el('button', {
             class: 'btn-ghost', type: 'button', text: '⧉ Checkliste kopieren',
@@ -455,13 +481,8 @@
           }),
         ]));
       }
-      // On an obligation result ("Pflicht: ja" / Bedarfspflicht) the statute
-      // IS the message, so the first quote arrives expanded — same treatment
-      // as the top FAQ answers. Only the first: two open Gesetzestexte in a
-      // row would push the next steps off the screen.
-      var duty = r.tone === 'yes' || r.tone === 'bedarf';
-      (r.cites || []).forEach(function (k, i) {
-        var c = cite(k, { open: duty && i === 0 }); if (c) card.appendChild(c);
+      (r.cites || []).forEach(function (k) {
+        var c = cite(k); if (c) card.appendChild(c);
       });
 
       // "Wie geht es weiter?" — no result is a dead end.
@@ -479,9 +500,10 @@
       }
       if (r.carry) Object.keys(r.carry).forEach(function (k) { EAR.carry(k, r.carry[k]); });
 
-      mount.appendChild(card);
-
-      // Answer chips — change one answer without walking all the way back.
+      // Inputs ABOVE the answer: the reader confirms "did it understand me?"
+      // immediately before reading the result. "Neu starten" lives with the
+      // chips — like them it acts on the inputs, not the output. The card
+      // then ends on the "Wie geht es weiter?" links, not utility buttons.
       var t = trail(flow, answers);
       if (t.length) {
         mount.appendChild(el('div', { class: 'chips noprint' }, [
@@ -496,29 +518,42 @@
             el('span', { text: item.label }),
             el('span', { class: 'chip-edit', 'aria-hidden': 'true', text: '✎' }),
           ]);
-        }))));
+        })).concat([
+          el('button', {
+            class: 'chip chip-restart', type: 'button', text: '↺ Neu starten',
+            // opts.onRestart lets the page discard state that depended on
+            // this wizard's inputs (preview-wissen wipes the later tools'
+            // checkmarks — a restart withdraws the whole case, not one answer).
+            onclick: function () { set([], null); if (opts.onRestart) opts.onRestart(); },
+          }),
+        ])));
       }
 
-      mount.appendChild(el('div', { class: 'wizard-actions noprint' }, [
-        el('button', {
-          class: 'btn-ghost', type: 'button', text: '↺ Neu starten',
-          onclick: function () { set([], null); },
-        }),
-        el('button', {
-          class: 'btn-ghost', type: 'button', text: '⧉ Ergebnis kopieren',
-          onclick: function (e) {
-            var b = e.currentTarget;
-            navigator.clipboard.writeText(resultText(r)).then(function () {
-              b.textContent = '✓ Kopiert';
-              setTimeout(function () { b.textContent = '⧉ Ergebnis kopieren'; }, 2200);
-            }, function () { /* clipboard blocked */ });
-          },
-        }),
-        el('button', {
-          class: 'btn-ghost', type: 'button', text: 'Drucken',
-          onclick: function () { window.print(); },
-        }),
-      ]));
+      mount.appendChild(card);
+
+      // Per-result copy/print only where the page has no global action set.
+      // preview-wissen sets EAR.GLOBAL_ACTIONS: its header-level "Alles
+      // drucken / als PDF speichern" and "Teilen" cover export, and two
+      // competing action sets at different scroll positions confuse more
+      // than they help. index.html has no global bar, so it keeps these.
+      if (!EAR.GLOBAL_ACTIONS) {
+        mount.appendChild(el('div', { class: 'wizard-actions noprint' }, [
+          el('button', {
+            class: 'btn-ghost', type: 'button', text: '⧉ Ergebnis kopieren',
+            onclick: function (e) {
+              var b = e.currentTarget;
+              navigator.clipboard.writeText(resultText(r)).then(function () {
+                b.textContent = '✓ Kopiert';
+                setTimeout(function () { b.textContent = '⧉ Ergebnis kopieren'; }, 2200);
+              }, function () { /* clipboard blocked */ });
+            },
+          }),
+          el('button', {
+            class: 'btn-ghost', type: 'button', text: 'Drucken',
+            onclick: function () { window.print(); },
+          }),
+        ]));
+      }
 
       status(r.title + (r.type ? '. Ausweis-Art: ' + r.type : ''));
       if (focus) { card.focus({ preventScroll: true }); revealTop(card); }
@@ -583,7 +618,7 @@
         { value: 'neubau', icon: 'crane', label: 'Ich baue neu', sub: 'Neubau, Fertigstellung' },
         { value: 'interessent', icon: 'buyer', label: 'Ich kaufe oder miete', sub: 'Interessent oder Mieter' },
         { value: 'finanzierung', icon: 'bank', label: 'Ich brauche ihn für die Bank', sub: 'Kredit oder Förderung' },
-        { value: 'bestand', icon: 'house', label: 'Nichts davon', sub: 'Selbst nutzen' },
+        { value: 'bestand', icon: 'house', label: 'Nichts davon', sub: 'Selbst nutzen', chip: 'Nur Selbstnutzung' },
       ],
     };
     if (!ans.length) return { view: 'question', q: Q1, step: 1 };
@@ -667,7 +702,7 @@
       options: [
         { value: 'denkmal', icon: 'columns', label: 'Ja, Baudenkmal', sub: 'Denkmalschutz' },
         { value: 'klein', icon: 'area', label: 'Ja, höchstens 50 m²', sub: 'Nutzfläche bis 50 m²' },
-        { value: 'keine', icon: 'none', label: 'Nein, keine davon', sub: 'Weder noch' },
+        { value: 'keine', icon: 'none', label: 'Nein, keine davon', sub: 'Weder noch', chip: 'Keine Ausnahme' },
       ],
     };
     if (ans.length === 1) return { view: 'question', q: Q2, step: 1 };
@@ -735,7 +770,7 @@
       options: [
         { value: 'ab1977', icon: 'calendar', label: 'Am oder nach dem 1.11.1977', sub: 'Oder später' },
         { value: 'vor1977', icon: 'calendarOld', label: 'Vor dem 1.11.1977', sub: 'Älteres Gebäude' },
-        { value: 'unbekannt', icon: 'unknown', label: 'Weiß ich nicht', sub: 'Datum unbekannt' },
+        { value: 'unbekannt', icon: 'unknown', label: 'Weiß ich nicht', sub: 'Datum unbekannt', chip: 'Baujahr unklar' },
       ],
     };
     if (ans.length === 4 && ans[3] === 'bis4') return { view: 'question', q: Q5, step: 2 };
@@ -755,7 +790,7 @@
       options: [
         { value: 'ja', icon: 'reno', label: 'Ja, nachträglich gedämmt', sub: 'Fassade, Dach, Fenster' },
         { value: 'nein', icon: 'house', label: 'Nein, im Originalzustand', sub: 'Im Originalzustand' },
-        { value: 'unsicher', icon: 'unknown', label: 'Bin mir nicht sicher', sub: 'Weiß ich nicht' },
+        { value: 'unsicher', icon: 'unknown', label: 'Bin mir nicht sicher', sub: 'Weiß ich nicht', chip: 'Dämmstandard unklar' },
       ],
     };
     if (ans.length === 5 && ans[4] === 'vor1977') return { view: 'question', q: Q6, step: 2 };
