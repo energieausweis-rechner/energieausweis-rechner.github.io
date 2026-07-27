@@ -14,6 +14,38 @@
   function $(s, r) { return (r || document).querySelector(s); }
   function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
 
+  /* The draws below rebuild the whole mount on every 'input' event, which
+     destroys the field the user is typing in — after each keystroke the
+     focus would be gone and the next digit would land nowhere. Wrap a draw
+     so it hands focus back to the rebuilt input, found again by its id.
+     (Caret restoration is skipped: type=number does not support the
+     selection API; focus() continues typing at the end, which is the case
+     that matters.) */
+  function keepFocus(mount, draw) {
+    return function () {
+      var af = document.activeElement;
+      var keep = af && af.id && mount.contains(af) ? af.id : null;
+      draw();
+      if (keep) {
+        var next = $('#' + keep, mount);
+        if (next) {
+          next.focus();
+          // focus() alone can park the caret at the START of a number field,
+          // which makes the next digit land in front of the previous ones
+          // ("120" arrives as "021"). type=number forbids the selection API,
+          // so hop through type=text to move the caret to the end.
+          try {
+            var v = next.value;
+            var isNumber = next.type === 'number';
+            if (isNumber) next.type = 'text';
+            next.setSelectionRange(v.length, v.length);
+            if (isNumber) next.type = 'number';
+          } catch (e) { /* selection unsupported — typing still works */ }
+        }
+      }
+    };
+  }
+
   /* A segmented control. Returns the wrapper; calls onChange(value). */
   function seg(name, options, value, onChange) {
     var wrap = el('div', { class: 'seg', role: 'group', 'aria-label': name });
@@ -52,7 +84,7 @@
         type: 'number', min: '0', step: '1', inputmode: 'decimal',
         value: state.kwh, id: 'eff-kwh',
         'aria-describedby': 'eff-help',
-        oninput: function (e) { state.kwh = e.target.value; draw(); },
+        oninput: function (e) { state.kwh = e.target.value; redraw(); },
       });
 
       mount.appendChild(field(
@@ -115,10 +147,35 @@
         ]));
         EAR.carry('kennwert', String(val));
         EAR.carry('klasse', kl.k);
+
+        // What the class means for a sale or letting — practical advice, no
+        // legal claim. The G/H note exists because buyers reliably ask about
+        // renovation cost there; a seller who addresses it in the listing
+        // negotiates from a prepared position instead of a surprised one.
+        if (kl.k === 'G' || kl.k === 'H') {
+          mount.appendChild(el('div', { class: 'warn' }, [
+            el('span', { class: 'mark', 'aria-hidden': 'true', text: '!' }),
+            el('span', { text: 'Klasse ' + kl.k + ' führt bei Kaufinteressenten ' +
+              'erfahrungsgemäß zu Fragen nach Sanierungsbedarf und -kosten. ' +
+              'Sprechen Sie das im Inserat aktiv an – etwa bereits erneuerte ' +
+              'Bauteile oder Modernisierungspotenzial. So gehen Sie vorbereitet ' +
+              'in Preisverhandlungen statt überrascht.' }),
+          ]));
+        } else if (kl.k === 'E' || kl.k === 'F') {
+          mount.appendChild(el('p', { class: 'hint',
+            text: 'Bei Klasse ' + kl.k + ' fragen Interessenten häufig nach dem ' +
+              'Zustand von Heizung, Fenstern und Dämmung. Halten Sie dazu ' +
+              'Informationen bereit – das schafft Vertrauen.' }));
+        } else if (kl.k === 'A+' || kl.k === 'A' || kl.k === 'B') {
+          mount.appendChild(el('p', { class: 'hint',
+            text: 'Klasse ' + kl.k + ' ist ein echtes Verkaufsargument – nennen ' +
+              'Sie sie prominent im Inserat, nicht nur in den Pflichtangaben.' }));
+        }
       }
 
       mount.appendChild(cite('effizienzklassen'));
     }
+    var redraw = keepFocus(mount, draw);
     draw();
   };
 
@@ -128,8 +185,14 @@
      the Ausweis itself (§ 85), not in the Immobilienanzeige.             */
 
   EAR.mountInserat = function (mount) {
+    // The Ausweis-Art determined by a wizard (carry {art: …}) must survive
+    // into this tool even when it mounts AFTER the carry event fired — lazy
+    // mounting means the live listener below misses it. Same recall-at-init
+    // pattern as mountKosten; wrong type here is exactly the §-87 mistake
+    // (bis zu 10.000 € Bußgeld) this generator exists to prevent.
+    var carriedArt = EAR.recall('art');
     var state = {
-      art: 'verbrauch',
+      art: carriedArt === 'bedarf' || carriedArt === 'verbrauch' ? carriedArt : 'verbrauch',
       kennwert: EAR.recall('kennwert') || '',
       traeger: 'gas',
       baujahr: '',
@@ -173,7 +236,8 @@
         'Seite 2 des Ausweises',
         el('input', {
           type: 'number', min: '0', step: '1', inputmode: 'decimal', value: state.kennwert,
-          oninput: function (e) { state.kennwert = e.target.value; state.copied = false; draw(); },
+          id: 'ins-kennwert',
+          oninput: function (e) { state.kennwert = e.target.value; state.copied = false; redraw(); },
         })
       ));
 
@@ -184,12 +248,15 @@
       mount.appendChild(field('Baujahr des Gebäudes', 'Seite 1 des Ausweises',
         el('input', {
           type: 'number', min: '1800', max: '2100', step: '1', inputmode: 'numeric',
-          value: state.baujahr,
-          oninput: function (e) { state.baujahr = e.target.value; state.copied = false; draw(); },
+          value: state.baujahr, id: 'ins-baujahr',
+          oninput: function (e) { state.baujahr = e.target.value; state.copied = false; redraw(); },
         })));
 
       var built = buildText();
       if (built) {
+        // Hand the finished block to the cross-tool store, so a combined
+        // summary/export can include it without re-asking for the inputs.
+        EAR.carry('inserat', built.text);
         mount.appendChild(el('h3', { text: 'Ihr Anzeigentext' }));
         mount.appendChild(el('pre', { class: 'output', 'aria-live': 'polite', text: built.text }));
         mount.appendChild(el('div', { class: 'wizard-actions' }, [
@@ -231,6 +298,7 @@
         cite('bussgeld'),
       ]));
     }
+    var redraw = keepFocus(mount, draw);
     draw();
   };
 

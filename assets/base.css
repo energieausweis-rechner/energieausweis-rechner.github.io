@@ -11,7 +11,13 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+/* scroll-padding-top lives on the scroll container (the viewport = html), not
+   body, or anchor landings like #rechner tuck under the sticky tool nav. */
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-h) + 1.5rem);
+}
 
 body {
   margin: 0;
@@ -20,7 +26,6 @@ body {
   font-family: var(--font-ui);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
-  scroll-padding-top: calc(var(--nav-h) + 1.5rem);
 }
 
 h1, h2, h3, h4 {
@@ -396,6 +401,18 @@ section:first-of-type { border-top: none; }
   font-family: var(--font-mono); font-size: .8125rem; color: var(--ink-soft);
 }
 
+/* Document checklist on a result card — same rhythm as .steps-next, but with
+   an empty checkbox so it reads as "tick these off before the appointment". */
+.doc-check { margin: .8rem 0 0; padding: 0; list-style: none; }
+.doc-check li {
+  display: flex; gap: .7rem; align-items: baseline; padding: .35rem 0;
+  font-size: var(--fs-small);
+}
+.doc-check li::before {
+  content: '☐'; flex: none;
+  font-size: .9375rem; line-height: 1; color: var(--ink-soft);
+}
+
 /* Onward link — a ruled entry, deliberately not the gold partner CTA. */
 .next-link {
   display: flex; align-items: center; justify-content: space-between; gap: .8rem;
@@ -422,6 +439,25 @@ section:first-of-type { border-top: none; }
   background: var(--paper);
   font-size: var(--fs-small);
 }
+.cite-lead {
+  display: flex; align-items: center; gap: .45rem;
+  margin: 0; padding: .55rem .85rem 0;
+  font-family: var(--font-ui); font-size: .8125rem; color: var(--ink-soft);
+}
+/* The badge marks the box as legal proof, distinct from generic accordions:
+   scales icon + small-caps mono label, the register the § references use. */
+.cite-badge {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .1rem .45rem;
+  border: var(--rule) solid var(--line);
+  border-radius: 99px;
+  font-family: var(--font-mono); font-size: .6875rem; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ink);
+  background: var(--paper);
+}
+.cite-ico { display: inline-flex; }
+.cite-ico svg { display: block; }
 .cite details { background: none; border: none; margin: 0; }
 .cite summary {
   min-height: 44px; padding: .5rem .85rem; gap: .55rem; flex-wrap: wrap;

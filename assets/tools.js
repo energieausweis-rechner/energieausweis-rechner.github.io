@@ -96,11 +96,21 @@
 
   /* The § reference and Stand are always visible — they are the credibility
      signal and the anchor an answer engine cites. The verbatim Gesetzestext
-     is collapsed: German statutory sentences run long enough to fill a whole
-     phone screen, which would wall off everything below the result. Using
-     <details> keeps the wording in the DOM (still crawlable, still citable)
-     without making the reader scroll past it. */
-  function cite(ruleKey) {
+     is collapsed by default: German statutory sentences run long enough to
+     fill a whole phone screen, which would wall off everything below the
+     result. Using <details> keeps the wording in the DOM (still crawlable,
+     still citable) without making the reader scroll past it.
+     opts.open renders it expanded — for results where the legal proof is the
+     point (a "Pflicht: ja"), the quote should be visible without a click,
+     same treatment as the top FAQ answers. */
+  var SCALE_ICO =
+    '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" ' +
+    'fill="none" stroke="currentColor" stroke-width="1.8" ' +
+    'stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M12 3v18M8 21h8M4 7h16"/>' +
+    '<path d="M6 7l-3 6a3 3 0 0 0 6 0zM18 7l-3 6a3 3 0 0 0 6 0z"/></svg>';
+
+  function cite(ruleKey, opts) {
     var r = R[ruleKey];
     if (!r) return null;
     var body = [el('blockquote', { text: '„' + r.wortlaut + '“' })];
@@ -111,7 +121,16 @@
                 text: 'Gesetzestext auf gesetze-im-internet.de ↗' }),
     ]));
     return el('div', { class: 'cite' }, [
-      el('details', {}, [
+      // Connector: names what the box IS before the § appears — the legal
+      // proof for the answer above, visually distinct from generic accordions.
+      el('p', { class: 'cite-lead' }, [
+        el('span', { class: 'cite-badge' }, [
+          el('span', { class: 'cite-ico', html: SCALE_ICO }),
+          el('span', { text: 'Gesetzesgrundlage' }),
+        ]),
+        el('span', { text: 'für diese Antwort' }),
+      ]),
+      el('details', { open: !!(opts && opts.open) }, [
         el('summary', {}, [
           el('strong', { text: r.zitat }),
           el('span', { class: 'stand', text: 'Stand: ' + EAR.STAND.stand }),
@@ -283,12 +302,36 @@
       var lines = ['Energieausweis Rechner – Ihr Ergebnis', '', r.title, '', r.body];
       if (r.type) lines.push('', 'Ausweis-Art: ' + r.type);
       if (r.warn) lines.push('', 'Wichtig: ' + r.warn);
+      if (r.checklist) {
+        lines.push('', r.checklist.title + ':');
+        r.checklist.items.forEach(function (i) { lines.push('☐ ' + i); });
+      }
       (r.cites || []).forEach(function (k) {
         if (R[k]) lines.push('', R[k].zitat + ': „' + R[k].wortlaut + '“');
       });
       lines.push('', 'Stand: ' + EAR.STAND.stand + ' · unverbindliche Orientierung, ' +
                      'ersetzt keine Rechtsberatung.', location.href);
       return lines.join('\n');
+    }
+
+    // Bring the top of a freshly drawn frame just below the sticky tool nav,
+    // so the reader always sees where they are (badge, heading, or step bar)
+    // instead of landing mid-panel. The browser's own focus scroll aims only
+    // to make the element "just visible", which on a panel taller than the
+    // viewport tucks the head under the nav — see the cut-off badge reports.
+    // opts.reveal: 'page' scrolls to the very top instead — for layouts where
+    // the wizard IS the page (tab layouts) and the brand/tabs above the card
+    // must stay visible after every answer.
+    function revealTop(elm) {
+      if (opts.reveal === 'page') {
+        if (window.pageYOffset > 0) window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      if (!elm || !elm.getBoundingClientRect) return;
+      var navH = parseFloat(getComputedStyle(document.documentElement)
+        .getPropertyValue('--nav-h')) || 52;
+      var top = elm.getBoundingClientRect().top + window.pageYOffset - navH - 16;
+      window.scrollTo({ top: top < 0 ? 0 : top, behavior: 'smooth' });
     }
 
     function draw(focus) {
@@ -337,7 +380,10 @@
           ]));
         }
 
-        if (focus) { var f = $('.opt', mount); if (f) f.focus(); }
+        if (focus) {
+          var f = $('.opt', mount); if (f) f.focus({ preventScroll: true });
+          revealTop(mount.firstChild);
+        }
         return;
       }
 
@@ -386,8 +432,36 @@
         card.appendChild(el('ol', { class: 'steps-next' },
           r.steps.map(function (s) { return el('li', { text: s }); })));
       }
-      (r.cites || []).forEach(function (k) {
-        var c = cite(k); if (c) card.appendChild(c);
+
+      // Document checklist — rendered open on the card, not behind a
+      // <details>: the reader it is for (someone preparing a real appointment)
+      // should not have to discover a "+" element to see it.
+      if (r.checklist) {
+        card.appendChild(el('h4', { text: r.checklist.title }));
+        card.appendChild(el('ul', { class: 'doc-check' },
+          r.checklist.items.map(function (s) { return el('li', { text: s }); })));
+        card.appendChild(el('div', { class: 'wizard-actions noprint' }, [
+          el('button', {
+            class: 'btn-ghost', type: 'button', text: '⧉ Checkliste kopieren',
+            onclick: function (e) {
+              var b = e.currentTarget;
+              var txt = [r.checklist.title, ''].concat(
+                r.checklist.items.map(function (i) { return '☐ ' + i; })).join('\n');
+              navigator.clipboard.writeText(txt).then(function () {
+                b.textContent = '✓ Kopiert';
+                setTimeout(function () { b.textContent = '⧉ Checkliste kopieren'; }, 2200);
+              }, function () { /* clipboard blocked */ });
+            },
+          }),
+        ]));
+      }
+      // On an obligation result ("Pflicht: ja" / Bedarfspflicht) the statute
+      // IS the message, so the first quote arrives expanded — same treatment
+      // as the top FAQ answers. Only the first: two open Gesetzestexte in a
+      // row would push the next steps off the screen.
+      var duty = r.tone === 'yes' || r.tone === 'bedarf';
+      (r.cites || []).forEach(function (k, i) {
+        var c = cite(k, { open: duty && i === 0 }); if (c) card.appendChild(c);
       });
 
       // "Wie geht es weiter?" — no result is a dead end.
@@ -447,7 +521,7 @@
       ]));
 
       status(r.title + (r.type ? '. Ausweis-Art: ' + r.type : ''));
-      if (focus) card.focus();
+      if (focus) { card.focus({ preventScroll: true }); revealTop(card); }
     }
 
     // Back/forward move through the flow rather than leaving the page.

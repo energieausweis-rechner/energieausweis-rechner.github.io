@@ -184,6 +184,38 @@ EAR.RULES = {
     hinweis: 'Nicht 15.000 € — das ist eine veraltete EnEV-Zahl.',
   },
 
+  /* ── Wer ausstellen darf ──────────────────────────────────────────────── */
+
+  aussteller: {
+    zitat: '§ 88 Abs. 1 GEG',
+    wortlaut:
+      'Zur Ausstellung eines Energieausweises ist nur eine Person berechtigt, ' +
+      '1. die nach bauordnungsrechtlichen Vorschriften der Länder zur ' +
+      'Unterzeichnung von bautechnischen Nachweisen des Wärmeschutzes oder ' +
+      'der Energieeinsparung bei der Errichtung von Gebäuden berechtigt ist, ' +
+      '[…] 2. die eine der in Absatz 2 genannten Voraussetzungen erfüllt und ' +
+      'einen berufsqualifizierenden Hochschulabschluss erworben hat a) in ' +
+      'einer der Fachrichtungen Architektur, Innenarchitektur, Hochbau, ' +
+      'Bauingenieurwesen, Technische Gebäudeausrüstung, Physik, Bauphysik, ' +
+      'Maschinenbau oder Elektrotechnik […] 3. die […] für ein ' +
+      'zulassungspflichtiges Bau-, Ausbau- oder anlagentechnisches Gewerbe ' +
+      'oder für das Schornsteinfegerhandwerk die Voraussetzungen zur ' +
+      'Eintragung in die Handwerksrolle erfüllt […] oder 4. die […] staatlich ' +
+      'anerkannter oder geprüfter Techniker ist […].',
+    quelle: 'https://www.gesetze-im-internet.de/geg/__88.html',
+    giltBis: null,
+    // § 108 Abs. 1 Nr. 28: Ausstellen ohne Berechtigung ist ordnungswidrig;
+    // Nr. 21–28 fallen in den 10.000-€-Rahmen des § 108 Abs. 2 Nr. 2.
+    // Prüfbare Merkmale des fertigen Ausweises: § 85 Abs. 1 Nr. 4
+    // (Registriernummer) und Nr. 20 (Name, Anschrift, Berufsbezeichnung,
+    // Unterschrift des Ausstellers).
+    hinweis:
+      'Wer ohne diese Berechtigung ausstellt, handelt ordnungswidrig ' +
+      '(§ 108 Abs. 1 Nr. 28 GEG, Bußgeld bis 10.000 €). Ein ordnungsgemäßer ' +
+      'Ausweis trägt eine Registriernummer sowie Name, Anschrift, ' +
+      'Berufsbezeichnung und Unterschrift des Ausstellers (§ 85 GEG).',
+  },
+
   /* ── Gültigkeit & Effizienzklassen ────────────────────────────────────── */
 
   gueltigkeit: {
