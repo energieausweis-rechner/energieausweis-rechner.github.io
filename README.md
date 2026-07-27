@@ -1,8 +1,43 @@
 # Energieausweis Rechner
 
+**Kostenlose Online-Tools rund um den Energieausweis nach dem
+Gebäudeenergiegesetz (GEG).** In wenigen Fragen klären: Brauche ich einen
+Energieausweis – und Bedarfs- oder Verbrauchsausweis? Dazu Kosten schätzen,
+Effizienzklasse berechnen und die Pflichtangaben für die Immobilienanzeige
+fertig formulieren. 100 % kostenlos, ohne Anmeldung, keine Cookies – alle
+Eingaben bleiben im Browser.
+
+**➡ Live: <https://energieausweis-rechner.github.io/>**
+
+![Energieausweis Rechner – kostenloses Online-Tool mit Pflicht-Check, Kosten, Effizienzklasse und Inserat-Text](assets/og.jpg)
+
+Die fünf Tools auf einer Seite:
+
+1. **[Welcher Energieausweis?](https://energieausweis-rechner.github.io/#rechner)** –
+   Pflicht-Check: ob ein Ausweis nötig ist (Verkauf, Vermietung, Neubau,
+   Ausnahmen wie Baudenkmal oder ≤ 50 m²) und welche Art vorgeschrieben ist
+   (§§ 79, 80 GEG).
+2. **[Anzeigentext-Generator](https://energieausweis-rechner.github.io/#inserat)** –
+   die fünf Pflichtangaben nach § 87 GEG als kopierfertiger Textblock; fehlende
+   Angaben kosten bis zu 10.000 € Bußgeld.
+3. **[Effizienzklassen-Rechner](https://energieausweis-rechner.github.io/#effizienzklasse)** –
+   Endenergie-Kennwert → Klasse A+ bis H nach GEG Anlage 10.
+4. **[Kostenrechner](https://energieausweis-rechner.github.io/#kosten)** –
+   realistische Preisspannen je Ausweis-Art, Erstellungsweg und Gebäudetyp.
+5. **[GModG-Zeitplan](https://energieausweis-rechner.github.io/#gmodg)** –
+   was das neue Gebäudemodernisierungsgesetz am Energieausweis ändert.
+
+Jede rechtliche Aussage zitiert ihre Rechtsgrundlage im Wortlaut (GEG,
+Stand 07/2026) mit Link auf gesetze-im-internet.de. Ergebnisse sind teilbare
+URLs. Unverbindliche Orientierung – keine Rechtsberatung, kein Ersatz für einen
+amtlichen Energieausweis.
+
+---
+
+## Architektur
+
 Static single-page tool site. No build step, no dependencies, no framework.
-Live at <https://energieausweis-rechner.github.io/> via GitHub Pages (root of the
-default branch).
+Served via GitHub Pages (root of the default branch).
 
 Separate property from `energieausweis-wissen.de` (same operator). That site
 explains; this one *does*. Keep body copy distinct between the two — they must
