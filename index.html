@@ -1219,7 +1219,14 @@
       var inserat = EAR.recall('inserat');
       var kweg = EAR.recall('kweg') || 'online';
       var ktyp = EAR.recall('ktyp') || 'efh';
-      if (!art && !kennwert && !inserat) return false;
+      // The wizard results count too: a completed Pflicht-Check IS a result
+      // (the old guard only looked at art/kennwert/inserat, so finishing the
+      // FIRST tool still produced "Noch keine Ergebnisse" — the bug of
+      // 2026-07-28). Stored as 'Antwort: <result title>' by tracked().
+      var pflicht = EAR.recall('done.pflicht');
+      var welcher = EAR.recall('done.welcher');
+      var answer = function (s) { return s.replace(/^Antwort: /, ''); };
+      if (!pflicht && !welcher && !art && !kennwert && !inserat) return false;
 
       while (box.firstChild) box.removeChild(box.firstChild);
       box.appendChild(el('h1', { text: 'Energieausweis – Ihre Zusammenfassung' }));
@@ -1228,32 +1235,39 @@
           { day: 'numeric', month: 'long', year: 'numeric' }) +
           ' mit den Energieausweis-Tools · GEG-Stand ' + EAR.STAND.stand }));
 
-      box.appendChild(el('h2', { text: '1. Welche Ausweis-Art?' }));
+      box.appendChild(el('h2', { text: '1. Ist ein Energieausweis Pflicht?' }));
+      box.appendChild(el('p', { text: pflicht
+        ? 'Ergebnis Ihres Pflicht-Checks: ' + answer(pflicht)
+        : 'Noch nicht geprüft – Tab „Pflicht-Check“ ausfüllen.' }));
+
+      box.appendChild(el('h2', { text: '2. Welche Ausweis-Art?' }));
       box.appendChild(el('p', { text: art
         ? 'Ergebnis Ihres Checks: ' + artLabels[art] + '.' +
           (art === 'bedarf'
             ? ' Für Ihr Gebäude ist der Bedarfsausweis vorgesehen.'
             : ' Der Verbrauchsausweis ist zulässig und in der Regel günstiger.')
-        : 'Noch nicht ermittelt – Tab „Welcher Ausweis?“ ausfüllen.' }));
+        : welcher
+          ? 'Ergebnis Ihres Checks: ' + answer(welcher)
+          : 'Noch nicht ermittelt – Tab „Welcher Ausweis?“ ausfüllen.' }));
 
-      box.appendChild(el('h2', { text: '2. Geschätzte Kosten' }));
+      box.appendChild(el('h2', { text: '3. Geschätzte Kosten' }));
       var kArt = art || 'verbrauch';
       var rg = kostenRange(kArt, kweg, ktyp);
       box.appendChild(el('p', { text: rg[0] + ' – ' + rg[1] + ' € (' +
         artLabels[kArt] + ' · ' + wegLabels[kweg] + ' · ' + typLabels[ktyp] + '). ' +
         'Richtwert je nach Anbieter und Gebäude.' }));
 
-      box.appendChild(el('h2', { text: '3. Energieeffizienzklasse' }));
+      box.appendChild(el('h2', { text: '4. Energieeffizienzklasse' }));
       box.appendChild(el('p', { text: klasse && kennwert
         ? 'Klasse ' + klasse + ' bei einem Kennwert von ' + kennwert + ' kWh/(m²·a).'
         : 'Noch nicht bestimmt – Tab „Effizienzklasse“ ausfüllen.' }));
 
-      box.appendChild(el('h2', { text: '4. Pflichtangaben für Ihr Inserat' }));
+      box.appendChild(el('h2', { text: '5. Pflichtangaben für Ihr Inserat' }));
       if (inserat) box.appendChild(el('pre', { text: inserat }));
       else box.appendChild(el('p', { text: 'Noch nicht erstellt – Tab „Inserat-Text“ ausfüllen.' }));
 
       if (art === 'bedarf') {
-        box.appendChild(el('h2', { text: '5. ' + BEDARF_CHECKLIST.title }));
+        box.appendChild(el('h2', { text: '6. ' + BEDARF_CHECKLIST.title }));
         box.appendChild(el('ul', {}, BEDARF_CHECKLIST.items.map(function (i) {
           return el('li', { text: '☐  ' + i });
         })));
