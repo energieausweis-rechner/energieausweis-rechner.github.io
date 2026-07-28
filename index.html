@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Welchen Energieausweis brauche ich? Kostenloser Rechner (GEG 2026)</title>
-  <meta name="description" content="In wenigen Fragen klären: Brauche ich einen Energieausweis – und Bedarfs- oder Verbrauchsausweis? Dazu Effizienzklassen-Rechner, Kostenrechner und Anzeigentext-Generator nach § 87 GEG. Kostenlos, ohne Anmeldung." />
+  <title>Kostenloser Energieausweis Pflicht-Check & Rechner (GEG 2026)</title>
+  <meta name="description" content="Mit dem kostenlosen Energieausweis-Rechner nach GEG 2026 prüfen Sie in wenigen Fragen, ob ein Energieausweis Pflicht ist, welche Ausweis-Art nötig ist und welche Kosten üblich sind – für Eigentümer, Vermieter und Verkäufer." />
   <meta name="robots" content="index, follow" />
   <meta name="google-site-verification" content="zNr4EaNPYB7QakMKWCqnzhUNw2TglRUbTxTZqMPlOsA" />
   <link rel="canonical" href="https://energieausweis-rechner.github.io/" />
 
-  <meta property="og:title" content="Welchen Energieausweis brauche ich? Kostenloser Rechner" />
-  <meta property="og:description" content="Bedarfs- oder Verbrauchsausweis? In wenigen Fragen herausfinden, welcher Energieausweis für Ihr Gebäude vorgeschrieben ist. Kostenlos und ohne Anmeldung." />
+  <meta property="og:title" content="Kostenloser Energieausweis Pflicht-Check & Rechner (GEG 2026)" />
+  <meta property="og:description" content="Prüfen Sie in wenigen Fragen, ob ein Energieausweis Pflicht ist, welche Ausweis-Art nötig ist und welche Kosten üblich sind. Kostenlos und ohne Anmeldung." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="de_DE" />
   <meta property="og:url" content="https://energieausweis-rechner.github.io/" />
@@ -51,9 +51,13 @@
     }
     .eaw-brand { display: flex; align-items: center; gap: 11px; }
     .eaw-brand .logo { flex: none; }
+    /* The brand line is the page H1: the primary keyword, visible on every
+       viewport (the sidebar is hidden on phones — a heading there would not
+       exist for mobile-first indexing). Sized as chrome, not as an article
+       heading; the margin reset undoes the h1 default. */
     .eaw-brand .name {
       font-family: var(--font-display); font-weight: 800;
-      font-size: 19px; letter-spacing: -0.02em; line-height: 1;
+      font-size: 19px; letter-spacing: -0.02em; line-height: 1; margin: 0;
     }
     .eaw-brand .kicker {
       font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
@@ -115,7 +119,7 @@
       letter-spacing: 0.08em; text-transform: uppercase;
       color: var(--klasse-a-dk); margin: 0 0 8px;
     }
-    .eaw-hero h1 {
+    .eaw-hero h2 {
       font-family: var(--font-display); font-weight: 800; font-size: 22px;
       line-height: 1.2; letter-spacing: -0.01em; margin: 0 0 8px;
     }
@@ -164,6 +168,15 @@
 
     .eaw-panel { padding: 22px 20px 26px; }
 
+    /* Per-tool H2: names the active tool for the outline/crawler and, on
+       phones (no top tab row), tells the reader which tool they are in.
+       Sized as a label, not an article heading. */
+    .eaw-tooltitle {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--klasse-a-dk); margin: 0 0 10px;
+    }
+
     /* ── Phone: app shell ──────────────────────────────────────────────────
        Not the desktop layout squeezed: sticky compact app bar on top, fixed
        bottom tab bar for the tools (thumb reach), tool card edge-to-edge,
@@ -209,6 +222,11 @@
          skin re-enabled the bar, so it is re-hidden here). */
       .eaw-panel .steps { display: none; }
       .eaw-panel .q-text { margin-top: 0; }
+      /* Reclaim the tool label's height so question 1 (six answers, the
+         binding fit case) still ends above the bottom bar. */
+      .eaw-tooltitle { font-size: 11px; margin-bottom: 5px; }
+      .eaw-panel .eyebrow { margin-bottom: 0.3rem; }
+      .eaw-panel .q-lead { margin-bottom: 0.75rem; }
       .eaw-tabs { display: none; }
       .eaw-panel { padding: 14px 14px 24px; }
       .eaw-footlinks { padding: 0 14px; }
@@ -379,7 +397,7 @@
           <rect x="6" y="27" width="24" height="3.2" rx="1.6" fill="#c9252b"></rect>
         </svg>
         <div>
-          <div class="name">Energieausweis Rechner</div>
+          <h1 class="name">Energieausweis Rechner</h1>
           <div class="kicker">Kostenlose Tools</div>
         </div>
       </div>
@@ -399,12 +417,13 @@
     </div>
 
     <main class="eaw-colmain">
-      <div class="eaw-card">
+      <div class="eaw-card" id="pflicht-check">
         <div class="eaw-bandstrip"></div>
         <div class="eaw-tabs">
           <div class="eaw-tabrow" id="tabrow" role="tablist" aria-label="Tools"></div>
         </div>
         <div class="eaw-panel">
+          <h2 class="eaw-tooltitle" id="toolTitle">Pflicht-Check</h2>
           <div data-mount></div>
         </div>
       </div>
@@ -422,7 +441,7 @@
     <aside class="eaw-side" aria-label="Über dieses Tool">
       <div class="eaw-hero">
         <p class="kicker">Stand <span id="heroStand"></span> · GEG</p>
-        <h1>Alles zum Energieausweis – in fünf Schritten geklärt.</h1>
+        <h2>Welchen Energieausweis brauchen Sie – und was kostet er?</h2>
         <p>Fünf Rechner, eine klare Antwort: vom Pflicht-Check bis zum fertigen
           Anzeigentext – kostenlos, ohne Anmeldung, nach aktuellem GEG-Stand.</p>
       </div>
@@ -486,6 +505,7 @@
     @media (max-width: 767px) {
       .eaw-wissen .wissen-head { margin-top: 44px; }
     }
+    .eaw-wissen a.toollink { color: var(--klasse-a-dk); font-weight: 600; }
     .eaw-wissen section { margin: 38px 0; }
     .eaw-wissen h2 {
       font-family: var(--font-display); font-weight: 800; font-size: 24px;
@@ -504,7 +524,7 @@
     }
   </style>
   <div class="eaw-wissen">
-    <header class="wissen-head">
+    <header class="wissen-head" id="wissen">
       <div class="band-rule" aria-hidden="true"></div>
       <p class="eyebrow">Zum Nachlesen</p>
       <h2>Wissen zum Energieausweis</h2>
@@ -523,7 +543,9 @@
           eine Sanierung planen.</p>
         <p>In den meisten Fällen dürfen Sie frei wählen. Nur für eine bestimmte
           Gruppe älterer, kleiner Wohngebäude schreibt das Gesetz den Bedarfsausweis
-          zwingend vor – siehe den nächsten Abschnitt.</p>
+          zwingend vor – siehe den nächsten Abschnitt. Ob Sie wählen dürfen, prüft
+          der Rechner <a class="toollink" href="#welcher">„Welcher Ausweis?“ oben
+          auf der Seite</a> in drei Fragen.</p>
     </section>
     <section id="bedarfspflicht">
         <h2>Wann ist ein Bedarfsausweis Pflicht?</h2>
@@ -558,7 +580,9 @@
           spätestens bei der Besichtigung vorgelegt und nach Vertragsabschluss
           übergeben werden.</p>
         <p>Solange Sie Ihr Haus selbst nutzen oder ein bestehendes Mietverhältnis
-          einfach weiterläuft, brauchen Sie keinen.</p>
+          einfach weiterläuft, brauchen Sie keinen. Nutzen Sie den
+          <a class="toollink" href="#pflicht-check">Pflicht-Check oben auf der
+          Seite</a>, um diese Fälle für Ihr Gebäude zu prüfen.</p>
 
         <h3>Die beiden Ausnahmen – und was oft falsch dargestellt wird</h3>
         <p><strong>Kleine Gebäude</strong> sind ausgenommen. Maßgeblich ist die Grenze
@@ -609,7 +633,10 @@
         </div>
         <p>Alle Beträge sind Richtwerte, je nach Anbieter und Gebäude. Online-Ausweise
           sind günstiger, weil kein Vor-Ort-Termin stattfindet – für die Richtigkeit
-          der gelieferten Daten haften dann Sie als Eigentümer.</p>
+          der gelieferten Daten haften dann Sie als Eigentümer. Den Richtwert für
+          Ihre Konstellation zeigt der
+          <a class="toollink" href="#kostenrechner">Kostenrechner oben auf der
+          Seite</a>.</p>
     </section>
     <section id="gmodg">
         <header class="sec-head">
@@ -1403,6 +1430,11 @@
     var ANCHOR_TO_TAB = {
       '#pflicht': 'pflicht', '#welcher': 'welcher', '#kosten': 'kosten',
       '#effizienzklasse': 'effizienz', '#inserat': 'inserat', '#faq': 'faq',
+      // Copy links in the static Wissen part that jump INTO a tool.
+      // '#pflicht-check' also exists as the card's id, so the link still
+      // lands on the tools without JavaScript; '#kostenrechner' is JS-only
+      // ('#kosten' belongs to the static Kosten section).
+      '#pflicht-check': 'pflicht', '#kostenrechner': 'kosten',
     };
 
     function panelMount() { return document.querySelector('.eaw-panel [data-mount]'); }
@@ -1419,6 +1451,8 @@
         var on = b.getAttribute('data-tool') === tool.id;
         b.setAttribute('aria-selected', on ? 'true' : 'false');
       });
+      var tt = document.getElementById('toolTitle');
+      if (tt) tt.textContent = tool.tab;
       try { tool.mount(fresh); } catch (e) {
         fresh.innerHTML = '<p class="hint">Dieses Tool konnte nicht geladen werden: ' + (e && e.message) + '</p>';
         if (window.console) console.error(e);
@@ -1511,6 +1545,15 @@
         var id = ANCHOR_TO_TAB[a.getAttribute('href')];
         if (id) { e.preventDefault(); activate(id); }
       });
+      // Copy links in the static Wissen part ("Nutzen Sie den Pflicht-Check
+      // oben …") open the named tool; activate() scrolls back to the top.
+      var wissen = document.querySelector('.eaw-wissen');
+      if (wissen) wissen.addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('a.toollink[href^="#"]');
+        if (!a) return;
+        var id = ANCHOR_TO_TAB[a.getAttribute('href')];
+        if (id) { e.preventDefault(); activate(id); }
+      });
       activate(TOOLS[0].id);
     }
     if (document.readyState === 'loading') {
@@ -1542,8 +1585,14 @@
         "@type": "WebPage",
         "@id": "https://energieausweis-rechner.github.io/#webpage",
         "url": "https://energieausweis-rechner.github.io/",
-        "name": "Welchen Energieausweis brauche ich? Kostenloser Rechner (GEG 2026)",
-        "description": "In wenigen Fragen klären: Brauche ich einen Energieausweis – und Bedarfs- oder Verbrauchsausweis? Dazu Effizienzklassen-Rechner, Kostenrechner und Anzeigentext-Generator nach § 87 GEG.",
+        "name": "Kostenloser Energieausweis Pflicht-Check & Rechner (GEG 2026)",
+        "description": "Kostenloser Energieausweis Pflicht-Check und Rechner nach GEG 2026. In wenigen Fragen klären, ob ein Energieausweis Pflicht ist, welche Ausweis-Art erforderlich ist und welche Kosten üblich sind.",
+        "about": [
+          "Energieausweis",
+          "Gebäudeenergiegesetz GEG 2026",
+          "Bedarfsausweis",
+          "Verbrauchsausweis"
+        ],
         "isPartOf": { "@id": "https://energieausweis-rechner.github.io/#website" },
         "inLanguage": "de-DE",
         "datePublished": "2026-06-23",
