@@ -465,7 +465,11 @@
        jede Antwort (Kosten, Klassengrenzen, §§, FAQ) im HTML vorfinden.
        Die Tools oben sind die interaktive Schicht darüber. -->
   <style>
-    .eaw-wissen { max-width: 820px; margin: 10px auto 0; padding: 0 16px 34px; }
+    /* Same container width as the tool grid above: sections keep a readable
+       820px measure but align LEFT with the tool card, not centred on the
+       page (which put the text under neither column). */
+    .eaw-wissen { max-width: 1160px; margin: 10px auto 0; padding: 0 16px 34px; }
+    .eaw-wissen section { max-width: 820px; }
     .eaw-wissen section { margin: 38px 0; }
     .eaw-wissen h2 {
       font-family: var(--font-display); font-weight: 800; font-size: 24px;
