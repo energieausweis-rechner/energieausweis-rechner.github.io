@@ -1535,9 +1535,13 @@
       btn.addEventListener('click', function () {
         var url = location.href;
         var data = { title: 'Energieausweis-Tools', text: 'Kostenlos prüfen: Brauche ich einen Energieausweis, welchen und was kostet er?', url: url };
-        function copied() { msg.textContent = 'Link kopiert ✓'; msg.hidden = false; setTimeout(function () { msg.hidden = true; }, 2200); }
-        if (navigator.share) { navigator.share(data).catch(function () {}); return; }
+        function copied() { msg.textContent = 'Link kopiert ✓'; msg.hidden = false; setTimeout(function () { msg.hidden = true; }, 2600); }
+        // Copy FIRST, share sheet second: desktop share sheets (macOS) often
+        // have no copy entry at all, so the clipboard copy must not depend on
+        // it. The wizard answers are encoded in the URL — the copied link
+        // reopens the current result.
         if (navigator.clipboard) { navigator.clipboard.writeText(url).then(copied, function () {}); }
+        if (navigator.share) { navigator.share(data).catch(function () {}); }
       });
     }
 
