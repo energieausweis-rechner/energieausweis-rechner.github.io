@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Welchen Energieausweis brauche ich? Kostenloser Rechner (GEG 2026)</title>
   <meta name="description" content="In wenigen Fragen klären: Brauche ich einen Energieausweis – und Bedarfs- oder Verbrauchsausweis? Dazu Effizienzklassen-Rechner, Kostenrechner und Anzeigentext-Generator nach § 87 GEG. Kostenlos, ohne Anmeldung." />
   <meta name="robots" content="index, follow" />
@@ -155,11 +155,172 @@
     .eaw-chip-time svg { color: var(--cta-yellow-dk); flex: none; }
 
     @media (max-width: 1023px) {
-      .eaw-main { grid-template-columns: 1fr; }
+      /* minmax(0, …), not bare 1fr: the column must be able to shrink below
+         the min-content of its scroll rows (tab row, chips row), else any
+         nowrap row widens the whole page beyond the viewport. */
+      .eaw-main { grid-template-columns: minmax(0, 1fr); }
       .eaw-side { display: none; }
     }
 
     .eaw-panel { padding: 22px 20px 26px; }
+
+    /* ── Phone: app shell ──────────────────────────────────────────────────
+       Not the desktop layout squeezed: sticky compact app bar on top, fixed
+       bottom tab bar for the tools (thumb reach), tool card edge-to-edge,
+       feedback as toasts. The top tab row disappears — the bottom bar IS the
+       navigation. */
+    .eaw-bnav { display: none; }
+    @media (max-width: 767px) {
+      .eaw-main { padding: 0 0 10px; gap: 12px; }
+
+      /* App bar: brand + icon-only actions, stays put while scrolling. */
+      .eaw-head {
+        position: sticky; top: 0; z-index: 40;
+        flex-wrap: nowrap; gap: 8px;
+        padding: 8px 12px calc(8px + 0px);
+        background: var(--paper);
+        border-bottom: 1px solid var(--line);
+      }
+      .eaw-brand { gap: 9px; min-width: 0; }
+      .eaw-brand .logo { width: 30px; height: 30px; }
+      .eaw-brand .name { font-size: 15.5px; white-space: nowrap; }
+      .eaw-brand .kicker { font-size: 9.5px; margin-top: 2px; }
+      /* Actions collapse to round icon buttons; the label lives on in
+         aria-label, and feedback becomes a toast (below). */
+      .eaw-share {
+        flex: none; width: 44px; height: 44px; padding: 0; gap: 0;
+        justify-content: center; border-radius: 50%; font-size: 0;
+      }
+      .eaw-share svg { width: 19px; height: 19px; }
+      .eaw-sharemsg {
+        position: fixed; left: 50%; transform: translateX(-50%);
+        bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 60;
+        background: var(--ink); color: #fff;
+        padding: 10px 16px; border-radius: 99px;
+        font-size: 13px; font-weight: 600; white-space: nowrap;
+        max-width: calc(100vw - 32px); overflow: hidden; text-overflow: ellipsis;
+        box-shadow: 0 4px 16px rgba(20, 35, 27, 0.28);
+      }
+
+      /* Tool card runs edge-to-edge like an app screen. */
+      .eaw-card { border-left: none; border-right: none; border-radius: 0; }
+      /* Phase bar and "Frage X von max. Y" say the same thing; on a phone
+         only the more precise one survives (base.css decision — the Wissen
+         skin re-enabled the bar, so it is re-hidden here). */
+      .eaw-panel .steps { display: none; }
+      .eaw-panel .q-text { margin-top: 0; }
+      .eaw-tabs { display: none; }
+      .eaw-panel { padding: 14px 14px 24px; }
+      .eaw-footlinks { padding: 0 14px; }
+
+      /* Result screens: like the questions, an answer must fit one screen.
+         Every block keeps its content but sheds air: tighter card, smaller
+         type, compact chips/steps/links. The §-Wortlaut folds via
+         EAR.CITE_FOLD (its reference line stays visible). */
+      /* Chips in ONE swipeable row (app filter-chip pattern) instead of
+         wrapping to three — a result's tallest non-content block shrinks to
+         44px. The cut-off chip at the right edge signals scrollability. */
+      .eaw-panel .chips {
+        margin-top: 0.2rem; gap: 0.3rem;
+        flex-wrap: nowrap; overflow-x: auto;
+        -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        margin-left: -14px; margin-right: -14px; padding: 2px 14px;
+      }
+      .eaw-panel .chips::-webkit-scrollbar { display: none; }
+      .eaw-panel .chips-lbl { font-size: 0.78rem; flex: none; }
+      .eaw-panel .chip { font-size: 0.78rem; padding: 0.22rem 0.6rem; flex: none; white-space: nowrap; }
+      .eaw-panel .result { padding: 0.9rem 0.85rem; margin-top: 0.7rem; }
+      .eaw-panel .result h3 { font-size: 1.2rem; margin: 0.5rem 0 0.4rem; }
+      .eaw-panel .result .lead { font-size: 0.95rem; line-height: 1.5; }
+      .eaw-panel .result .warn {
+        font-size: 0.85rem; padding: 0.55rem 0.65rem; margin-top: 0.6rem;
+      }
+      .eaw-panel .result h4 { font-size: 1rem; margin: 0.9rem 0 0.35rem; }
+      .eaw-panel .steps-next { gap: 0.35rem; margin-top: 0.5rem; }
+      .eaw-panel .steps-next li {
+        font-size: 0.88rem; line-height: 1.4; padding-left: 2rem;
+      }
+      .eaw-panel .doc-check li { font-size: 0.88rem; line-height: 1.4; }
+      .eaw-panel .next-head { font-size: 1.02rem; margin: 0.9rem 0 0.1rem; }
+      .eaw-panel .result .next-link { padding: 0.7rem 0.85rem; margin-top: 0.55rem; }
+      .eaw-panel .result .next-link .t { font-size: 0.98rem; }
+      .eaw-panel .result .next-link .s { font-size: 0.78rem; }
+      .eaw-panel .cite { margin-top: 0.9rem; }
+      .eaw-panel .cite .cite-lead { padding-top: 0.4rem; }
+      .eaw-panel .cite summary { min-height: 44px; padding-bottom: 0.4rem; }
+      /* Vergleichstabelle: a 3-column table cannot fit 360px — the wrapper's
+         overflow:hidden (rounded corners) was CROPPING it. On phone the table
+         stacks instead: each criterion is a block with both values underneath,
+         labelled from the column heads (data-h, stamped by tools.js). */
+      .eaw-panel .compare,
+      .eaw-panel .compare tbody,
+      .eaw-panel .compare tr,
+      .eaw-panel .compare th[scope="row"],
+      .eaw-panel .compare td { display: block; width: auto; }
+      .eaw-panel .compare thead { display: none; }
+      .eaw-panel .compare tr { padding: 0.55rem 0 0.65rem; border-bottom: 1px solid var(--line); }
+      .eaw-panel .compare tbody tr:last-child { border-bottom: none; }
+      .eaw-panel .compare th[scope="row"] {
+        padding: 0 0.8rem 0.15rem; border: none;
+        font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase;
+      }
+      .eaw-panel .compare td {
+        padding: 0.3rem 0.8rem 0; border: none;
+        font-size: 0.88rem; line-height: 1.4;
+      }
+      .eaw-panel .compare td::before {
+        content: attr(data-h);
+        display: block;
+        font-size: 0.72rem; font-weight: 700;
+        color: var(--klasse-a-dk);
+        margin-bottom: 1px;
+      }
+      /* Zebra moves from cells to whole row blocks. */
+      .eaw-panel .compare tbody tr:nth-child(even),
+      .eaw-panel .compare tbody tr:nth-child(even) th,
+      .eaw-panel .compare tbody tr:nth-child(even) td { background: var(--paper); }
+
+      /* Bottom tab bar. */
+      .eaw-bnav {
+        display: grid; grid-template-columns: repeat(6, 1fr);
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+        background: var(--surface);
+        border-top: 2px solid var(--line);
+        padding: 7px max(6px, env(safe-area-inset-right))
+                 calc(7px + env(safe-area-inset-bottom))
+                 max(6px, env(safe-area-inset-left));
+        box-shadow: 0 -4px 18px rgba(20, 35, 27, 0.16);
+      }
+      .eaw-bnav-item {
+        position: relative;
+        display: flex; flex-direction: column; align-items: center; gap: 3px;
+        background: none; border: none; padding: 4px 0; min-height: 56px;
+        font-family: var(--font-body); font-size: 11.5px; font-weight: 600;
+        line-height: 1.15; color: var(--ink-soft); cursor: pointer;
+      }
+      .eaw-bnav-item .ic {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 50px; height: 30px; border-radius: 99px;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .eaw-bnav-item .ic svg { width: 23px; height: 23px; }
+      /* Active tool: filled green pill, white icon — unmissable. */
+      .eaw-bnav-item[aria-selected="true"] { color: var(--klasse-a-dk); font-weight: 700; }
+      .eaw-bnav-item[aria-selected="true"] .ic {
+        background: var(--klasse-a); color: #fff;
+      }
+      /* Completed tool: small ✓ badge at the icon's shoulder. */
+      .eaw-bnav-item.done::after {
+        content: '✓';
+        position: absolute; top: 0; left: calc(50% + 11px);
+        width: 15px; height: 15px; border-radius: 50%;
+        background: var(--klasse-a); color: #fff;
+        border: 1.5px solid var(--surface);
+        font-size: 9.5px; font-weight: 700;
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+    }
+    @media print { .eaw-bnav { display: none !important; } }
 
     .eaw-note {
       font-size: 12.5px; color: var(--ink-soft); line-height: 1.55;
@@ -224,12 +385,14 @@
       </div>
       <div class="spacer"></div>
       <span class="eaw-sharemsg" id="summaryMsg" hidden></span>
-      <button type="button" class="eaw-share" id="summaryBtn">
+      <button type="button" class="eaw-share" id="summaryBtn"
+              aria-label="Alles drucken / als PDF speichern" title="Alles drucken / als PDF speichern">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Alles drucken / als PDF speichern
       </button>
       <span class="eaw-sharemsg" id="shareMsg" hidden></span>
-      <button type="button" class="eaw-share" id="shareBtn">
+      <button type="button" class="eaw-share" id="shareBtn"
+              aria-label="Teilen" title="Teilen">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5 15.4 17.5M15.4 6.5 8.6 10.5"/></svg>
         Teilen
       </button>
@@ -314,6 +477,10 @@
       border: 1px solid var(--line); border-radius: 10px;
       background: var(--surface); padding: 16px 18px;
       box-shadow: 0 1px 3px rgba(20, 35, 27, 0.06);
+    }
+    /* Phone app shell: keep the last content clear of the fixed bottom bar. */
+    @media (max-width: 767px) {
+      .eaw-wissen { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
     }
   </style>
   <div class="eaw-wissen">
@@ -481,6 +648,10 @@
     </section>
   </div>
 
+  <!-- Phone app shell: fixed bottom tab bar; items are built by buildTabs()
+       from the same TOOLS list as the desktop tab row. Hidden ≥ 768px. -->
+  <nav class="eaw-bnav" id="bnav" role="tablist" aria-label="Tools"></nav>
+
   <!-- Print-only: the combined summary, filled by buildSummary() on demand. -->
   <div class="eaw-printsum" id="printsum" aria-hidden="true"></div>
 
@@ -493,6 +664,13 @@
     // speichern" + "Teilen") — tell the wizard engine to omit its per-result
     // copy/print buttons, which would compete at another scroll position.
     EAR.GLOBAL_ACTIONS = true;
+
+    // Phone: results must fit one screen (user decision 2026-07-28), so the
+    // §-Wortlaut renders collapsed there — the § reference and Stand stay
+    // visible in the summary line. Desktop keeps every quote expanded.
+    EAR.CITE_FOLD = function () {
+      return window.matchMedia('(max-width: 767px)').matches;
+    };
 
     // ── What to have ready before the Bedarfsausweis appointment. Shown open
     // on the "Bedarfsausweis nötig" result and repeated in the combined
@@ -525,7 +703,9 @@
     function pflichtFlow(ans) {
       var Q1 = {
         short: 'Anlass',
-        text: 'Was steht an?',
+        text: 'In welcher Situation brauchen Sie einen Energieausweis?',
+        lead: 'Wählen Sie, was auf Sie zutrifft – wir sagen Ihnen, ob der ' +
+              'Ausweis wirklich Pflicht ist:',
         options: [
           { value: 'verkauf', icon: 'seller', label: 'Ich verkaufe', sub: 'Als Eigentümer' },
           { value: 'vermietung', icon: 'houseKey', label: 'Ich vermiete neu', sub: 'Neuer Mietvertrag' },
@@ -708,7 +888,10 @@
     }
 
     function welcherFlow(ans) {
-      var Q1 = { short: 'Gebäude', text: 'Um was für ein Gebäude geht es?', options: [
+      var Q1 = { short: 'Gebäude', text: 'Um was für ein Gebäude geht es?',
+        lead: 'Ob Sie den Bedarfs- oder den Verbrauchsausweis nehmen dürfen, ' +
+              'hängt vom Gebäude ab.',
+        options: [
         { value: 'wohn', icon: 'house',    label: 'Wohngebäude',       sub: 'Haus oder Wohnung' },
         { value: 'nwg',  icon: 'building', label: 'Nichtwohngebäude',  sub: 'Gewerbe, Büro, Praxis' },
       ] };
@@ -859,7 +1042,7 @@
         var rg = kostenRange(state.kArt, state.kWeg, state.kTyp);
         wrap.appendChild(h('div', { style: 'text-align:center;padding:26px 20px;background:var(--klasse-a);border-radius:10px;margin:20px 0 4px;' }, [
           h('div', { style: 'font-family:var(--font-mono);font-size:12px;font-weight:600;color:rgba(255,255,255,.82);text-transform:uppercase;letter-spacing:.12em;', text: 'Geschätzte Kosten' }),
-          h('div', { style: 'font-family:var(--font-display);font-weight:800;font-size:52px;color:#fff;line-height:1;margin-top:6px;', text: rg[0] + ' – ' + rg[1] + ' €' }),
+          h('div', { style: 'font-family:var(--font-display);font-weight:800;font-size:clamp(32px,10vw,52px);color:#fff;line-height:1;margin-top:6px;', text: rg[0] + ' – ' + rg[1] + ' €' }),
           h('div', { style: 'font-size:14px;color:rgba(255,255,255,.85);margin-top:8px;', text: artLabels[state.kArt] + ' · ' + wegLabels[state.kWeg] + ' · ' + typLabels[state.kTyp] }),
         ]));
 
@@ -1108,12 +1291,14 @@
     function refreshTabs() {
       TOOLS.forEach(function (t) {
         if (!DONE[t.id]) return;
-        var b = document.querySelector('.eaw-tab[data-tool="' + t.id + '"]');
-        if (!b) return;
         var txt = DONE[t.id]();
-        b.classList.toggle('done', !!txt);
-        if (txt) b.setAttribute('title', txt);
-        else b.removeAttribute('title');
+        [].forEach.call(document.querySelectorAll(
+          '.eaw-tab[data-tool="' + t.id + '"], .eaw-bnav-item[data-tool="' + t.id + '"]'
+        ), function (b) {
+          b.classList.toggle('done', !!txt);
+          if (txt) b.setAttribute('title', txt);
+          else b.removeAttribute('title');
+        });
       });
     }
 
@@ -1202,8 +1387,8 @@
       var fresh = document.createElement('div');
       fresh.setAttribute('data-mount', '');
       old.parentNode.replaceChild(fresh, old);
-      // tab a11y state
-      [].forEach.call(document.querySelectorAll('.eaw-tab'), function (b) {
+      // tab a11y state — top row and phone bottom bar in lockstep
+      [].forEach.call(document.querySelectorAll('.eaw-tab, .eaw-bnav-item'), function (b) {
         var on = b.getAttribute('data-tool') === tool.id;
         b.setAttribute('aria-selected', on ? 'true' : 'false');
       });
@@ -1217,8 +1402,20 @@
       if (window.pageYOffset > 0) window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // Phone bottom bar: short label + stroke icon per tool (same visual
+    // language as the option-card and sidebar icons). Keyed by TOOLS id.
+    var BNAV = {
+      pflicht:   { short: 'Pflicht', icon: '<path d="M12 3l7 3v5c0 5-3.5 8.2-7 9.5-3.5-1.3-7-4.5-7-9.5V6z"/><path d="M9 12l2 2 4-4.5"/>' },
+      welcher:   { short: 'Ausweis', icon: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/>' },
+      kosten:    { short: 'Kosten',  icon: '<path d="M4.5 10.5h10.5M4.5 14h9"/><path d="M18.5 5.5A7.6 7.6 0 0 0 13.2 3.4C9 3.4 5.6 7.2 5.6 12s3.4 8.6 7.6 8.6a7.6 7.6 0 0 0 5.3-2.1"/>' },
+      effizienz: { short: 'Klasse',  icon: '<path d="M5 20v-7M12 20V4M19 20v-9"/>' },
+      inserat:   { short: 'Inserat', icon: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>' },
+      faq:       { short: 'FAQ',     icon: '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.5 2.6c-.8.4-1.1 1-1.1 1.8"/><path d="M12 17h.01"/>' },
+    };
+
     function buildTabs() {
       var row = document.getElementById('tabrow');
+      var nav = document.getElementById('bnav');
       TOOLS.forEach(function (t) {
         var b = document.createElement('button');
         b.type = 'button';
@@ -1229,6 +1426,19 @@
         b.textContent = t.tab;
         b.addEventListener('click', function () { activate(t.id); });
         row.appendChild(b);
+
+        var meta = BNAV[t.id];
+        if (!meta) return;
+        var n = document.createElement('button');
+        n.type = 'button';
+        n.className = 'eaw-bnav-item';
+        n.setAttribute('role', 'tab');
+        n.setAttribute('data-tool', t.id);
+        n.setAttribute('aria-selected', 'false');
+        n.setAttribute('aria-label', t.tab);
+        n.innerHTML = '<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + meta.icon + '</svg></span>' + meta.short;
+        n.addEventListener('click', function () { activate(t.id); });
+        nav.appendChild(n);
       });
     }
 

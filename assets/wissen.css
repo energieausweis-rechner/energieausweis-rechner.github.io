@@ -134,6 +134,15 @@
   color: var(--ink);
   margin: 0.4rem 0 1.25rem;
 }
+.eaw-panel .q-text:has(+ .q-lead) { margin-bottom: 0.35rem; }
+.eaw-panel .q-lead {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  max-width: 44ch;
+  margin: 0 0 1.1rem;
+}
 .eaw-panel .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.72rem;

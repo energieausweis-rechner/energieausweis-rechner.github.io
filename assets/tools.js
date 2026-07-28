@@ -99,7 +99,13 @@
      the senior audience does not discover accordions, and the visible quote
      is the credibility signal an answer engine cites). <details> is kept
      only so a reader can fold long statutes away; opts.open === false
-     renders one collapsed where space genuinely forbids it. */
+     renders one collapsed where space genuinely forbids it.
+     EAR.CITE_FOLD is the page-wide form of that space exception: a page may
+     set it to a function; while it returns true (e.g. on phone viewports,
+     where a result must fit one screen) every citation renders collapsed.
+     The § reference and Stand stay visible in the summary line either way —
+     only the wortlaut folds. Evaluated per render, so a rotation to
+     landscape/desktop widths brings the quotes back on the next draw. */
   var SCALE_ICO =
     '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" ' +
     'fill="none" stroke="currentColor" stroke-width="1.8" ' +
@@ -127,7 +133,8 @@
         ]),
         el('span', { text: 'für diese Antwort' }),
       ]),
-      el('details', { open: !(opts && opts.open === false) }, [
+      el('details', { open: !(opts && opts.open === false) &&
+                            !(EAR.CITE_FOLD && EAR.CITE_FOLD()) }, [
         el('summary', {}, [
           el('strong', { text: r.zitat }),
           el('span', { class: 'stand', text: 'Stand: ' + EAR.STAND.stand }),
@@ -356,6 +363,10 @@
         mount.appendChild(el('p', { class: 'eyebrow',
           text: 'Frage ' + (answers.length + 1) + ' von max. ' + maxQ }));
         mount.appendChild(el('p', { class: 'q-text', text: q.text }));
+        // Optional context line under the question — for entry questions a
+        // first-time visitor sees without any surrounding page context
+        // (mobile hides the sidebar hero), it says WHY this is being asked.
+        if (q.lead) mount.appendChild(el('p', { class: 'q-lead', text: q.lead }));
 
         mount.appendChild(el('div', { class: 'options' }, q.options.map(function (o) {
           return el('button', {
@@ -440,8 +451,10 @@
             }))]),
             el('tbody', {}, r.compare.rows.map(function (row) {
               return el('tr', {}, row.map(function (cell, i) {
+                // data-h carries the column head into each cell so narrow
+                // viewports can stack the table (CSS reads it via attr()).
                 return i === 0 ? el('th', { scope: 'row', text: cell })
-                               : el('td', { text: cell });
+                               : el('td', { text: cell, 'data-h': r.compare.head[i] });
               }));
             })),
           ]),

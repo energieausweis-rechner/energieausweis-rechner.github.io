@@ -272,6 +272,12 @@ section:first-of-type { border-top: none; }
   font-family: var(--font-ui); font-size: var(--fs-h3);
   font-weight: 600; line-height: 1.35; margin: 0 0 1rem; max-width: 34ch;
 }
+/* Context line under an entry question (q.lead in the flow definition). */
+.q-lead {
+  font-family: var(--font-ui); font-size: .95rem; color: var(--ink-soft);
+  line-height: 1.45; margin: 0 0 1rem; max-width: 44ch;
+}
+.q-text:has(+ .q-lead) { margin-bottom: .3rem; }
 
 /* Answer buttons. Modelled on IBM Carbon, which is the right reference here
    because the page already sets in IBM Plex: square corners, a real filled
