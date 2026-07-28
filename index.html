@@ -441,7 +441,7 @@
     <aside class="eaw-side" aria-label="Über dieses Tool">
       <div class="eaw-hero">
         <p class="kicker">Stand <span id="heroStand"></span> · GEG</p>
-        <h2>Welchen Energieausweis brauchen Sie – und was kostet er?</h2>
+        <h2>Kostenloser Energieausweis Pflicht-Check &amp; Rechner (GEG 2026)</h2>
         <p>Fünf Rechner, eine klare Antwort: vom Pflicht-Check bis zum fertigen
           Anzeigentext – kostenlos, ohne Anmeldung, nach aktuellem GEG-Stand.</p>
       </div>
@@ -498,7 +498,10 @@
       height: 6px; width: 72px; border-radius: 3px;
       background: var(--band); margin: 0 0 18px;
     }
-    .eaw-wissen .wissen-head h2 { font-size: 28px; margin: 0 0 6px; }
+    .eaw-wissen .wissen-head .wh-title {
+      font-family: var(--font-display); font-weight: 800; font-size: 28px;
+      line-height: 1.25; letter-spacing: -0.01em; margin: 0 0 6px;
+    }
     .eaw-wissen .wissen-head .sub {
       margin: 0; font-size: 15px; color: var(--ink-soft); line-height: 1.55;
     }
@@ -527,7 +530,10 @@
     <header class="wissen-head" id="wissen">
       <div class="band-rule" aria-hidden="true"></div>
       <p class="eyebrow">Zum Nachlesen</p>
-      <h2>Wissen zum Energieausweis</h2>
+      <!-- Deliberately NOT a heading: this is a visual section break; the
+           real headings are the question-shaped h2s of the sections below.
+           An h2 here would sit empty in the outline (sibling h2s follow). -->
+      <p class="wh-title">Wissen zum Energieausweis</p>
       <p class="sub">Die wichtigsten Antworten ausführlich erklärt – mit
         Gesetzesgrundlage im Wortlaut, auch ohne die Rechner lesbar.</p>
     </header>
