@@ -360,6 +360,7 @@
 .eaw-panel .result.bedarf .badge {
   background: var(--attention);
 }
+.eaw-panel .result h2,
 .eaw-panel .result h3 {
   font-family: var(--font-display);
   font-weight: 800;

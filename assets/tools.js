@@ -362,7 +362,9 @@
         mount.appendChild(stepBar(out.step || 1, phases));
         mount.appendChild(el('p', { class: 'eyebrow',
           text: 'Frage ' + (answers.length + 1) + ' von max. ' + maxQ }));
-        mount.appendChild(el('p', { class: 'q-text', text: q.text }));
+        // The question IS the section heading — h2, not a styled p, so the
+        // page outline reads as the real questions (SEO + screen readers).
+        mount.appendChild(el('h2', { class: 'q-text', text: q.text }));
         // Optional context line under the question — for entry questions a
         // first-time visitor sees without any surrounding page context
         // (mobile hides the sidebar hero), it says WHY this is being asked.
@@ -403,7 +405,7 @@
       var r = out.r;
       var card = el('div', { class: 'result anim ' + (r.tone || 'no'), tabindex: '-1' }, [
         el('span', { class: 'badge', text: r.badge || 'Ergebnis' }),
-        el('h3', { text: r.title }),
+        el('h2', { text: r.title }),
         el('p', { class: 'lead', text: r.body }),
       ]);
 

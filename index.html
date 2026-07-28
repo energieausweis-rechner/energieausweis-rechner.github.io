@@ -119,7 +119,9 @@
       letter-spacing: 0.08em; text-transform: uppercase;
       color: var(--klasse-a-dk); margin: 0 0 8px;
     }
-    .eaw-hero h2 {
+    /* The sidebar is supporting content — deliberately NO heading elements
+       here; the outline belongs to the tools and the Wissen sections. */
+    .eaw-hero .headline {
       font-family: var(--font-display); font-weight: 800; font-size: 22px;
       line-height: 1.2; letter-spacing: -0.01em; margin: 0 0 8px;
     }
@@ -133,11 +135,11 @@
       background: var(--surface); padding: 14px 16px;
       box-shadow: 0 1px 3px rgba(20, 35, 27, 0.06);
     }
-    .eaw-sidebox h3 {
+    .eaw-sidebox .bx-title {
       display: flex; align-items: center; gap: 8px; margin: 0 0 5px;
       font-family: var(--font-display); font-weight: 800; font-size: 15px;
     }
-    .eaw-sidebox h3 svg { flex: none; }
+    .eaw-sidebox .bx-title svg { flex: none; }
     .eaw-sidebox p { margin: 0; font-size: 13px; color: var(--ink-soft); line-height: 1.55; }
     .eaw-siderow {
       display: flex; gap: 10px; align-items: flex-start; width: 100%;
@@ -167,15 +169,6 @@
     }
 
     .eaw-panel { padding: 22px 20px 26px; }
-
-    /* Per-tool H2: names the active tool for the outline/crawler and, on
-       phones (no top tab row), tells the reader which tool they are in.
-       Sized as a label, not an article heading. */
-    .eaw-tooltitle {
-      font-family: var(--font-mono); font-size: 12px; font-weight: 600;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--klasse-a-dk); margin: 0 0 10px;
-    }
 
     /* ── Phone: app shell ──────────────────────────────────────────────────
        Not the desktop layout squeezed: sticky compact app bar on top, fixed
@@ -222,9 +215,8 @@
          skin re-enabled the bar, so it is re-hidden here). */
       .eaw-panel .steps { display: none; }
       .eaw-panel .q-text { margin-top: 0; }
-      /* Reclaim the tool label's height so question 1 (six answers, the
-         binding fit case) still ends above the bottom bar. */
-      .eaw-tooltitle { font-size: 11px; margin-bottom: 5px; }
+      /* Keep question 1 (six answers, the binding fit case) ending above
+         the bottom bar. */
       .eaw-panel .eyebrow { margin-bottom: 0.3rem; }
       .eaw-panel .q-lead { margin-bottom: 0.75rem; }
       .eaw-tabs { display: none; }
@@ -423,7 +415,6 @@
           <div class="eaw-tabrow" id="tabrow" role="tablist" aria-label="Tools"></div>
         </div>
         <div class="eaw-panel">
-          <h2 class="eaw-tooltitle" id="toolTitle">Pflicht-Check</h2>
           <div data-mount></div>
         </div>
       </div>
@@ -441,26 +432,26 @@
     <aside class="eaw-side" aria-label="Über dieses Tool">
       <div class="eaw-hero">
         <p class="kicker">Stand <span id="heroStand"></span> · GEG</p>
-        <h2>Kostenloser Energieausweis Pflicht-Check &amp; Rechner (GEG 2026)</h2>
+        <p class="headline">Kostenloser Energieausweis Pflicht-Check &amp; Rechner (GEG 2026)</p>
         <p>Fünf Rechner, eine klare Antwort: vom Pflicht-Check bis zum fertigen
           Anzeigentext – kostenlos, ohne Anmeldung, nach aktuellem GEG-Stand.</p>
       </div>
 
       <div class="eaw-sidebox">
-        <h3>
+        <p class="bx-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3.5 8.2-7 9.5-3.5-1.3-7-4.5-7-9.5V6z"/><path d="M9 12l2 2 4-4.5"/></svg>
           Auf Basis des GEG
-        </h3>
+        </p>
         <p>Alle Ergebnisse basieren auf dem Gebäudeenergiegesetz in der aktuell
           geltenden Fassung – Stand <span id="trustStand"></span>. Jede Aussage
           ist mit §-Zitat im Wortlaut belegt.</p>
       </div>
 
       <div class="eaw-sidebox">
-        <h3>
+        <p class="bx-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
           100 % kostenlos &amp; privat
-        </h3>
+        </p>
         <p>Keine Registrierung, keine Cookies. Ihre Angaben bleiben in Ihrem
           Browser – keine Speicherung, keine Weitergabe.</p>
       </div>
@@ -1085,6 +1076,10 @@
         mount.innerHTML = '';
         var wrap = h('div', {});
 
+        // The tool's question is its heading ("Was kostet Ihr …" — the
+        // static Wissen section keeps "Was kostet ein Energieausweis?").
+        wrap.appendChild(h('h2', { class: 'q-text', text: 'Was kostet Ihr Energieausweis?' }));
+
         // "Übernommen aus dem Check" banner — markup from the standalone design.
         if (carriedArt) {
           wrap.appendChild(h('div', { style: 'display:flex;gap:10px;align-items:center;background:#eef5ea;border:1px solid #bcd8bf;border-radius:8px;padding:12px 14px;margin-bottom:16px;' }, [
@@ -1198,7 +1193,7 @@
              'Energieausweis, den nur eine nach § 88 GEG berechtigte Person ' +
              'ausstellen darf.' },
       ];
-      mount.appendChild(el('h3', { text: 'Häufige Fragen' }));
+      mount.appendChild(el('h2', { class: 'q-text', text: 'Häufige Fragen zum Energieausweis' }));
       FAQ.forEach(function (f) {
         var kids = [
           el('summary', { text: f.q }),
@@ -1405,8 +1400,21 @@
           EAR.renderWizard(m, tracked('welcher', welcherFlow), { steps: ['Gebäude', 'Details', 'Ergebnis'], maxQuestions: 6, reveal: 'page', onRestart: function () { wipeFrom('welcher'); } });
       } },
       { id: 'kosten',    tab: 'Kosten',           mount: renderKosten },
-      { id: 'effizienz', tab: 'Effizienzklasse',  mount: function (m) { EAR.mountEffizienz(m); } },
+      { id: 'effizienz', tab: 'Effizienzklasse',  mount: function (m) {
+          // Heading OUTSIDE the engine's mount div so redraws keep it.
+          var hd = document.createElement('h2');
+          hd.className = 'q-text';
+          hd.textContent = 'Welche Effizienzklasse hat Ihr Gebäude?';
+          m.appendChild(hd);
+          var inner = document.createElement('div');
+          m.appendChild(inner);
+          EAR.mountEffizienz(inner);
+      } },
       { id: 'inserat',   tab: 'Inserat-Text',     mount: function (m) {
+          var hd = document.createElement('h2');
+          hd.className = 'q-text';
+          hd.textContent = 'Was muss in Ihre Immobilienanzeige?';
+          m.appendChild(hd);
           // "Übernommen aus dem Check" banner (standalone markup) when a wizard
           // carried the Ausweis-Art here. Kept OUTSIDE the engine's mount div so
           // mountInserat's redraws cannot wipe it.
@@ -1457,8 +1465,6 @@
         var on = b.getAttribute('data-tool') === tool.id;
         b.setAttribute('aria-selected', on ? 'true' : 'false');
       });
-      var tt = document.getElementById('toolTitle');
-      if (tt) tt.textContent = tool.tab;
       try { tool.mount(fresh); } catch (e) {
         fresh.innerHTML = '<p class="hint">Dieses Tool konnte nicht geladen werden: ' + (e && e.message) + '</p>';
         if (window.console) console.error(e);

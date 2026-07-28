@@ -376,7 +376,7 @@ section:first-of-type { border-top: none; }
 .result.bedarf .badge { background: var(--attention); }
 .result.urgent .badge { background: var(--danger); }
 
-.result h3 { font-size: var(--fs-h3); margin-bottom: .5rem; max-width: 30ch; }
+.result h2, .result h3 { font-size: var(--fs-h3); margin-bottom: .5rem; max-width: 30ch; }
 .result .lead { max-width: var(--maxw); }
 
 .warn {
